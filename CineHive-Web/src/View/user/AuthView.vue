@@ -142,7 +142,6 @@ export default {
       memPhone: '', // 연락처
       memNickname: '', // 닉네임
       memName: '', // 이름
-      memUserid: '', // 로그인 아이디
       memEmail: '', // 회원가입 이메일
       memPassword: '', // 회원가입 비밀번호
       selectedGenres: [], // 선택한 장르
@@ -181,20 +180,7 @@ export default {
       this.isLogin = !this.isLogin;
       this.currentStep = 1;
     },
-    async checkDuplicatesName() {
 
-      const memUserid = this.memUserid;
-
-      try {
-        const response = await axios.get(`http://localhost:8081/checkuserId/${memUserid}`);
-        return response.data;
-      } catch (error) {
-        if (error.response) {
-          console.log('요청 실패: ' + error.response.data);
-        }
-        return false;
-      }
-    },
 
     async checkDuplicatesEmail() {
 
@@ -228,7 +214,7 @@ export default {
     async nextStep() {
       if (this.currentStep === 1) {
 
-        if (!this.memUserid || !this.memEmail || !this.memPassword) {
+        if ( !this.memEmail || !this.memPassword) {
           alert('빈칸을 입력해 주세요.');
           return;
         }
@@ -236,15 +222,8 @@ export default {
           alert('이메일 형식이 올바르지 않습니다.');
           return;
         }
-
-
-        const isUniqueName = await this.checkDuplicatesName();
+        
         const isUniqueEmail = await this.checkDuplicatesEmail();
-
-        if (!isUniqueName) {
-          alert('이미 존재하는 아이디입니다.');
-          return;
-        }
 
         if (!isUniqueEmail) {
           alert('이미 존재하는 이메일입니다.');
@@ -284,7 +263,6 @@ export default {
       }
 
       const userData = {
-        memUserid: this.memUserid,
         memSex: this.memSex,
         memPhone: this.memPhone,
         memNickname: this.memNickname,
