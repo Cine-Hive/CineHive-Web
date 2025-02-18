@@ -51,9 +51,6 @@
         </div>
         <div class="signup-prompt-1">
           <div class="form-group-signup">
-            <input type="text" id="new-username" class="input-field" placeholder="아이디" v-model="memUserid" required />
-          </div>
-          <div class="form-group-signup">
             <input type="email" id="email" class="input-field" placeholder="이메일" v-model="memEmail" required />
           </div>
           <div class="form-group-signup">
