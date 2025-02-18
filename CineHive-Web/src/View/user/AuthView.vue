@@ -82,21 +82,6 @@
               <option value="other">기타</option>
             </select>
           </div>
-          <div class="form-group-signup">
-            <input
-                type="text"
-                id="contact"
-                class="input-field"
-                placeholder="연락처"
-                v-model="memPhone"
-                @input="formatPhoneNumber"
-                @blur="validatePhone"
-                required
-            />
-            <div v-if="phoneError" class="error-message" style="color: red;">
-              {{ phoneError }}
-            </div>
-          </div>
 
           <div class="form-group-signup">
             <input type="text" id="nickname" minlength="4" class="input-field" placeholder="닉네임" v-model="memNickname" required />
@@ -139,15 +124,12 @@ export default {
       isLogin: true, // 로그인 상태
       currentStep: 1, // 현재 단계 (1: 회원가입 단계 1, 2: 회원가입 단계 2, 3: 장르 선택)
       memSex: '', // 성별
-      memPhone: '', // 연락처
       memNickname: '', // 닉네임
       memName: '', // 이름
       memEmail: '', // 회원가입 이메일
       memPassword: '', // 회원가입 비밀번호
       selectedGenres: [], // 선택한 장르
       passwordError: '', // 비밀번호 오류 메시지
-      phoneError: '', // 전화번호 오류 메시지
-      isPhoneValid: false // 전화번호 유효성 상태
     };
   },
   computed: {
@@ -163,19 +145,7 @@ export default {
       const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
       return passwordPattern.test(password);
     },
-    validatePhone() {
-      const phonePattern = /^\d{3}-\d{4}-\d{4}$/;
-      if (!phonePattern.test(this.memPhone)) {
-        this.phoneError = '전화번호 형식이 올바르지 않습니다.';
-        this.isPhoneValid = false;
-      } else {
-        this.phoneError = '';
-        this.isPhoneValid = true;
-      }
-    },
-    formatPhoneNumber() {
-      this.memPhone = this.memPhone.replace(/\D/g, '').replace(/(\d{3})(\d{4})(\d+)/, '$1-$2-$3');
-    },
+
     toggleForm() {
       this.isLogin = !this.isLogin;
       this.currentStep = 1;
@@ -239,7 +209,7 @@ export default {
 
       } else if (this.currentStep === 2) {
 
-        if (!this.memName || !this.memSex || !this.memPhone || !this.memNickname) {
+        if (!this.memName || !this.memSex || !this.memNickname) {
           alert('빈칸을 입력해 주세요.');
           return;
         }
@@ -257,14 +227,9 @@ export default {
         alert('이미 존재하는 닉네임입니다.');
         return;
       }
-      if (!this.isPhoneValid) {
-        alert('전화번호 형식이 올바르지 않습니다. (예: 010-1234-5678)');
-        return;
-      }
 
       const userData = {
         memSex: this.memSex,
-        memPhone: this.memPhone,
         memNickname: this.memNickname,
         memName: this.memName,
         memEmail: this.memEmail,
