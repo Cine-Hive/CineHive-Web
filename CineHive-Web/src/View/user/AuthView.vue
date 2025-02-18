@@ -11,7 +11,7 @@
         </div>
         <p class="or-use-your-account">or use your account</p>
         <div class="form-group">
-          <input type="text" id="username" class="input-field" v-model="memUserid" placeholder="아이디" required />
+          <input type="text" id="username" class="input-field" v-model="memEmail" placeholder="아이디" required />
         </div>
         <div class="form-group">
           <input type="password" style="position: relative; top:-25px;" id="password" class="input-field" v-model="memPassword" placeholder="비밀번호" required />
@@ -222,7 +222,7 @@ export default {
           alert('이메일 형식이 올바르지 않습니다.');
           return;
         }
-        
+
         const isUniqueEmail = await this.checkDuplicatesEmail();
 
         if (!isUniqueEmail) {
@@ -289,7 +289,7 @@ export default {
     },
     async login() {
       const loginData = {
-        memUserid: this.memUserid,
+        memEmail: this.memEmail,
         memPassword: this.memPassword
       };
 
@@ -299,10 +299,9 @@ export default {
 
         if (response.data.user) {
           const user = {
-            userid: response.data.user.memUserid,
             name: response.data.user.name || '',
             nickname: response.data.user.nickname || '',
-            email: response.data.user.email || '',
+            email: response.data.user.memEmail || '',
             preferredGenres: response.data.user.genres || []
           };
 
