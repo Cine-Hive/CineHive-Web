@@ -115,18 +115,16 @@ export default {
         }
 
         console.log('User exists response:', userExistsResponse);
-
         if (!userExistsResponse.data) {
           const userData = {
             [loginTypeId]: this.userInfo[loginTypeId],
-            memNickname: this.userInfo.nickname,
+            memNickname: this.userInfo.memNickname,
+            memEmail: this.userInfo.memEmail,
             memName: this.memName,
             memSex: this.memSex,
-            memEmail: this.userInfo.email,
             genres: this.selectedGenres,
             memPassword: '0'
           };
-
           const response = await axios.post(`http://localhost:8081/api/auth/${this.loginType}/register`, userData);
           console.log('Registration response:', response);
 
