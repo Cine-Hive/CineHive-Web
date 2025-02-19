@@ -55,11 +55,24 @@
           </div>
           <div class="form-group-signup">
             <input type="password" id="new-password" class="input-field" placeholder="비밀번호" v-model="memPassword" required />
-            <span style="font-size:11px; color: #333333; position: relative; top:-15px;">대소문자, 특수 문자 포함 8자 이상으로 입력하세요.</span>
+            <span style="font-size:11px; color: #333333; position: relative; top:-15px;">대소문자, 특수 문자 포함 8자 이상 입력하세요.</span>
           </div>
           <div v-if="passwordError" class="error-message" style="color: red;">
             {{ passwordError }}
           </div>
+          <div class="form-group-signup">
+            <select id="gender" class="input-field" v-model="memSex">
+              <option value="" disabled selected>성별</option>
+              <option value="male">남성</option>
+              <option value="female">여성</option>
+              <option value="other">기타</option>
+            </select>
+          </div>
+
+          <div class="form-group-signup">
+            <input type="text" id="name" class="input-field" placeholder="이름" v-model="memName" required />
+          </div>
+          <div style="text-align: center; font-size:11px; color: #333333; position:relative; top:-15px;">이름 기재는 선택사항입니다.</div>
           <button class="signup-button1" @click="nextStep">계속</button>
         </div>
       </div>
@@ -71,17 +84,6 @@
         </div>
         <h1 class="signup-title-h1">SIGN UP</h1>
         <div class="signup-prompt-1">
-          <div class="form-group-signup">
-            <input type="text" id="name" class="input-field" placeholder="이름" v-model="memName" required />
-          </div>
-          <div class="form-group-signup">
-            <select id="gender" class="input-field" v-model="memSex">
-              <option value="" disabled selected>성별</option>
-              <option value="male">남성</option>
-              <option value="female">여성</option>
-              <option value="other">기타</option>
-            </select>
-          </div>
 
           <div class="form-group-signup">
             <input type="text" id="nickname" minlength="4" class="input-field" placeholder="닉네임" v-model="memNickname" required />
@@ -227,7 +229,10 @@ export default {
         alert('이미 존재하는 닉네임입니다.');
         return;
       }
-
+      if(this.memNickname.length <4){
+        alert('닉네임은 4글자 이상 입력해주세요.');
+        return;
+      }
       const userData = {
         memSex: this.memSex,
         memNickname: this.memNickname,
