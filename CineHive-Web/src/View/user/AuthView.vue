@@ -11,7 +11,7 @@
         </div>
         <p class="or-use-your-account">or use your account</p>
         <div class="form-group">
-          <input type="text" id="username" class="input-field" v-model="memUserid" placeholder="아이디" required />
+          <input type="text" id="username" class="input-field" v-model="memEmail" placeholder="아이디" required />
         </div>
         <div class="form-group">
           <input type="password" style="position: relative; top:-25px;" id="password" class="input-field" v-model="memPassword" placeholder="비밀번호" required />
@@ -51,19 +51,29 @@
         </div>
         <div class="signup-prompt-1">
           <div class="form-group-signup">
-            <input type="text" id="new-username" class="input-field" placeholder="아이디" v-model="memUserid" required />
-          </div>
-          <div class="form-group-signup">
             <input type="email" id="email" class="input-field" placeholder="이메일" v-model="memEmail" required />
           </div>
           <div class="form-group-signup">
             <input type="password" id="new-password" class="input-field" placeholder="비밀번호" v-model="memPassword" required />
-            <span style="font-size:11px; color: #333333; position: relative; top:-15px;">대소문자, 특수 문자 포함 8자 이상으로 입력하세요.</span>
+            <span style="font-size:11px; color: #333333; position: relative; top:-15px;">대소문자, 특수 문자 포함 8자 이상 입력하세요.</span>
           </div>
           <div v-if="passwordError" class="error-message" style="color: red;">
             {{ passwordError }}
           </div>
-          <button class="signup-button1" @click="nextStep">계속</button>
+          <div class="form-group-signup">
+            <select id="gender" class="input-field" v-model="memSex">
+              <option value="" disabled selected>성별</option>
+              <option value="male">남성</option>
+              <option value="female">여성</option>
+              <option value="other">기타</option>
+            </select>
+          </div>
+
+          <div class="form-group-signup">
+            <input type="text" id="name" class="input-field" placeholder="이름" v-model="memName" required />
+          </div>
+          <div style="text-align: center; font-size:11px; color: #333333; position:relative; top:20px;">성별과 이름은 선택사항입니다.</div>
+          <button class="signup-button2" @click="nextStep">계속</button>
         </div>
       </div>
 
@@ -74,32 +84,6 @@
         </div>
         <h1 class="signup-title-h1">SIGN UP</h1>
         <div class="signup-prompt-1">
-          <div class="form-group-signup">
-            <input type="text" id="name" class="input-field" placeholder="이름" v-model="memName" required />
-          </div>
-          <div class="form-group-signup">
-            <select id="gender" class="input-field" v-model="memSex">
-              <option value="" disabled selected>성별</option>
-              <option value="male">남성</option>
-              <option value="female">여성</option>
-              <option value="other">기타</option>
-            </select>
-          </div>
-          <div class="form-group-signup">
-            <input
-                type="text"
-                id="contact"
-                class="input-field"
-                placeholder="연락처"
-                v-model="memPhone"
-                @input="formatPhoneNumber"
-                @blur="validatePhone"
-                required
-            />
-            <div v-if="phoneError" class="error-message" style="color: red;">
-              {{ phoneError }}
-            </div>
-          </div>
 
           <div class="form-group-signup">
             <input type="text" id="nickname" minlength="4" class="input-field" placeholder="닉네임" v-model="memNickname" required />
@@ -122,7 +106,7 @@
               <div v-if="selectedGenres.includes('영화')" class="checkmark">✔</div>
             </div>
           </div>
-          <button class="signup-button" @click="submitForm">회원가입</button>
+          <button class="signup-button2" @click="submitForm">회원가입</button>
         </div>
       </div>
 
@@ -142,16 +126,12 @@ export default {
       isLogin: true, // 로그인 상태
       currentStep: 1, // 현재 단계 (1: 회원가입 단계 1, 2: 회원가입 단계 2, 3: 장르 선택)
       memSex: '', // 성별
-      memPhone: '', // 연락처
       memNickname: '', // 닉네임
       memName: '', // 이름
-      memUserid: '', // 로그인 아이디
       memEmail: '', // 회원가입 이메일
       memPassword: '', // 회원가입 비밀번호
       selectedGenres: [], // 선택한 장르
       passwordError: '', // 비밀번호 오류 메시지
-      phoneError: '', // 전화번호 오류 메시지
-      isPhoneValid: false // 전화번호 유효성 상태
     };
   },
   computed: {
@@ -167,37 +147,12 @@ export default {
       const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
       return passwordPattern.test(password);
     },
-    validatePhone() {
-      const phonePattern = /^\d{3}-\d{4}-\d{4}$/;
-      if (!phonePattern.test(this.memPhone)) {
-        this.phoneError = '전화번호 형식이 올바르지 않습니다.';
-        this.isPhoneValid = false;
-      } else {
-        this.phoneError = '';
-        this.isPhoneValid = true;
-      }
-    },
-    formatPhoneNumber() {
-      this.memPhone = this.memPhone.replace(/\D/g, '').replace(/(\d{3})(\d{4})(\d+)/, '$1-$2-$3');
-    },
+
     toggleForm() {
       this.isLogin = !this.isLogin;
       this.currentStep = 1;
     },
-    async checkDuplicatesName() {
 
-      const memUserid = this.memUserid;
-
-      try {
-        const response = await axios.get(`http://localhost:8081/checkuserId/${memUserid}`);
-        return response.data;
-      } catch (error) {
-        if (error.response) {
-          console.log('요청 실패: ' + error.response.data);
-        }
-        return false;
-      }
-    },
 
     async checkDuplicatesEmail() {
 
@@ -231,7 +186,7 @@ export default {
     async nextStep() {
       if (this.currentStep === 1) {
 
-        if (!this.memUserid || !this.memEmail || !this.memPassword) {
+        if ( !this.memEmail || !this.memPassword) {
           alert('빈칸을 입력해 주세요.');
           return;
         }
@@ -240,14 +195,7 @@ export default {
           return;
         }
 
-
-        const isUniqueName = await this.checkDuplicatesName();
         const isUniqueEmail = await this.checkDuplicatesEmail();
-
-        if (!isUniqueName) {
-          alert('이미 존재하는 아이디입니다.');
-          return;
-        }
 
         if (!isUniqueEmail) {
           alert('이미 존재하는 이메일입니다.');
@@ -263,7 +211,7 @@ export default {
 
       } else if (this.currentStep === 2) {
 
-        if (!this.memName || !this.memSex || !this.memPhone || !this.memNickname) {
+        if (!this.memName || !this.memSex || !this.memNickname) {
           alert('빈칸을 입력해 주세요.');
           return;
         }
@@ -281,15 +229,12 @@ export default {
         alert('이미 존재하는 닉네임입니다.');
         return;
       }
-      if (!this.isPhoneValid) {
-        alert('전화번호 형식이 올바르지 않습니다. (예: 010-1234-5678)');
+      if(this.memNickname.length <4){
+        alert('닉네임은 4글자 이상 입력해주세요.');
         return;
       }
-
       const userData = {
-        memUserid: this.memUserid,
         memSex: this.memSex,
-        memPhone: this.memPhone,
         memNickname: this.memNickname,
         memName: this.memName,
         memEmail: this.memEmail,
@@ -314,7 +259,7 @@ export default {
     },
     async login() {
       const loginData = {
-        memUserid: this.memUserid,
+        memEmail: this.memEmail,
         memPassword: this.memPassword
       };
 
@@ -324,10 +269,9 @@ export default {
 
         if (response.data.user) {
           const user = {
-            userid: response.data.user.memUserid,
             name: response.data.user.name || '',
             nickname: response.data.user.nickname || '',
-            email: response.data.user.email || '',
+            email: response.data.user.memEmail || '',
             preferredGenres: response.data.user.genres || []
           };
 
@@ -560,6 +504,25 @@ export default {
   position: relative;
   top:40px;
 }
+.signup-button2{
+  margin-top: 10px;
+  background-color: #d95a15;
+  width: 120px;
+  height: 40px;
+  font-size: 12px;
+  font-weight: bolder;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  position: relative;
+  top:40px;
+}
+
+.signup-button2:hover{
+  cursor: pointer;
+  background-color: #EB6015;
+}
 .signup-button1:hover {
   background-color: #333;
   cursor: pointer;
@@ -625,6 +588,8 @@ export default {
   display: flex;
   justify-content: space-around;
   margin-bottom: 20px;
+  position: relative;
+  top:20px;
 }
 
 .genre-item {
