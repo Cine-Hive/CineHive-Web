@@ -72,8 +72,8 @@
           <div class="form-group-signup">
             <input type="text" id="name" class="input-field" placeholder="이름" v-model="memName" required />
           </div>
-          <div style="text-align: center; font-size:11px; color: #333333; position:relative; top:-15px;">이름 기재는 선택사항입니다.</div>
-          <button class="signup-button1" @click="nextStep">계속</button>
+          <div style="text-align: center; font-size:11px; color: #333333; position:relative; top:20px;">성별과 이름은 선택사항입니다.</div>
+          <button class="signup-button2" @click="nextStep">계속</button>
         </div>
       </div>
 
@@ -106,7 +106,7 @@
               <div v-if="selectedGenres.includes('영화')" class="checkmark">✔</div>
             </div>
           </div>
-          <button class="signup-button" @click="submitForm">회원가입</button>
+          <button class="signup-button2" @click="submitForm">회원가입</button>
         </div>
       </div>
 
@@ -504,6 +504,25 @@ export default {
   position: relative;
   top:40px;
 }
+.signup-button2{
+  margin-top: 10px;
+  background-color: #d95a15;
+  width: 120px;
+  height: 40px;
+  font-size: 12px;
+  font-weight: bolder;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  position: relative;
+  top:40px;
+}
+
+.signup-button2:hover{
+  cursor: pointer;
+  background-color: #EB6015;
+}
 .signup-button1:hover {
   background-color: #333;
   cursor: pointer;
@@ -569,6 +588,8 @@ export default {
   display: flex;
   justify-content: space-around;
   margin-bottom: 20px;
+  position: relative;
+  top:20px;
 }
 
 .genre-item {
