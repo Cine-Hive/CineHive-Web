@@ -1,5 +1,6 @@
 <template>
   <div class="review-page">
+    <!-- 영화 정보 표시 -->
     <div class="movie-info">
       <img v-if="posterPath" :src="'https://image.tmdb.org/t/p/original' + posterPath" alt="포스터" class="poster-image" />
       <div class="movie-details">
@@ -8,14 +9,19 @@
       </div>
     </div>
 
+    <!-- 감상평 목록 -->
     <div class="review-section">
-      <h3>작품 해석</h3>
-      <div v-for="review in reviews" :key="review.id" class="review">
-        <p class="review-text">{{ review.text }}</p>
-        <p class="review-meta">작성자: {{ review.author }} | {{ review.date }}</p>
+      <h3>감상평</h3>
+      <div v-if="reviews.length > 0">
+        <div v-for="review in reviews" :key="review.id" class="review">
+          <p class="review-text">{{ review.reviewContent }}</p>
+          <p class="review-meta">작성자: {{ review.email }}</p>
+        </div>
       </div>
+      <p v-else>아직 감상평이 없습니다.</p>
     </div>
 
+    <!-- 감상평 작성 -->
     <div class="review-form">
       <h3>감상평 작성</h3>
       <textarea v-model="newReview.text" placeholder="여러분의 감상평을 남겨주세요"></textarea>
@@ -37,36 +43,58 @@ export default {
       reviews: [],
       newReview: {
         text: '',
-        author: '사용자', // 추후 로그인 기능 추가 가능
-        date: new Date().toISOString().split('T')[0]
+        email: localStorage.getItem("email") || '' // 로그인한 사용자 이메일 가져오기
       }
     };
   },
   created() {
+    console.log("로컬 스토리지에서 가져온 이메일:", localStorage.getItem("email")); // ✅ 여기서 확인
+    this.newReview.email = localStorage.getItem("email") || ''; // ✅ email 값 설정
     this.fetchReviews();
   },
+  computed: {
+    userEmail() {
+      return localStorage.getItem("email") || '';
+    }
+  },
   methods: {
+    // 감상평 데이터 가져오기
     async fetchReviews() {
       try {
-        const response = await axios.get(`http://localhost:8081/movies/${this.id}/reviews`);
+        const response = await axios.get(`http://localhost:8081/api/reviews/movie/${this.id}`);
         this.reviews = response.data;
       } catch (error) {
         console.error("감상평을 불러오는 중 오류 발생:", error);
       }
     },
+
+    // 감상평 등록
     async submitReview() {
+      console.log("현재 로그인된 이메일:", this.userEmail); // ✅ 콘솔에서 확인
+
       if (!this.newReview.text.trim()) {
         alert("감상평을 입력해주세요!");
         return;
       }
+
+      if (!this.userEmail) {
+        alert("로그인이 필요합니다!");
+        this.$router.push("/auth");
+        return;
+      }
+
       try {
-        await axios.post(`http://localhost:8081/movies/${this.id}/reviews`, this.newReview);
-        this.fetchReviews(); // 감상평 목록 갱신
-        this.newReview.text = ''; // 입력 필드 초기화
+        await axios.post(`http://localhost:8081/api/reviews?email=${encodeURIComponent(this.userEmail)}&movieId=${encodeURIComponent(this.id)}&content=${encodeURIComponent(this.newReview.text)}`);
+
+        alert("감상평이 등록되었습니다!");
+        this.newReview.text = "";
+        this.fetchReviews();
       } catch (error) {
         console.error("감상평 등록 중 오류 발생:", error);
       }
     }
+
+
   }
 };
 </script>
@@ -115,7 +143,6 @@ export default {
 
 .review-form {
   margin-top: 20px;
-
 }
 
 textarea {
@@ -123,8 +150,8 @@ textarea {
   height: 100px;
   padding: 10px;
   border-radius: 5px;
-  background-color: black; /* ✅ 배경색 검정 */
-  color: white; /* ✅ 입력한 글자 색상 흰색 */
+  background-color: black;
+  color: white;
 }
 
 button {

@@ -16,12 +16,16 @@ export default new Vuex.Store({
             state.user = {
                 name: payload.user.name,
                 nickname: payload.user.nickname,
-                email: payload.user.email,
+                email: payload.user.email, // ✅ email 저장
                 preferredGenres: payload.user.preferredGenres || [],
             };
             console.log("Setting user in Vuex:", state.user);
             state.loginType = payload.loginType || payload.user.mem_type;
-        },
+
+            // ✅ localStorage에 email 저장
+            localStorage.setItem('email', payload.user.email);
+        }
+        ,
         SET_LOGOUT(state) {
             state.isLoggedIn = false;
             state.user = null;
@@ -39,12 +43,12 @@ export default new Vuex.Store({
 
                 commit('SET_LOGIN', { isLoggedIn: true, user, loginType });
 
-                // 로그인 상태를 localStorage에 저장
+                // ✅ localStorage에 user.email 저장
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('user', JSON.stringify(user));
                 localStorage.setItem('loginType', finalloginType);
 
-
+                console.log("로그인 후 localStorage 저장 확인:", localStorage.getItem("user"));
             } catch (error) {
                 console.error('로그인 중 오류 발생:', error);
             }
@@ -72,18 +76,20 @@ export default new Vuex.Store({
         initializeStore({ commit }) {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
             const user = JSON.parse(localStorage.getItem('user'));
-            //const loginType = localStorage.getItem('loginType');
+
             if (isLoggedIn === 'true' && user) {
-                // user.mem_type을 기반으로 loginType을 설정
                 const loginType = user.mem_type || localStorage.getItem('loginType');
                 commit('SET_LOGIN', { isLoggedIn: true, user, loginType });
+
+                console.log("스토어 초기화 - 가져온 user 데이터:", user); // ✅ 로그 확인
             } else {
                 commit('SET_LOGOUT');
             }
 
-            console.log('isLoggedIn:', isLoggedIn);
-            console.log('user:', user);
+            // ✅ email이 저장되었는지 확인
+            console.log("스토어 초기화 - email 확인:", localStorage.getItem("email"));
         }
+
     },
     getters: {
         getUserId: (state) => (state.user ? state.user.userid : null),

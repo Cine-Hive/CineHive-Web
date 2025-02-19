@@ -23,7 +23,7 @@
         <div
             class="movie-card"
             v-for="movie in movies"
-            :key="movie.id"
+            :key="`movies-${movie.id}`"
             @click="goToMovieDetail(movie.id)"
         >
           <img :src="'https://image.tmdb.org/t/p/w300' + movie.posterPath" alt="movie poster" />
@@ -35,7 +35,7 @@
         <div
             class="movie-card"
             v-for="movie in topmovies"
-            :key="movie.id"
+            :key="`topmovies-${movie.id}`"
             @click="goToMovieDetail(movie.id, 'top')"
         >
           <img :src="'https://image.tmdb.org/t/p/w300' + movie.posterPath" alt="movie poster" />
@@ -60,7 +60,7 @@
           <div
               class="movie-card"
               v-for="content in prefer"
-              :key="content.id"
+              :key="`prefer-${content.id}`"
               @click="goToContentDetail(content.id)"
           >
             <img :src="'https://image.tmdb.org/t/p/w300' + content.posterPath" alt="movie poster" />
@@ -72,7 +72,7 @@
           <div
               class="movie-card"
               v-for="content in prefer.slice(18)"
-              :key="content.id"
+              :key="`prefer-more-${content.id}`"
               @click="goToMovieDetail(content.id)"
           >
             <img :src="'https://image.tmdb.org/t/p/w300' + content.posterPath" alt="movie poster" />
@@ -136,12 +136,26 @@ export default {
         const response = await axios.post('http://localhost:8081/preferredGenres', {
           genres: this.user.preferredGenres
         });
+
         console.log('선호 장르 데이터:', response.data);
-        this.prefer = response.data.slice(0, 18);
+
+        // 🔥 중복된 영화 제거
+        const uniqueMovies = [];
+        const movieIds = new Set();
+
+        response.data.forEach(movie => {
+          if (!movieIds.has(movie.id)) {
+            movieIds.add(movie.id);
+            uniqueMovies.push(movie);
+          }
+        });
+
+        this.prefer = uniqueMovies.slice(0, 18);
       } catch (error) {
         console.error('선호 장르 데이터를 가져오는 중 오류가 발생했습니다:', error);
       }
-    },
+    }
+    ,
     async searchMovies() {
       if (!this.searchQuery.trim()) {
         alert("검색어를 입력하세요!");
