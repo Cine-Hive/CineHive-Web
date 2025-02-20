@@ -10,7 +10,7 @@
           <li @click="goToAnimationsList" >Animation</li>
           <li @click="goToMoviesList" >Movie</li>
           <li @click="goToDramasList">Drama</li>
-          <li >Community</li>
+          <li @click="goToBoardList" >Community</li>
           <li >My List</li>
           <li >Watched List</li>
         </ul>
@@ -140,6 +140,10 @@ export default {
       if(this.$route.path!=='/dramas')
         this.$router.push({ path: '/dramas' });
     },
+    goToBoardList(){
+      if(this.$route.path!=='/boards')
+        this.$router.push({ path: '/boards' });
+    }
   },
 
   created() {
