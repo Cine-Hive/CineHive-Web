@@ -56,8 +56,7 @@ const routes = [
         name: 'DramaList',
         component: DramaList,
         meta: { hideFooter: true }
-    }
-
+    },
 ];
 
 const router = new Router({
