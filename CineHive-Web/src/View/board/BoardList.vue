@@ -223,10 +223,10 @@ ul {
 
 #create-button {
   font-size: 12px;
-  width: 85px;
-  height: 35px;
+  width: 80px;
+  height: 33px;
   position: relative;
-  left: 45%;
+  float: right;
   background-color: #d95a15;
   border: #d95a15;
   color: white;
