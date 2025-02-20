@@ -12,6 +12,7 @@ import MovieList from "@/View/movie/MovieList.vue";
 import AnimationList from "@/View/animation/AnimationList.vue";
 import DramaList from "@/View/drama/DramaList.vue";
 import ReviewPage from '@/View/ReviewPage.vue';
+import CreateBoard from "@/View/board/CreateBoard.vue";
 
 Vue.use(Router);
 
@@ -57,6 +58,12 @@ const routes = [
         component: DramaList,
         meta: { hideFooter: true }
     },
+    {
+        path: '/create/board',
+        name: 'CreateBoard',
+        component: CreateBoard,
+        meta: {hideFooter: true}
+    }
 ];
 
 const router = new Router({
