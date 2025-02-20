@@ -3,28 +3,30 @@
 
     <div class="board-container">
       <div class="table-header">
-        <div class="table-title" >NO</div>
+        <div class="table-title" style="position: relative; left:-40%;">NO</div>
         <div class="table-title" >닉네임</div>
         <div class="table-title">제목</div>
         <div class="table-title">작성일</div>
         <div class="table-title">좋아요</div>
+        <div class="table-title"  style="position: relative; left:40%;">조회수</div>
       </div>
-      <div style="border-top: 1px solid #e0e0e0; position: relative; top:12px;"></div>
       <ul>
         <li v-for="post in paginatedPosts" :key="post.id" class="post-item">
           <div class="post-info">
-            <span class="post-id" style="position: relative; left:-10%;">{{ post.id }}</span>
-            <span class="post-user" style="position: relative; left:-25%;">{{ post.nickname }}</span>
-            <span class="post-title" style="position: relative; left:-25%;">{{ post.title }}</span>
-            <span class="post-date" style="position: relative; left:-75%;">{{ formatDate(post.createdAt) }}</span>
-            <span class="like-count" style="position: relative; left:410%;">{{ post.likeCount }}</span>
+            <span class="post-id" style="position: relative; left:-45%;">{{ post.id }}</span>
+            <span class="post-user" style="position: relative; left:-45%;">{{ post.nickname }}</span>
+            <span class="post-title" style="position: relative; left:-43%;">{{ post.title }}</span>
+            <span class="post-date" style="position: relative; left:-130%;">{{ formatDate(post.createdAt) }}</span>
+            <span class="like-count" style="position: relative; left:345%;">{{ post.likeCount }}</span>
+            <span class="join-page-count" style="position: relative; left:345%;">{{post.joinPageCount}}</span>
+            <span> </span>
           </div>
         </li>
       </ul>
       <button type="submit" class="btn btn-success" id="create-button" @click="goToCreatePost">글 작성</button>
 
       <form class="d-flex search-form" @submit.prevent="filterPosts">
-        <input class="form-control search-input" type="text" v-model="searchQuery" placeholder="검색..." aria-label="Search">
+        <input class="form-control search-input" type="text" v-model="searchQuery" placeholder="saerch..." aria-label="Search">
         <button type="submit" id="search-btn" class="btn btn-search">검색
         </button>
       </form>
@@ -55,8 +57,9 @@ export default {
   data() {
     return {
       posts: [
-        { id: 1, nickname: '홍길동', title: '영화 A 리뷰', createdAt: '2025-02-20', likeCount: 10 },
-        { id: 2, nickname: '김철수', title: '영화 B 리뷰', createdAt: '2025-02-19', likeCount: 5 },
+        { id: 1, nickname: '홍길동', title: '영화 A 리뷰', createdAt: '2025-02-20', likeCount: 10, joinPageCount: 10 },
+        { id: 2, nickname: '김철수', title: '영화 B 리뷰', createdAt: '2025-02-19', likeCount: 5, joinPageCount: 11 },
+        { id: 2, nickname: '김철수', title: '영화 B 리뷰', createdAt: '2025-02-19', likeCount: 5, joinPageCount: 11 },
         // 추가적인 더미 데이터
       ],
       currentPage: 1,
@@ -110,7 +113,7 @@ export default {
 <style scoped>
 .board-list {
   padding: 20px;
-  width: 90%;
+  width: 75%;
   margin: auto;
   border-radius: 10px;
   min-height: 990px;
@@ -131,7 +134,7 @@ h1 {
 
 .table-header {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 2fr 1fr 1fr 1fr;
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 10px;
@@ -155,8 +158,10 @@ ul {
   margin: 15px 0;
   padding: 15px;
   transition: transform 0.2s;
-  color: #333333;
-  font-size: 15px;
+  color: white;
+  font-size: 13px;
+  position: relative;
+  top:10px;
 }
 
 .post-info {
@@ -186,6 +191,10 @@ ul {
   font-size: 16px;
 }
 
+.join-page-count{
+  position: relative;
+  top:-23px;
+}
 .page-numbers {
   display: flex;
   align-items: center;
@@ -238,10 +247,11 @@ ul {
 .search-input {
   width: 800px; /* 원하는 너비 조정 */
   padding: 10px;
-  border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 14px;
   transition: border-color 0.3s;
+  background-color: #e0e0e0;
+  border: #e0e0e0;
 }
 
 .search-input:focus {
@@ -252,7 +262,8 @@ ul {
 .btn-search {
   padding: 10px 15px;
   border: none;
-  background-color: #007bff; /* 버튼 배경 색상 */
+  background-color: #e0e0e0;
+  border: #e0e0e0;
   color: white; /* 버튼 글자 색상 */
   cursor: pointer;
   transition: background-color 0.3s;
@@ -280,11 +291,12 @@ ul {
   font-weight: bolder;
   position: relative;
   left:5px;
-  border: 2px solid #333333;
-  color: #333333;
-  background-color: white;
+  background-color: #e0e0e0;
+  border: #e0e0e0;
+  color: black;
   border-radius: 5px;
   position: relative;
+
 }
 
 </style>
