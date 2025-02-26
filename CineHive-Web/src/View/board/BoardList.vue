@@ -1,24 +1,23 @@
 <template>
   <div class="board-list">
-
     <div class="board-container">
       <div class="table-header">
         <div class="table-title" style="position: relative; left:-40%;">NO</div>
-        <div class="table-title" >닉네임</div>
+        <div class="table-title">닉네임</div>
         <div class="table-title">제목</div>
         <div class="table-title">작성일</div>
         <div class="table-title">좋아요</div>
-        <div class="table-title"  style="position: relative; left:40%;">조회수</div>
+        <div class="table-title" style="position: relative; left:40%;">조회수</div>
       </div>
       <ul>
         <li v-for="post in paginatedPosts" :key="post.id" class="post-item">
           <div class="post-info">
             <span class="post-id" style="position: relative; left:-45%;">{{ post.id }}</span>
-            <span class="post-user" style="position: relative; left:-45%;">{{ post.nickname }}</span>
-            <span class="post-title" style="position: relative; left:-43%;">{{ post.title }}</span>
-            <span class="post-date" style="position: relative; left:-130%;">{{ formatDate(post.createdAt) }}</span>
+            <span class="post-user" style="position: relative; left:-45%;">{{ post.memNickname }}</span>
+            <span class="post-title" style="position: relative; left:-43%;">{{ post.brdTitle }}</span>
+            <span class="post-date" style="position: relative; left:-130%;">{{ formatDate(post.brgRegDate) }}</span>
             <span class="like-count" style="position: relative; left:345%;">{{ post.likeCount }}</span>
-            <span class="join-page-count" style="position: relative; left:345%;">{{post.joinPageCount}}</span>
+            <span class="join-page-count" style="position: relative; left:345%;">{{ post.views }}</span>
             <span> </span>
           </div>
         </li>
@@ -26,11 +25,9 @@
       <button type="submit" class="btn btn-success" id="create-button" @click="goToCreatePost">글 작성</button>
 
       <form class="d-flex search-form" @submit.prevent="filterPosts">
-        <input class="form-control search-input" type="text" v-model="searchQuery" placeholder="saerch..." aria-label="Search">
-        <button type="submit" id="search-btn" class="btn btn-search">검색
-        </button>
+        <input class="form-control search-input" type="text" v-model="searchQuery" placeholder="search..." aria-label="Search">
+        <button type="submit" id="search-btn" class="btn btn-search">검색</button>
       </form>
-
 
       <div class="pagination">
         <div class="page-numbers">
@@ -47,21 +44,17 @@
       </div>
       <span class="current-page">{{ currentPage }} / {{ totalPages }}</span>
     </div>
-
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'BoardList',
   data() {
     return {
-      posts: [
-        { id: 1, nickname: '홍길동', title: '영화 A 리뷰', createdAt: '2025-02-20', likeCount: 10, joinPageCount: 10 },
-        { id: 2, nickname: '김철수', title: '영화 B 리뷰', createdAt: '2025-02-19', likeCount: 5, joinPageCount: 11 },
-        { id: 2, nickname: '김철수', title: '영화 B 리뷰', createdAt: '2025-02-19', likeCount: 5, joinPageCount: 11 },
-        // 추가적인 더미 데이터
-      ],
+      posts: [],
       currentPage: 1,
       postsPerPage: 10,
       selectedSort: '최신 순',
@@ -78,6 +71,15 @@ export default {
     }
   },
   methods: {
+    async fetchPosts() {
+      try {
+        const response = await axios.get('http://localhost:8081/boards');
+        this.posts = response.data;
+        console.log("전체 목록 조회 res",response);
+      } catch (error) {
+        console.error('게시글 목록 조회에 실패했습니다:', error);
+      }
+    },
     sortPosts(order) {
       this.selectedSort = order === 'latest' ? '최신 순' : order === 'oldest' ? '오래된 순' : '좋아요 순';
       if (order === 'latest') {
@@ -96,18 +98,29 @@ export default {
     goToPage(page) {
       this.currentPage = page;
     },
-      goToCreatePost() {
-        if (this.$store.state.isLoggedIn) {
-          // 로그인되어 있으면 작성 페이지로 이동
-          this.$router.push({ path: '/create/board' });
-        } else {
-          // 로그인되어 있지 않으면 경고 메시지 표시
-          alert('로그인 후 게시글을 작성할 수 있습니다.');
-        }
+    goToCreatePost() {
+      if (this.$store.state.isLoggedIn) {
+        // 로그인되어 있으면 작성 페이지로 이동
+        this.$router.push({ path: '/create/board' });
+      } else {
+        // 로그인되어 있지 않으면 경고 메시지 표시
+        alert('로그인 후 게시글을 작성할 수 있습니다.');
+      }
+    },
+    filterPosts() {
+      // 검색 필터링 로직 구현
+      // 예: this.posts = this.posts.filter(post => post.title.includes(this.searchQuery));
     }
+  },
+  mounted() {
+    this.fetchPosts(); // 컴포넌트가 마운트될 때 게시글 목록 가져오기
   }
 };
 </script>
+
+<style scoped>
+/* 스타일은 기존과 동일하게 유지 */
+</style>
 
 
 <style scoped>

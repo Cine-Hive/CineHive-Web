@@ -12,12 +12,12 @@
     <form @submit.prevent="handleSubmit">
       <div class="form-group">
         <label for="title">제목</label>
-        <input type="text" id="title" v-model="title" placeholder="게시물 제목"  />
+        <input type="text" id="title" v-model="brdTitle" placeholder="게시물 제목" />
       </div>
 
       <div class="form-group">
         <label for="content">내용</label>
-        <textarea id="content" v-model="content" placeholder="게시물 내용을 입력하세요" ></textarea>
+        <textarea id="content" v-model="brdContent" placeholder="게시물 내용을 입력하세요"></textarea>
       </div>
       <button type="submit" class="submit-btn">등록</button>
     </form>
@@ -31,39 +31,33 @@ import { mapState } from 'vuex';
 export default {
   data() {
     return {
-      title: '',
-      content: '',
-      author: '',
+      brdTitle: '',
+      brdContent: '',
       errorMessage: '',
       successMessage: ''
     };
   },
   computed: {
     ...mapState({
-      user: state => state.user, // Vuex에서 user 정보 가져오기
+      user: state => state.user,
     })
   },
   methods: {
     async handleSubmit() {
       // 비어있는 필드 체크
-      if (!this.title || !this.content || !this.author) {
+      if (!this.brdTitle || !this.brdContent || !this.user.email) {
         this.errorMessage = '모든 필드를 채워주세요.';
         return;
       }
 
       try {
-        const response = await axios.post('http://localhost:8081/api/boards/create', {
-          title: this.title,
-          content: this.content,
+        const response = await axios.post('http://localhost:8081/boards/create', {
+          memEmail: this.user.email,
+          brdTitle: this.brdTitle,
+          brdContent: this.brdContent,
         });
-
-        if (response.status === 201) {
-          this.successMessage = '게시물이 성공적으로 등록되었습니다!';
-          // 글 등록 후 메인 게시판 목록 페이지로 리다이렉트
-          setTimeout(() => {
-            this.$router.push('/board');
-          }, 2000);
-        }
+        alert("게시글이 등록되었습니다.");
+        console.log("res",response);
       } catch (error) {
         this.errorMessage = '게시물 등록에 실패했습니다. 다시 시도해주세요.';
       }
