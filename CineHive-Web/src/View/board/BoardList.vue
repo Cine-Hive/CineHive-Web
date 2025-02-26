@@ -1,5 +1,6 @@
 <template>
   <div class="board-list">
+    <div class="board-list-title">자유 게시판</div>
     <div class="board-container">
       <div class="table-header">
         <div class="table-title" style="position: relative; left:-40%;">NO</div>
@@ -129,9 +130,14 @@ export default {
   width: 75%;
   margin: auto;
   border-radius: 10px;
-  min-height: 990px;
+  min-height: 1050px;
 }
-
+.board-list-title{
+  color: white;
+  position: relative;
+  left:-45%;
+  font-size: 18px;
+}
 h1 {
   text-align: center;
   color: #333;
@@ -143,6 +149,8 @@ h1 {
   border-radius: 10px;
   padding: 20px;
   width: 100%;
+  position: relative;
+  top:50px;
 }
 
 .table-header {
