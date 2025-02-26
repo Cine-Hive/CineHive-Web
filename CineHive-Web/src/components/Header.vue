@@ -150,7 +150,7 @@ export default {
 
 .site-title {
   text-decoration: none;
-  color: inherit; 
+  color: inherit;
 }
 
 header {

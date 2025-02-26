@@ -23,13 +23,13 @@
           </div>
         </li>
       </ul>
-      <button type="submit" class="btn btn-success" id="create-button" @click="goToCreatePost">글 작성</button>
+
 
       <form class="d-flex search-form" @submit.prevent="filterPosts" style="width: 100%">
         <input class="form-control search-input" type="text" v-model="searchQuery" placeholder="search..." aria-label="Search">
         <button type="submit" id="search-btn" class="btn btn-search">검색</button>
       </form>
-
+      <button type="submit" class="btn btn-success" id="create-button" @click="goToCreatePost">글 작성</button>
       <div class="pagination">
         <div class="page-numbers">
           <button
