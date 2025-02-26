@@ -144,6 +144,10 @@ button.submit-btn {
 button.submit-btn:hover {
   background-color: #45a049;
 }
+.page-number-button.active {
+  background-color: #d95a15; /* 현재 페이지 색상을 #d95a15로 변경 */
+  color: white; /* 텍스트 색상은 흰색으로 유지 */
+}
 
 .error-message {
   color: red;

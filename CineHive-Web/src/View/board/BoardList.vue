@@ -25,7 +25,7 @@
       </ul>
       <button type="submit" class="btn btn-success" id="create-button" @click="goToCreatePost">글 작성</button>
 
-      <form class="d-flex search-form" @submit.prevent="filterPosts">
+      <form class="d-flex search-form" @submit.prevent="filterPosts" style="width: 100%">
         <input class="form-control search-input" type="text" v-model="searchQuery" placeholder="search..." aria-label="Search">
         <button type="submit" id="search-btn" class="btn btn-search">검색</button>
       </form>
@@ -127,7 +127,7 @@ export default {
   width: 75%;
   margin: auto;
   border-radius: 10px;
-  min-height: 1100px;
+  min-height: 1150px;
 }
 .board-list-title{
   color: white;
@@ -230,12 +230,13 @@ ul {
 }
 
 .page-number-button:hover {
-  background-color: #007bff;
-  color: white;
+  background-color: white;
+  border: #1E1E1E;
 }
 
 .page-number-button.active {
-  background-color: #007bff;
+  background-color: #1E1E1E;
+  border: #1E1E1E;
   color: white;
 }
 
@@ -249,6 +250,7 @@ ul {
   border: #d95a15;
   color: white;
   border-radius: 3px;
+  top:35px;
 }
 
 #create-button:hover{
@@ -263,13 +265,14 @@ ul {
 }
 
 .search-input {
-  width: 800px;
+  flex: 1; /* 남은 공간을 모두 차지하도록 설정 */
   padding: 10px;
   border-radius: 5px;
   font-size: 14px;
   transition: border-color 0.3s;
   background-color: #e0e0e0;
-  border: #e0e0e0;
+  border: 1px solid #e0e0e0; /* 경계 추가 */
+  max-width: 800px; /* 최대 너비 설정 */
 }
 
 .search-input:focus {
@@ -279,12 +282,12 @@ ul {
 
 .btn-search {
   padding: 10px 15px;
-  border: none;
   background-color: #e0e0e0;
-  border: #e0e0e0;
-  color: white;
+  border: 1px solid #e0e0e0;
+  color: black;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-left: 10px;
 }
 
 .btn-search:hover {

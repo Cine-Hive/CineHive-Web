@@ -45,6 +45,7 @@ export default {
   data() {
     return {
       searchQuery: "", // 검색어
+      userInfo:null,
     };
   },
   mounted() {
@@ -75,18 +76,18 @@ export default {
 
         // API 응답에서 필요한 데이터 추출
         const userData = response.data;
+        this.userInfo = userData; // userInfo에 데이터 할당
         console.log(`${loginType} 로그인 사용자 데이터:`, userData);
-
+        console.log("User Info:", this.userInfo); // 추가된 로그
         const finalLoginType = userData.mem_type || loginType;
 
         // Vuex에 사용자 정보와 loginType 저장
         this.$store.commit('SET_LOGIN', {
           isLoggedIn: true,
           user: {
-            id: userData.memUserid,
-            email: userData.email || '',
-            nickname: userData.nickname,
-            name: userData.name || '', // 이름 추가
+            email: userData.memEmail,
+            nickname: userData.memNickname,
+            name: userData.memName || '', // 이름 추가
             preferredGenres: userData.genres || [] // 장르 추가
           },
           loginType: finalLoginType // 여기서 loginType을 추가 (일반 타입 추가)
@@ -96,7 +97,6 @@ export default {
         // 로컬 스토리지에 사용자 정보와 loginType 저장
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('user', JSON.stringify({
-          id: userData.memUserid,
           email: userData.email || '',
           nickname: userData.nickname,
           name: userData.name || '',
