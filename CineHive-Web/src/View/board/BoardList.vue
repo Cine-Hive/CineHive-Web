@@ -101,26 +101,23 @@ export default {
     },
     goToCreatePost() {
       if (this.$store.state.isLoggedIn) {
-        // 로그인되어 있으면 작성 페이지로 이동
+
         this.$router.push({ path: '/create/board' });
       } else {
-        // 로그인되어 있지 않으면 경고 메시지 표시
+
         alert('로그인 후 게시글을 작성할 수 있습니다.');
       }
     },
-    filterPosts() {
-      // 검색 필터링 로직 구현
-      // 예: this.posts = this.posts.filter(post => post.title.includes(this.searchQuery));
-    }
+
   },
   mounted() {
-    this.fetchPosts(); // 컴포넌트가 마운트될 때 게시글 목록 가져오기
+    this.fetchPosts();
   }
 };
 </script>
 
 <style scoped>
-/* 스타일은 기존과 동일하게 유지 */
+
 </style>
 
 
@@ -130,7 +127,7 @@ export default {
   width: 75%;
   margin: auto;
   border-radius: 10px;
-  min-height: 1050px;
+  min-height: 1100px;
 }
 .board-list-title{
   color: white;
@@ -266,7 +263,7 @@ ul {
 }
 
 .search-input {
-  width: 800px; /* 원하는 너비 조정 */
+  width: 800px;
   padding: 10px;
   border-radius: 5px;
   font-size: 14px;
@@ -276,8 +273,8 @@ ul {
 }
 
 .search-input:focus {
-  border-color: #007bff; /* 포커스 시 테두리 색상 변경 */
-  outline: none; /* 기본 outline 제거 */
+  border-color: #007bff;
+  outline: none;
 }
 
 .btn-search {
@@ -285,13 +282,13 @@ ul {
   border: none;
   background-color: #e0e0e0;
   border: #e0e0e0;
-  color: white; /* 버튼 글자 색상 */
+  color: white;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .btn-search:hover {
-  background-color: #0056b3; /* 버튼 호버 시 색상 변경 */
+  background-color: #0056b3;
 }
 
 
@@ -316,8 +313,6 @@ ul {
   border: #e0e0e0;
   color: black;
   border-radius: 5px;
-  position: relative;
-
 }
 
 </style>
