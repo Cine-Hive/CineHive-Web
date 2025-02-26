@@ -108,7 +108,7 @@ export default {
   methods: {
     async fetchMovies() {
       try {
-        const response = await axios.get('http://localhost:8081/now_playing_movies');
+        const response = await axios.get('http://localhost:8081/now_playing');
         this.movies = response.data.slice(0, 18);
       } catch (error) {
         console.error('영화 데이터를 가져오는 중 오류가 발생했습니다:', error);
