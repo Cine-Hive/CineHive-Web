@@ -33,7 +33,6 @@
 
   </header>
 </template>
-
 <script>
 import axios from 'axios';
 import { mapState } from 'vuex';
@@ -41,87 +40,64 @@ import SearchBar from "@/components/SearchBar.vue";
 
 export default {
   name: 'HeaderComponent',
-  components: {SearchBar},
+  components: { SearchBar },
   data() {
     return {
-      searchQuery: "", // 검색어
-      userInfo:null,
+      searchQuery: "",
+      userInfo: null
     };
-  },
-  mounted() {
-    if (!this.isLoggedIn) { // 로그인 상태가 아닐 경우만 API 호출
-      this.getUserInfo('kakao');
-      this.getUserInfo('google');
-      this.getUserInfo('naver');
-    }
   },
   computed: {
     ...mapState(['isLoggedIn', 'user']),
-    userId() {
-      return this.isLoggedIn ? this.user?.id : null;
-    }
   },
   methods: {
-
-    goToHome() {
-      if (this.$route.path !== '/') {
-      this.$router.push('/');
-      }
-    },
     async getUserInfo(loginType) {
       try {
         const response = await axios.get(`http://localhost:8081/api/auth/${loginType}/success`, {
           withCredentials: true
         });
 
-        // API 응답에서 필요한 데이터 추출
         const userData = response.data;
-        this.userInfo = userData; // userInfo에 데이터 할당
+        this.userInfo = userData;
+
         console.log(`${loginType} 로그인 사용자 데이터:`, userData);
-        console.log("User Info:", this.userInfo); // 추가된 로그
+
         const finalLoginType = userData.mem_type || loginType;
 
-        // Vuex에 사용자 정보와 loginType 저장
         this.$store.commit('SET_LOGIN', {
           isLoggedIn: true,
           user: {
             email: userData.memEmail,
             nickname: userData.memNickname,
-            name: userData.memName || '', // 이름 추가
-            preferredGenres: userData.genres || [] // 장르 추가
+            name: userData.memName || '',
+            preferredGenres: userData.genres || []
           },
-          loginType: finalLoginType // 여기서 loginType을 추가 (일반 타입 추가)
+          loginType: finalLoginType
         });
 
-
-        // 로컬 스토리지에 사용자 정보와 loginType 저장
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('user', JSON.stringify({
-          email: userData.email || '',
-          nickname: userData.nickname,
-          name: userData.name || '',
+          email: userData.memEmail || '',
+          nickname: userData.memNickname,
+          name: userData.memName || '',
           preferredGenres: userData.genres || [],
           mem_type: userData.mem_type
         }));
-        localStorage.setItem('loginType', finalLoginType); // loginType도 저장
-
+        localStorage.setItem('loginType', finalLoginType);
       } catch (error) {
         console.error(`${loginType} 사용자 정보 가져오기 실패:`, error);
       }
     },
     logout() {
-      // Vuex에서 로그인 상태 초기화
       this.$store.commit('SET_LOGOUT');
 
-      // 로컬/세션 스토리지 데이터 삭제
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('user');
       localStorage.removeItem('loginType');
 
-      axios.get('http://localhost:8081/api/auth/logout', {withCredentials: true})
+      axios.get('http://localhost:8081/api/auth/logout', { withCredentials: true })
           .then(() => {
             console.log("로그아웃 성공");
-
             window.location.reload();
           })
           .catch(error => {
@@ -130,11 +106,11 @@ export default {
     },
     goToMoviesList(){
       if(this.$route.path!=='/movies')
-      this.$router.push({ path: '/movies' });
+        this.$router.push({ path: '/movies' });
     },
     goToAnimationsList(){
       if(this.$route.path!=='/animations')
-      this.$router.push({ path: '/animations' });
+        this.$router.push({ path: '/animations' });
     },
     goToDramasList(){
       if(this.$route.path!=='/dramas')
@@ -143,36 +119,38 @@ export default {
     goToBoardList(){
       if(this.$route.path!=='/boards')
         this.$router.push({ path: '/boards' });
-    }
+    },
+    goToHome() {
+      if (this.$route.path !== '/') {
+        this.$router.push('/');
+      }
+    },
   },
-
   created() {
-    if (this.isLoggedIn) {
-      // 일반 로그인 사용자는 별도 API 호출 없이 localStorage에서 복구
-      const user = JSON.parse(localStorage.getItem('user'));
-      const loginType = user?.mem_type || localStorage.getItem('loginType');
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const loginType = localStorage.getItem('loginType');
 
+    if (storedUser) {
       this.$store.commit('SET_LOGIN', {
         isLoggedIn: true,
-        user,
+        user: storedUser,
         loginType
       });
-    } else {
-      // OAuth 로그인이 아닐 경우, 따로 API 호출 필요 없음
-      this.getUserInfo('kakao');
-      this.getUserInfo('google');
-      this.getUserInfo('naver');
+    } else if (loginType) {
+      this.getUserInfo(loginType);
     }
   }
+
 };
 </script>
+
 
 <style scoped>
 
 
 .site-title {
   text-decoration: none;
-  color: inherit; /* 색상 유지 */
+  color: inherit; 
 }
 
 header {

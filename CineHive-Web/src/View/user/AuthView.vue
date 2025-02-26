@@ -310,16 +310,15 @@ export default {
 
 
     kakaoLogin() {
-      this.loginType='kakao';
+      localStorage.setItem('loginType', 'kakao');
       window.location.href = 'http://localhost:8081/api/auth/kakao';
-
     },
     googleLogin() {
-      this.loginType='google';
+      localStorage.setItem('loginType', 'google');
       window.location.href = 'http://localhost:8081/api/auth/google';
     },
     naverLogin() {
-      this.loginType='naver';
+      localStorage.setItem('loginType', 'naver');
       window.location.href = 'http://localhost:8081/api/auth/naver';
     },
 
