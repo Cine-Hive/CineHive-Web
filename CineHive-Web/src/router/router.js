@@ -14,6 +14,7 @@ import DramaList from "@/View/drama/DramaList.vue";
 import ReviewPage from '@/View/ReviewPage.vue';
 import CreateBoard from "@/View/board/CreateBoard.vue";
 import BoardList from "@/View/board/BoardList.vue";
+import DetailBoard from "@/View/board/DetailBoard.vue";
 
 Vue.use(Router);
 
@@ -69,6 +70,12 @@ const routes = [
         path: '/boards',
         name: 'BoardList',
         component: BoardList,
+        meta: {hideFooter: true}
+    },
+    {
+        path: '/boards/detail/:id',
+        name: DetailBoard,
+        component: DetailBoard,
         meta: {hideFooter: true}
     }
 ];

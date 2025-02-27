@@ -11,11 +11,11 @@
         <div class="table-title" style="position: relative; left:40%;">조회수</div>
       </div>
       <ul>
-        <li v-for="post in paginatedPosts" :key="post.id" class="post-item">
+        <li v-for="post in paginatedPosts" :key="post.id" class="post-item"  @click="goToDetailPage(post.id)">
           <div class="post-info">
             <span class="post-id" style="position: relative; left:-45%;">{{ post.id }}</span>
             <span class="post-user" style="position: relative; left:-45%;">{{ post.memNickname }}</span>
-            <span class="post-title" style="position: relative; left:-43%;">{{ post.brdTitle }}</span>
+            <span class="post-title" style="position: relative; left:-43%;" >{{ post.brdTitle }}</span>
             <span class="post-date" style="position: relative; left:-130%;">{{ formatDate(post.brgRegDate) }}</span>
             <span class="like-count" style="position: relative; left:345%;">{{ post.likeCount }}</span>
             <span class="join-page-count" style="position: relative; left:345%;">{{ post.views }}</span>
@@ -29,7 +29,7 @@
         <input class="form-control search-input" type="text" v-model="searchQuery" placeholder="search..." aria-label="Search">
         <button type="submit" id="search-btn" class="btn btn-search">검색</button>
       </form>
-      <button type="submit" class="btn btn-success" id="create-button" @click="goToCreatePost">글 작성</button>
+      <button type="submit" class="btn btn-success" id="create-button" @click="goToCreatePost">글 작성</button> 
       <div class="pagination">
         <div class="page-numbers">
           <button
@@ -80,6 +80,9 @@ export default {
       } catch (error) {
         console.error('게시글 목록 조회에 실패했습니다:', error);
       }
+    },
+    goToDetailPage(id) {
+      this.$router.push({ path: `/boards/detail/${id}` });
     },
     sortPosts(order) {
       this.selectedSort = order === 'latest' ? '최신 순' : order === 'oldest' ? '오래된 순' : '좋아요 순';
