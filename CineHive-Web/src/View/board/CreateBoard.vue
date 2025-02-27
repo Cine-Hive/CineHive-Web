@@ -2,7 +2,6 @@
   <div class="create-post-container">
     <h3 class="create-post-title">글 등록</h3>
 
-    <div class="title-line"></div>
     <div v-if="errorMessage" class="error-message">
       {{ errorMessage }}
     </div>
@@ -17,11 +16,13 @@
       </tr>
       <tr>
         <td>닉네임</td>
-        <td><input  type="text" v-model="user.nickname" disabled /></td>
+        <td><input type="text" v-model="user.nickname" disabled /></td>
       </tr>
       <tr>
         <td>내용</td>
-        <td><textarea style="font-size: 12px; color: white" placeholder="내용을 입력하세요." v-model="brdContent"></textarea></td>
+        <td>
+          <editor ref="editor" :initialEditType="'markdown'" :previewStyle="'vertical'" />
+        </td>
       </tr>
     </table>
 
@@ -29,18 +30,21 @@
   </div>
 </template>
 
-
 <script>
 import axios from 'axios';
 import { mapState } from 'vuex';
+import { Editor } from '@toast-ui/vue-editor';
 
 export default {
+  components: {
+    Editor,
+  },
   data() {
     return {
       brdTitle: '',
       brdContent: '',
       errorMessage: '',
-      successMessage: ''
+      successMessage: '',
     };
   },
   computed: {
@@ -56,14 +60,16 @@ export default {
         return;
       }
 
+      this.brdContent = this.$refs.editor.getInstance().getMarkdown();
+
       try {
         const response = await axios.post('http://localhost:8081/boards/create', {
           memEmail: this.user.email,
           brdTitle: this.brdTitle,
           brdContent: this.brdContent,
         });
-        alert("게시글이 등록되었습니다.");
-        console.log("res",response);
+        this.successMessage = "게시글이 등록되었습니다.";
+        console.log("res", response);
       } catch (error) {
         this.errorMessage = '게시물 등록에 실패했습니다. 다시 시도해주세요.';
       }
@@ -87,11 +93,6 @@ export default {
   top: 50px;
 }
 
-.title-line {
-  border-bottom: 0.1px solid #1E1E1E;
-  position: relative;
-  top: 60px;
-}
 
 h1 {
   text-align: center;
@@ -144,10 +145,7 @@ button.submit-btn {
 button.submit-btn:hover {
   background-color: #45a049;
 }
-.page-number-button.active {
-  background-color: #d95a15; /* 현재 페이지 색상을 #d95a15로 변경 */
-  color: white; /* 텍스트 색상은 흰색으로 유지 */
-}
+
 
 .error-message {
   color: red;
@@ -181,10 +179,10 @@ button.submit-btn:hover {
   border: 1px solid #1E1E1E;
 }
 .input-table td:first-child {
-  width: 8%; /* 왼쪽 칸의 너비를 줄임 */
+  width: 8%;
 }
 
 .input-table td:last-child {
-  width: 75%; /* 오른쪽 칸의 너비를 늘림 */
+  width: 75%;
 }
 </style>
