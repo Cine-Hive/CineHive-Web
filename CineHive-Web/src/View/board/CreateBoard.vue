@@ -21,12 +21,17 @@
       <tr>
         <td>내용</td>
         <td>
-          <editor ref="editor" :initialEditType="'markdown'" :previewStyle="'vertical'" />
+          <editor
+              class="tui-editor-preview"
+              ref="editor"
+              :initialEditType="'markdown'"
+              :previewStyle="'vertical'"
+          />
         </td>
       </tr>
     </table>
 
-    <button type="submit" class="submit-btn" @click="handleSubmit">등록</button>
+    <button type="submit" class="submit-btn" @click="handleSubmit">등록하기</button>
   </div>
 </template>
 
@@ -50,17 +55,23 @@ export default {
   computed: {
     ...mapState({
       user: state => state.user,
-    })
+    }),
   },
   methods: {
     async handleSubmit() {
-      // 비어있는 필드 체크
+      const editorInstance = this.$refs.editor;
+
+      if (!editorInstance) {
+        this.errorMessage = '에디터 인스턴스를 가져오지 못했습니다.';
+        return;
+      }
+
+      this.brdContent = editorInstance.invoke('getMarkdown');
+
       if (!this.brdTitle || !this.brdContent || !this.user.email) {
         this.errorMessage = '모든 필드를 채워주세요.';
         return;
       }
-
-      this.brdContent = this.$refs.editor.getInstance().getMarkdown();
 
       try {
         const response = await axios.post('http://localhost:8081/boards/create', {
@@ -93,18 +104,6 @@ export default {
   top: 50px;
 }
 
-
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
 input, textarea {
   width: 100%;
   padding: 10px;
@@ -118,16 +117,6 @@ textarea {
   min-height: 300px;
 }
 
-.board-create-box {
-  width: 100%;
-  position: relative;
-  top: 100px;
-}
-
-textarea {
-  height: 150px;
-}
-
 button.submit-btn {
   width: 90px;
   padding: 10px;
@@ -135,17 +124,16 @@ button.submit-btn {
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 12.5px;
   cursor: pointer;
   position: relative;
-  top:80px;
+  top: 80px;
   float: right;
 }
 
 button.submit-btn:hover {
   background-color: #45a049;
 }
-
 
 .error-message {
   color: red;
@@ -165,11 +153,13 @@ button.submit-btn:hover {
   color: white;
   border-collapse: collapse;
   position: relative;
-  top:60px;
+  top: 60px;
 }
-.input-table tr td{
+
+.input-table tr td {
   font-size: 14px;
 }
+
 .input-table td {
   padding: 10px;
   border: 1px solid #1E1E1E;
@@ -178,6 +168,7 @@ button.submit-btn:hover {
 .input-table th {
   border: 1px solid #1E1E1E;
 }
+
 .input-table td:first-child {
   width: 8%;
 }
@@ -185,4 +176,15 @@ button.submit-btn:hover {
 .input-table td:last-child {
   width: 75%;
 }
+
+.tui-editor-preview {
+  background-color: #ffffff;
+  height: 400px !important;
+  padding: 20px;
+  border-radius: 4px;
+  border: 1px solid #333333;
+  overflow-y: scroll;
+  text-align: left;
+}
+
 </style>
