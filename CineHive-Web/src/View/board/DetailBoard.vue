@@ -1,66 +1,44 @@
 <template>
   <div class="detail-board">
-    <h3 class="detail-title">게시글 상세</h3>
-
-    <div class="title-line"></div>
-
-    <div v-if="errorMessage" class="error-message">
-      {{ errorMessage }}
-    </div>
-
-    <div v-if="successMessage" class="success-message">
-      {{ successMessage }}
-    </div>
-
-    <table class="input-table">
-      <tr>
-        <td><strong>제목</strong></td>
-        <td>{{ board.brdTitle }}</td>
-      </tr>
-      <tr>
-        <td><strong>닉네임</strong></td>
-        <td>{{ board.memNickname }}</td>
-      </tr>
-      <tr>
-        <td><strong>작성일</strong></td>
-        <td>{{ formatDate(board.brgRedDate) }}</td>
-      </tr>
-      <tr>
-        <td><strong>내용</strong></td>
-        <td>{{ board.brdContent }}</td>
-      </tr>
-      <tr>
-        <td><strong>좋아요 수</strong></td>
-        <td>{{ board.likeCount }}</td>
-      </tr>
-      <tr>
-        <td><strong>댓글 수</strong></td>
-        <td>{{ board.commentCount }}</td>
-      </tr>
-      <tr>
-        <td><strong>북마크 수</strong></td>
-        <td>{{ board.bookmarkCount }}</td>
-      </tr>
-      <tr>
-        <td><strong>신고 수</strong></td>
-        <td>{{ board.reportCount }}</td>
-      </tr>
-      <tr>
-        <td><strong>싫어요 수</strong></td>
-        <td>{{ board.dislikeCount }}</td>
-      </tr>
-    </table>
 
     <div class="button-container" v-if="isLoggedIn && isAuthor">
-      <button class="btn">수정</button>
-      <button class="btn">삭제</button>
+      <button class="edit-btn">수정</button>
+      <button class="delete-btn">삭제</button>
     </div>
+    <div class="title-section">
+      <h1 class="board-title">{{ board.brdTitle }}</h1>
+      <div class="info">
+        <span>⭐ {{ board.bookmarkCount }}</span>
+        <span>👁️ {{ board.viewCount }}</span>
+        <span> {{ formatDate(board.brgRedDate) }}</span>
+      </div>
+    </div>
+
+
+    <div class="meta-info">
+      <div class="author-box">
+        <div>
+          <span class="nickname"><span>작성자 : </span>{{ board.memNickname }}</span>
+        </div>
+      </div>
+      <div class="likes-dislikes">
+        <button class="like-btn">👍 {{ board.likeCount }}</button>
+        <button class="dislike-btn">👎 {{ board.dislikeCount }}</button>
+      </div>
+    </div>
+
+    <div class="content-section">
+      <p class="content-text">{{ board.brdContent }}</p>
+    </div>
+
+    <button class="board-detail-back-btn">뒤로가기</button>
+
   </div>
 </template>
 
 <script>
 import axios from 'axios';
-import { mapState } from 'vuex';
+import {mapState} from 'vuex';
 
 export default {
   data() {
@@ -108,48 +86,93 @@ export default {
   width: 60%;
   min-height: 950px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 25px;
 }
 
-.detail-title {
-  color: white;
-  font-size: 24px;
+/* 제목 섹션 */
+.title-section {
+  border-bottom: 2px solid #333;
+  padding-bottom: 15px;
   text-align: center;
-  margin-bottom: 20px;
 }
 
-.title-line {
-  border-bottom: 2px solid #d95a15;
-  margin-bottom: 20px;
+.board-title {
+  font-size: 18px;
+  font-weight: lighter;
+  color: #ffffff;
+  margin-bottom: 8px;
+  text-align: left;
+  position: relative;
+  top:15px;
 }
 
-.error-message, .success-message {
-  text-align: center;
-  margin-bottom: 15px;
-  color: red;
-}
-
-.success-message {
-  color: green;
-}
-
-.input-table {
-  width: 100%;
-  margin-top: 20px;
-  color: white;
-  border-collapse: collapse;
-}
-
-.input-table tr td {
-  padding: 10px;
-  border: 1px solid #1E1E1E;
+.info {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
   font-size: 14px;
+  color: gray;
+  float: right;
+  position: relative;
+  top:-10px;
 }
 
-.input-table td:first-child {
-  width: 20%;
-  font-weight: bold;
+/* 작성자 정보 */
+.meta-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  border-radius: 8px;
 }
+
+.author-box {
+  display: flex;
+  align-items: center;
+}
+
+.nickname {
+  font-size: 14px;
+  font-weight: lighter;
+  color: white;
+}
+
+.likes-dislikes {
+  display: flex;
+  gap: 10px;
+}
+
+.like-btn, .dislike-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.like-btn:hover {
+  color: #4caf50;
+}
+
+.dislike-btn:hover {
+  color: #e53935;
+}
+
+
+.content-section {
+  margin-top: 20px;
+  font-size: 16px;
+  line-height: 2.5;
+  text-align: left;
+  border-top: 1px solid #1a1a1a;
+}
+
+.content-text {
+  color: white;
+  height: 600px;
+}
+
 
 .button-container {
   display: flex;
@@ -157,20 +180,63 @@ export default {
   margin-top: 20px;
 }
 
-button.btn {
-  width: 90px;
-  padding: 10px;
-  background-color: #d95a15;
-  color: white;
-  border: none;
-  border-radius: 4px;
+.edit-btn, .delete-btn {
+  width: 100px;
+  padding: 12px;
   font-size: 14px;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-  margin-left: 10px;
-  transition: background-color 0.3s;
+  transition: 0.3s;
 }
 
-button.btn:hover {
-  background-color: #45a049;
+.edit-btn {
+  background: #4caf50;
+  color: white;
+}
+
+.edit-btn:hover {
+  background: #388e3c;
+}
+
+.delete-btn {
+  background: #e53935;
+  color: white;
+  margin-left: 10px;
+}
+
+.delete-btn:hover {
+  background: #c62828;
+}
+
+/* 반응형 */
+@media screen and (max-width: 768px) {
+  .detail-board {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .meta-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .likes-dislikes {
+    margin-top: 10px;
+  }
+
+  .button-container {
+    justify-content: center;
+  }
+}
+.board-detail-back-btn{
+  width: 90px;
+  height: 35px;
+  font-size: 13px;
+  background-color: #EB6015;
+  border: #EB6015;
+  border-radius: 3px;
+  float: right;
+  color: #1a1a1a;
 }
 </style>
