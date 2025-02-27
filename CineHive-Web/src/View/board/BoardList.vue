@@ -24,12 +24,14 @@
         </li>
       </ul>
 
-
-      <form class="d-flex search-form" @submit.prevent="filterPosts" style="width: 100%">
-        <input class="form-control search-input" type="text" v-model="searchQuery" placeholder="search..." aria-label="Search">
-        <button type="submit" id="search-btn" class="btn btn-search">검색</button>
+      <form class="search-form" @submit.prevent="filterPosts">
+        <input class="search-input" type="text" v-model="searchQuery" placeholder="검색...">
+        <button type="submit" class="btn-search">
+          <img src="@/assets/board/searchButton.png" alt="검색" class="search-icon" />
+        </button>
       </form>
-      <button type="submit" class="btn btn-success" id="create-button" @click="goToCreatePost">글 작성</button> 
+
+      <button type="submit" class="btn btn-success" id="create-button" @click="goToCreatePost">글 작성</button>
       <div class="pagination">
         <div class="page-numbers">
           <button
@@ -47,7 +49,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios';
 
@@ -260,7 +261,6 @@ ul {
   cursor: pointer;
   background-color: chocolate;
 }
-
 .search-form {
   display: flex;
   justify-content: center;
@@ -268,14 +268,15 @@ ul {
 }
 
 .search-input {
-  flex: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  flex: 1;
   padding: 10px;
   border-radius: 5px;
   font-size: 14px;
   transition: border-color 0.3s;
-  background-color: #e0e0e0;
-  border: 1px solid #e0e0e0; /* 경계 추가 */
-  max-width: 800px; /* 최대 너비 설정 */
+  background-color: #1a1a1a;
+  border: 1px solid #393636;
+  max-width: 800px;
+  margin-right: -5px;
 }
 
 .search-input:focus {
@@ -284,13 +285,25 @@ ul {
 }
 
 .btn-search {
-  padding: 10px 15px;
-  background-color: #e0e0e0;
-  border: 1px solid #e0e0e0;
+  padding: 10px;
+  background-color: #393636;
+  border: 1px solid #393636;
   color: black;
   cursor: pointer;
   transition: background-color 0.3s;
-  margin-left: 10px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-search:hover {
+  background-color: #0056b3;
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .btn-search:hover {
@@ -303,22 +316,5 @@ ul {
   top: -23px;
 }
 
-.d-flex {
-  width: 500px;
-  margin: auto;
-}
-
-#search-btn {
-  font-size: 13px;
-  width: 90px;
-  height: 40px;
-  font-weight: bolder;
-  position: relative;
-  left:5px;
-  background-color: #e0e0e0;
-  border: #e0e0e0;
-  color: black;
-  border-radius: 5px;
-}
 
 </style>

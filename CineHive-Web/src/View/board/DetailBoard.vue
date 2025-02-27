@@ -1,6 +1,5 @@
 <template>
   <div class="detail-board">
-
     <div class="button-container" v-if="isLoggedIn && isAuthor">
       <button class="edit-btn">수정</button>
       <button class="delete-btn">삭제</button>
@@ -9,11 +8,12 @@
       <h1 class="board-title">{{ board.brdTitle }}</h1>
       <div class="info">
         <span>⭐ {{ board.bookmarkCount }}</span>
-        <span>👁️ {{ board.viewCount }}</span>
-        <span> {{ formatDate(board.brgRedDate) }}</span>
+
+        <span>👍 {{ board.likeCount }}</span>
+        <span>👎 {{ board.dislikeCount }}</span>
+        <span>{{ formatDate(board.brgRedDate) }}</span>
       </div>
     </div>
-
 
     <div class="meta-info">
       <div class="author-box">
@@ -21,10 +21,7 @@
           <span class="nickname"><span>작성자 : </span>{{ board.memNickname }}</span>
         </div>
       </div>
-      <div class="likes-dislikes">
-        <button class="like-btn">👍 {{ board.likeCount }}</button>
-        <button class="dislike-btn">👎 {{ board.dislikeCount }}</button>
-      </div>
+      <span>👁️ {{ board.views }}</span>
     </div>
 
     <div class="content-section">
@@ -32,13 +29,12 @@
     </div>
 
     <button class="board-detail-back-btn">뒤로가기</button>
-
   </div>
 </template>
 
 <script>
 import axios from 'axios';
-import {mapState} from 'vuex';
+import { mapState } from 'vuex';
 
 export default {
   data() {
@@ -66,6 +62,17 @@ export default {
       try {
         const response = await axios.get(`http://localhost:8081/boards/detail/${boardId}`);
         this.board = response.data;
+
+
+        const bookmarkCountResponse = await axios.get(`http://localhost:8081/bookmark/${boardId}/count`);
+        const likeCountResponse = await axios.get(`http://localhost:8081/like/${boardId}/count`);
+        const dislikeCountResponse = await axios.get(`http://localhost:8081/dislike/${boardId}/count`);
+
+
+        this.board.bookmarkCount = bookmarkCountResponse.data;
+        this.board.likeCount = likeCountResponse.data;
+        this.board.dislikeCount = dislikeCountResponse.data;
+
         console.log("res", response);
       } catch (error) {
         this.errorMessage = '게시글 상세 조회에 실패했습니다.';
@@ -73,12 +80,13 @@ export default {
       }
     },
     formatDate(dateString) {
-      const options = {year: 'numeric', month: 'long', day: 'numeric'};
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
       return new Date(dateString).toLocaleDateString('ko-KR', options);
     }
   }
 };
 </script>
+
 
 <style scoped>
 
@@ -89,7 +97,7 @@ export default {
   padding: 25px;
 }
 
-/* 제목 섹션 */
+
 .title-section {
   border-bottom: 2px solid #333;
   padding-bottom: 15px;
@@ -117,7 +125,7 @@ export default {
   top:-10px;
 }
 
-/* 작성자 정보 */
+
 .meta-info {
   display: flex;
   justify-content: space-between;
@@ -135,28 +143,6 @@ export default {
   font-size: 14px;
   font-weight: lighter;
   color: white;
-}
-
-.likes-dislikes {
-  display: flex;
-  gap: 10px;
-}
-
-.like-btn, .dislike-btn {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.like-btn:hover {
-  color: #4caf50;
-}
-
-.dislike-btn:hover {
-  color: #e53935;
 }
 
 
@@ -219,10 +205,6 @@ export default {
   .meta-info {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .likes-dislikes {
-    margin-top: 10px;
   }
 
   .button-container {
