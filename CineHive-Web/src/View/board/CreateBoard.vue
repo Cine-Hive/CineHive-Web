@@ -31,7 +31,8 @@
       </tr>
     </table>
 
-    <button type="submit" class="submit-btn" @click="handleSubmit">등록하기</button>
+    <button type="submit" class="create-back-btn" @click="goToback">뒤로가기</button>
+    <button type="submit" class="submit-btn" @click="handleSubmit">작성하기</button>
   </div>
 </template>
 
@@ -85,6 +86,9 @@ export default {
         this.errorMessage = '게시물 등록에 실패했습니다. 다시 시도해주세요.';
       }
     },
+    goToback(){
+      this.$router.go(-1);
+    }
   },
 };
 </script>
@@ -120,17 +124,35 @@ textarea {
 button.submit-btn {
   width: 90px;
   padding: 10px;
-  background-color: #d95a15;
+  background-color: darkgreen;
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 12.5px;
+  font-size: 12.2px;
   cursor: pointer;
   position: relative;
   top: 80px;
   float: right;
+  margin-left: 10px;
 }
-
+.create-back-btn{
+  width: 90px;
+  padding: 10px;
+  background-color: #1E1E1E;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12.2px;
+  cursor: pointer;
+  position: relative;
+  top: 80px;
+  float: right;
+  margin-left: 10px;
+}
+.create-back-btn:hover{
+  cursor: pointer;
+  background-color: #1a1a1a;
+}
 button.submit-btn:hover {
   background-color: #45a049;
 }

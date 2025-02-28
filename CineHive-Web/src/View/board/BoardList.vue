@@ -31,7 +31,7 @@
         </button>
       </form>
 
-      <button type="submit" class="btn btn-success" id="create-button" @click="goToCreatePost">글 작성</button>
+      <button type="submit" class="btn btn-success" id="create-button" @click="goToCreatePost">작성하기</button>
       <div class="pagination">
         <div class="page-numbers">
           <button
@@ -245,12 +245,12 @@ ul {
 }
 
 #create-button {
-  font-size: 12px;
-  width: 80px;
-  height: 33px;
+  font-size: 12.2px;
+  width: 90px;
+  height: 38px;
   position: relative;
   float: right;
-  background-color: #d95a15;
+  background-color: darkgreen;
   border: #d95a15;
   color: white;
   border-radius: 3px;
@@ -259,7 +259,7 @@ ul {
 
 #create-button:hover{
   cursor: pointer;
-  background-color: chocolate;
+  background-color: #45a049;
 }
 .search-form {
   display: flex;

@@ -28,7 +28,7 @@
       <p class="content-text">{{ board.brdContent }}</p>
     </div>
 
-    <button class="board-detail-back-btn">뒤로가기</button>
+    <button class="board-detail-back-btn" @click="goToBack">뒤로가기</button>
   </div>
 </template>
 
@@ -82,6 +82,9 @@ export default {
     formatDate(dateString) {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
       return new Date(dateString).toLocaleDateString('ko-KR', options);
+    },
+    goToBack(){
+      this.$router.go(-1);
     }
   }
 };
@@ -208,7 +211,7 @@ export default {
   width: 90px;
   height: 35px;
   font-size: 12.5px;
-  background-color: #EB6015;
+  background-color: #1E1E1E;
   border: #EB6015;
   border-radius: 3px;
   float: right;
@@ -216,7 +219,7 @@ export default {
 }
 .board-detail-back-btn:hover {
   cursor: pointer;
-  background-color: #d75a0c;
+  background-color: #1a1a1a;
   transform: scale(1.03);
 }
 </style>
