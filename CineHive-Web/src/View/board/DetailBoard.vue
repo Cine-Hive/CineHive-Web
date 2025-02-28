@@ -151,6 +151,8 @@ export default {
   align-items: center;
   margin-top: 20px;
   border-radius: 8px;
+  color: white;
+  font-size: 13px;
 }
 
 .author-box {
