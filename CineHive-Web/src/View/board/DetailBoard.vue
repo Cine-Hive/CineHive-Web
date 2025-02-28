@@ -1,14 +1,13 @@
 <template>
   <div class="detail-board">
     <div class="button-container" v-if="isLoggedIn && isAuthor">
-      <span class="edit-btn">수정</span>
-      <span class="delete-btn">삭제</span>
+      <span class="edit-btn" @click="goToEdit">수정</span>
+      <span class="delete-btn" @click="confirmDelete">삭제</span>
     </div>
     <div class="title-section">
       <h1 class="board-title">{{ board.brdTitle }}</h1>
       <div class="info">
         <span>⭐ {{ board.bookmarkCount }}</span>
-
         <span>👍 {{ board.likeCount }}</span>
         <span>👎 {{ board.dislikeCount }}</span>
         <span>{{ formatDate(board.brgRedDate) }}</span>
@@ -63,11 +62,9 @@ export default {
         const response = await axios.get(`http://localhost:8081/boards/detail/${boardId}`);
         this.board = response.data;
 
-
         const bookmarkCountResponse = await axios.get(`http://localhost:8081/bookmark/${boardId}/count`);
         const likeCountResponse = await axios.get(`http://localhost:8081/like/${boardId}/count`);
         const dislikeCountResponse = await axios.get(`http://localhost:8081/dislike/${boardId}/count`);
-
 
         this.board.bookmarkCount = bookmarkCountResponse.data;
         this.board.likeCount = likeCountResponse.data;
@@ -85,11 +82,30 @@ export default {
     },
     goToBack(){
       this.$router.go(-1);
+    },
+    confirmDelete() {
+      if (confirm("정말 삭제하시겠습니까?")) {
+        this.deleteBoard();
+      }
+    },
+    async deleteBoard() {
+      const boardId = this.board.id;
+      try {
+        await axios.delete(`http://localhost:8081/boards/delete/${boardId}`);
+        alert("게시글이 삭제되었습니다.");
+        this.goToBack();
+      } catch (error) {
+        this.errorMessage = '게시글 삭제에 실패했습니다.';
+        console.error('게시글 삭제에 실패했습니다:', error);
+      }
+    },
+    goToEdit(){
+      const boardId = this.board.id;
+      this.$router.push({ path: `/boards/${boardId}` });
     }
   }
 };
 </script>
-
 
 <style scoped>
 
