@@ -7,9 +7,12 @@
     <div class="title-section">
       <h1 class="board-title">{{ board.brdTitle }}</h1>
       <div class="info">
-        <span>⭐ {{ board.bookmarkCount }}</span>
-        <span>👍 {{ board.likeCount }}</span>
-        <span>👎 {{ board.dislikeCount }}</span>
+        <span @click="toggleBookmark" :style="{ cursor: 'pointer', color: isBookmarked ? 'gold' : 'gray' }">⭐</span>
+        {{ board.bookmarkCount }}
+        <span @click="toggleLike" :style="{ cursor: 'pointer', color: isLiked ? 'yellow' : 'gray' }">👍</span>
+        {{ board.likeCount }}
+        <span @click="toggleDisLike" :style="{ cursor: 'pointer', color: isDisliked ? 'red' : 'gray' }">👎</span>
+        {{ board.dislikeCount }}
         <span>{{ formatDate(board.brgRedDate) }}</span>
       </div>
     </div>
@@ -40,13 +43,16 @@ export default {
     return {
       board: {},
       errorMessage: '',
-      successMessage: ''
+      successMessage: '',
     };
   },
   computed: {
     ...mapState({
       user: state => state.user,
       isLoggedIn: state => state.isLoggedIn,
+      isBookmarked: state => state.isBookmarked,
+      isLiked: state => state.isLiked,
+      isDisliked: state => state.isDisliked,
     }),
     isAuthor() {
       return this.user.email === this.board.memEmail;
@@ -61,26 +67,94 @@ export default {
       try {
         const response = await axios.get(`http://localhost:8081/boards/detail/${boardId}`);
         this.board = response.data;
-
-        const bookmarkCountResponse = await axios.get(`http://localhost:8081/bookmark/${boardId}/count`);
-        const likeCountResponse = await axios.get(`http://localhost:8081/like/${boardId}/count`);
-        const dislikeCountResponse = await axios.get(`http://localhost:8081/dislike/${boardId}/count`);
-
-        this.board.bookmarkCount = bookmarkCountResponse.data;
-        this.board.likeCount = likeCountResponse.data;
-        this.board.dislikeCount = dislikeCountResponse.data;
-
-        console.log("res", response);
+        await this.fetchCounts(boardId);
       } catch (error) {
         this.errorMessage = '게시글 상세 조회에 실패했습니다.';
         console.error('게시글 상세 조회에 실패했습니다:', error);
+      }
+    },
+    async fetchCounts(boardId) {
+      try {
+        const bookmarkCountResponse = await axios.get(`http://localhost:8081/bookmark/${boardId}/count`);
+        this.board.bookmarkCount = bookmarkCountResponse.data;
+
+        const likeCountResponse = await axios.get(`http://localhost:8081/like/${boardId}/count`);
+        this.board.likeCount = likeCountResponse.data;
+
+        const dislikeCountResponse = await axios.get(`http://localhost:8081/dislike/${boardId}/count`);
+        this.board.dislikeCount = dislikeCountResponse.data;
+      } catch (error) {
+        console.error('카운트 조회에 실패했습니다:', error);
+      }
+    },
+    async toggleBookmark() {
+      const boardId = this.board.id;
+      const memEmail = this.user.email;
+      try {
+        if (this.isBookmarked) {
+          await axios.delete(`http://localhost:8081/bookmark/${boardId}/users/${memEmail}`);
+          this.board.bookmarkCount--;
+          this.$store.dispatch('setBookmark', false);
+          localStorage.setItem('isBookmarked', 'false');
+          alert("즐겨찾기가 취소되었습니다.");
+        } else {
+          await axios.post(`http://localhost:8081/bookmark/${boardId}/users/${memEmail}`);
+          this.board.bookmarkCount++;
+          this.$store.dispatch('setBookmark', true);
+          localStorage.setItem('isBookmarked', 'true');
+          alert("즐겨찾기에 추가되었습니다.");
+        }
+      } catch (error) {
+        console.error('즐겨찾기 처리에 실패했습니다:', error);
+      }
+    },
+    async toggleLike() {
+      const boardId = this.board.id;
+      const memEmail = this.user.email;
+      try {
+        if (this.isLiked) {
+          await axios.delete(`http://localhost:8081/like/${boardId}/users/${memEmail}`);
+          this.board.likeCount--;
+          this.$store.dispatch('setLike', false);
+          localStorage.setItem('isLiked', 'false');
+          alert("좋아요가 취소되었습니다.");
+        } else {
+          await axios.post(`http://localhost:8081/like/${boardId}/users/${memEmail}`);
+          this.board.likeCount++;
+          this.$store.dispatch('setLike', true);
+          localStorage.setItem('isLiked', 'true');
+          alert("좋아요가 추가되었습니다.");
+        }
+      } catch (error) {
+        console.error('좋아요 처리에 실패했습니다:', error);
+      }
+    },
+    async toggleDisLike() {
+      const boardId = this.board.id;
+      const memEmail = this.user.email;
+      try {
+        if (this.isDisliked) {
+          await axios.delete(`http://localhost:8081/dislike/${boardId}/users/${memEmail}`);
+          this.board.dislikeCount--;
+          this.$store.dispatch('setDislike', false);
+          localStorage.setItem('isDisliked', 'false');
+          alert("싫어요가 취소되었습니다.");
+        } else {
+          await axios.post(`http://localhost:8081/dislike/${boardId}/users/${memEmail}`);
+          this.board.dislikeCount++;
+          this.$store.dispatch('setDislike', true);
+          localStorage.setItem('isDisliked', 'true');
+          alert("싫어요가 추가되었습니다.");
+        }
+      } catch (error) {
+        console.error('싫어요 처리에 실패했습니다:', error);
       }
     },
     formatDate(dateString) {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
       return new Date(dateString).toLocaleDateString('ko-KR', options);
     },
-    goToBack(){
+    goToBack() {
       this.$router.go(-1);
     },
     confirmDelete() {
@@ -99,7 +173,7 @@ export default {
         console.error('게시글 삭제에 실패했습니다:', error);
       }
     },
-    goToEdit(){
+    goToEdit() {
       const boardId = this.board.id;
       this.$router.push({ path: `/boards/${boardId}` });
     }
@@ -107,15 +181,12 @@ export default {
 };
 </script>
 
-<style scoped>
-
-.detail-board {
+<style scoped> .detail-board {
   width: 60%;
   min-height: 950px;
   margin: 0 auto;
   padding: 25px;
 }
-
 
 .title-section {
   border-bottom: 2px solid #333;
@@ -130,20 +201,19 @@ export default {
   margin-bottom: 8px;
   text-align: left;
   position: relative;
-  top:15px;
+  top: 15px;
 }
 
 .info {
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 13px;
   font-size: 14px;
   color: gray;
   float: right;
   position: relative;
-  top:-10px;
+  top: -10px;
 }
-
 
 .meta-info {
   display: flex;
@@ -166,7 +236,6 @@ export default {
   color: white;
 }
 
-
 .content-section {
   margin-top: 20px;
   font-size: 16px;
@@ -179,7 +248,6 @@ export default {
   color: white;
   height: 600px;
 }
-
 
 .button-container {
   display: flex;
@@ -198,17 +266,18 @@ export default {
   padding: 3px;
 }
 
-.edit-btn:hover{
+.edit-btn:hover {
   color: #ced4da;
 }
 
-.delete-btn{
+.delete-btn {
   color: #990000;
 }
 
-.delete-btn:hover{
+.delete-btn:hover {
   color: red;
 }
+
 /* 반응형 */
 @media screen and (max-width: 768px) {
   .detail-board {
@@ -225,7 +294,8 @@ export default {
     justify-content: center;
   }
 }
-.board-detail-back-btn{
+
+.board-detail-back-btn {
   width: 90px;
   height: 35px;
   font-size: 12.5px;
@@ -235,9 +305,9 @@ export default {
   float: right;
   color: white;
 }
+
 .board-detail-back-btn:hover {
   cursor: pointer;
   background-color: #1a1a1a;
   transform: scale(1.03);
-}
-</style>
+} </style>

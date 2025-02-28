@@ -9,6 +9,9 @@ export default new Vuex.Store({
         user: null, // 사용자 정보
         loginType: null, // 로그인 타입 (kakao, google, naver)
         searchResults: null, // 검색 결과 저장
+        isBookmarked: false,
+        isLiked: false,
+        isDisliked: false
     },
     mutations: {
         SET_LOGIN(state, payload) {
@@ -33,9 +36,27 @@ export default new Vuex.Store({
         },
         SET_SEARCH_RESULTS(state, results) {
             state.searchResults = results;
+        },
+        SET_BOOKMARK(state, status) {
+            state.isBookmarked = status;
+        },
+        SET_LIKE(state, status) {
+            state.isLiked = status;
+        },
+        SET_DISLIKE(state, status) {
+            state.isDisliked = status;
         }
     },
     actions: {
+        setBookmark({ commit }, status) {
+            commit('SET_BOOKMARK', status);
+        },
+        setLike({ commit }, status) {
+            commit('SET_LIKE', status);
+        },
+        setDislike({ commit }, status) {
+            commit('SET_DISLIKE', status);
+        },
         // 로그인 액션
         async login({ commit }, { user, loginType }) {
             try {
@@ -85,7 +106,13 @@ export default new Vuex.Store({
             } else {
                 commit('SET_LOGOUT');
             }
+            const isBookmarked = localStorage.getItem('isBookmarked') === 'true';
+            const isLiked = localStorage.getItem('isLiked') === 'true';
+            const isDisliked = localStorage.getItem('isDisliked') === 'true';
 
+            commit('SET_BOOKMARK', isBookmarked);
+            commit('SET_LIKE', isLiked);
+            commit('SET_DISLIKE', isDisliked);
             // ✅ email이 저장되었는지 확인
             console.log("스토어 초기화 - email 확인:", localStorage.getItem("email"));
         }
