@@ -144,6 +144,7 @@ export default {
   background-color: black;
   color: white;
   overflow-x: hidden;
+  min-height: 950px;
 }
 
 .animation-list h1 {
