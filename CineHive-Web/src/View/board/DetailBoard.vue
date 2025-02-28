@@ -1,8 +1,8 @@
 <template>
   <div class="detail-board">
     <div class="button-container" v-if="isLoggedIn && isAuthor">
-      <button class="edit-btn">수정</button>
-      <button class="delete-btn">삭제</button>
+      <span class="edit-btn">수정</span>
+      <span class="delete-btn">삭제</span>
     </div>
     <div class="title-section">
       <h1 class="board-title">{{ board.brdTitle }}</h1>
@@ -167,34 +167,27 @@ export default {
 }
 
 .edit-btn, .delete-btn {
-  width: 100px;
-  padding: 12px;
   font-size: 14px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: 0.3s;
-}
-
-.edit-btn {
-  background: #4caf50;
+  background-color: black;
   color: white;
+  padding: 3px;
 }
 
-.edit-btn:hover {
-  background: #388e3c;
+.edit-btn:hover{
+  color: #ced4da;
 }
 
-.delete-btn {
-  background: #e53935;
-  color: white;
-  margin-left: 10px;
+.delete-btn{
+  color: #990000;
 }
 
-.delete-btn:hover {
-  background: #c62828;
+.delete-btn:hover{
+  color: red;
 }
-
 /* 반응형 */
 @media screen and (max-width: 768px) {
   .detail-board {
@@ -214,11 +207,16 @@ export default {
 .board-detail-back-btn{
   width: 90px;
   height: 35px;
-  font-size: 13px;
+  font-size: 12.5px;
   background-color: #EB6015;
   border: #EB6015;
   border-radius: 3px;
   float: right;
-  color: #1a1a1a;
+  color: white;
+}
+.board-detail-back-btn:hover {
+  cursor: pointer;
+  background-color: #d75a0c;
+  transform: scale(1.03);
 }
 </style>
