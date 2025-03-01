@@ -27,8 +27,10 @@
     </div>
 
     <div class="content-section">
-      <p class="content-text">{{ board.brdContent }}</p>
+
+      <Viewer  v-if="board && board.brdContent" :initialValue="board.brdContent" />
     </div>
+
 
     <button class="board-detail-back-btn" @click="goToBack">뒤로가기</button>
   </div>
@@ -37,8 +39,12 @@
 <script>
 import axios from 'axios';
 import { mapState } from 'vuex';
+import { Viewer } from '@toast-ui/vue-editor';
 
 export default {
+  components: {
+    Viewer,
+  },
   data() {
     return {
       board: {},
@@ -244,11 +250,15 @@ export default {
   border-top: 1px solid #1a1a1a;
 }
 
-.content-text {
-  color: white;
+
+
+::v-deep(.toastui-editor-contents) {
+  color: white !important;
   height: 600px;
 }
-
+::v-deep(.toastui-editor-contents *) {
+  color: white !important;
+}
 .button-container {
   display: flex;
   justify-content: flex-end;
@@ -278,7 +288,7 @@ export default {
   color: red;
 }
 
-/* 반응형 */
+
 @media screen and (max-width: 768px) {
   .detail-board {
     width: 90%;
