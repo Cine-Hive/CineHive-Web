@@ -258,6 +258,7 @@ export default {
 }
 ::v-deep(.toastui-editor-contents *) {
   color: white !important;
+  font-size: 14px;
 }
 .button-container {
   display: flex;
