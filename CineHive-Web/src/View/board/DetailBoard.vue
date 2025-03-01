@@ -32,23 +32,24 @@
     <button class="board-detail-back-btn" @click="goToBack">뒤로가기</button>
     <div class="comment-section">
     <span class="comment-header">
-    <h3>댓글</h3> {{ board.commentCount }}
+    <h3>댓글</h3> (<span>{{ board.commentCount }}</span>)
     </span>
 
-
-      <div class="commnet-line"></div>
-
       <ul class="comment-list">
-        <li v-for="comment in comments" :key="comment.id" class="comment-item">
+        <li v-for="(comment, index) in comments" :key="comment.id" class="comment-item">
           <div class="comment-details">
             <span class="comment-nickname">{{ comment.memNickname }}</span>
-            <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
+            <span class="comment-date">{{ formatDate(comment.brgRedDate) }}</span>
           </div>
 
           <span class="comment-content">{{ comment.content }}</span>
           <button @click="deleteComment(comment.id)" class="delete-comment-btn">삭제</button>
+
+          <!-- Add a separator line after each comment, except the last one -->
+          <div v-if="index < comments.length - 1" class="comment-separator"></div>
         </li>
       </ul>
+
       <div class="comment-input">
         <input v-model="newComment" placeholder="댓글을 입력하세요." />
         <button @click="addComment">댓글 추가</button>
@@ -336,13 +337,13 @@ export default {
 }
 
 .comment-header {
-  display: flex; /* 또는 inline-flex */
-  align-items: center; /* 수직 정렬 */
+  display: flex;
+  align-items: center;
 }
 
 .comment-header h3 {
-  margin: 0; /* h3의 기본 여백 제거 */
-  margin-right: 5px; /* 댓글 수와의 간격 조정 */
+  margin: 0;
+  margin-right: 5px;
 }
 
 .commnet-line{
@@ -370,7 +371,7 @@ export default {
 }
 
 .comment-input input:focus {
-  border: 1px solid #4CAF50; /* 포커스 시 테두리 색상 변경 */
+  border: 1px solid #4CAF50;
 }
 
 .comment-input button {
@@ -383,9 +384,13 @@ export default {
   margin-left: 10px;
   transition: background-color 0.3s;
 }
+.comment-separator {
+  border-top: 0.1px solid #1E1E1E;
+  margin: 2px 0;
+}
 
 .comment-input button:hover {
-  background-color: #45a049; /* 버튼 호버 시 색상 변경 */
+  background-color: #45a049;
 }
 
 .comment-list {
@@ -397,7 +402,7 @@ export default {
 
 .comment-item {
   display: flex;
-  flex-direction: column; /* 세로 정렬 */
+  flex-direction: column;
   margin-bottom: 15px;
   padding: 5px;
   border-radius: 6px;
@@ -408,7 +413,7 @@ export default {
 
 .comment-details {
   display: flex;
-  justify-content: space-between; /* 닉네임과 내용을 양쪽으로 배치 */
+  justify-content: space-between;
 }
 
 .comment-nickname {
@@ -416,20 +421,20 @@ export default {
 }
 
 .comment-content {
-  margin-top: 5px; /* 닉네임과 내용 간격 */
+  margin-top: 5px;
   float: left;
 }
 
 .comment-date {
   font-size: 12px;
-  color: gray; /* 날짜 색상 */
-  margin-top: 5px; /* 날짜와 내용 간격 */
-  text-align: right; /* 오른쪽 정렬 */
+  color: gray;
+  margin-top: 5px;
+  text-align: right;
 }
 
 .delete-comment-btn {
   background-color: transparent;
-  color: #e74c3c; /* 삭제 버튼 색상 */
+  color: #e74c3c;
   border: none;
   cursor: pointer;
   transition: color 0.3s;
@@ -439,7 +444,7 @@ export default {
 }
 
 .delete-comment-btn:hover {
-  text-decoration: underline; /* 마우스 오버 시 효과 */
+  text-decoration: underline;
 }
 
 .button-container {
