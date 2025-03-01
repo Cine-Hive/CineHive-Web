@@ -7,6 +7,14 @@
     <div class="title-section">
       <h1 class="board-title">{{ board.brdTitle }}</h1>
       <div class="info">
+        <div class="report-btn" @click="showReportModal = true">💄 신고하기</div>
+        <ReportModal
+            :showModal="showReportModal"
+            :boardId="board.id"
+            :userEmail="user.email"
+            @close="showReportModal = false"
+        />
+
         <span @click="toggleBookmark" :style="{ cursor: 'pointer', color: isBookmarked(board.id) ? 'gold' : 'gray' }">⭐</span>
         {{ board.bookmarkCount }}
         <span @click="toggleLike" :style="{ cursor: 'pointer', color: isLiked(board.id) ? 'yellow' : 'gray' }">👍</span>
@@ -65,10 +73,12 @@
 import axios from 'axios';
 import { mapState, mapGetters } from 'vuex';
 import { Viewer } from '@toast-ui/vue-editor';
+import ReportModal from '@/components/ReportModal.vue'; // 모달 컴포넌트 임포트
 
 export default {
   components: {
     Viewer,
+    ReportModal
   },
   data() {
     return {
@@ -76,7 +86,8 @@ export default {
       errorMessage: '',
       successMessage: '',
       newComment: '',
-      comments: []
+      comments: [],
+      showReportModal: false,
     };
   },
   computed: {
@@ -305,7 +316,10 @@ export default {
   position: relative;
   top: 15px;
 }
-
+.report-btn{
+  color: white;
+  font-size: 12.5px;
+}
 .info {
   display: flex;
   justify-content: center;
