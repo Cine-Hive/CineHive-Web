@@ -27,18 +27,40 @@
     </div>
 
     <div class="content-section">
+      <Viewer v-if="board && board.brdContent" :initialValue="board.brdContent" />
+    </div>
+    <button class="board-detail-back-btn" @click="goToBack">뒤로가기</button>
+    <div class="comment-section">
+    <span class="comment-header">
+    <h3>댓글</h3> {{ board.commentCount }}
+    </span>
 
-      <Viewer  v-if="board && board.brdContent" :initialValue="board.brdContent" />
+
+      <div class="commnet-line"></div>
+
+      <ul class="comment-list">
+        <li v-for="comment in comments" :key="comment.id" class="comment-item">
+          <div class="comment-details">
+            <span class="comment-nickname">{{ comment.memNickname }}</span>
+            <span class="comment-date">{{ formatDate(comment.createdAt) }}</span>
+          </div>
+
+          <span class="comment-content">{{ comment.content }}</span>
+          <button @click="deleteComment(comment.id)" class="delete-comment-btn">삭제</button>
+        </li>
+      </ul>
+      <div class="comment-input">
+        <input v-model="newComment" placeholder="댓글을 입력하세요." />
+        <button @click="addComment">댓글 추가</button>
+      </div>
     </div>
 
-
-    <button class="board-detail-back-btn" @click="goToBack">뒤로가기</button>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
-import { mapState, mapGetters } from 'vuex';
+import { mapState } from 'vuex';
 import { Viewer } from '@toast-ui/vue-editor';
 
 export default {
@@ -50,6 +72,8 @@ export default {
       board: {},
       errorMessage: '',
       successMessage: '',
+      newComment: '',
+      comments: []
     };
   },
   computed: {
@@ -57,17 +81,22 @@ export default {
       user: state => state.user,
       isLoggedIn: state => state.isLoggedIn,
     }),
-    ...mapGetters([
-      'isBookmarked',
-      'isLiked',
-      'isDisliked'
-    ]),
+    isBookmarked() {
+      return this.$store.state.bookmarks[this.board.id] || false;
+    },
+    isLiked() {
+      return this.$store.state.likes[this.board.id] || false;
+    },
+    isDisliked() {
+      return this.$store.state.dislikes[this.board.id] || false;
+    },
     isAuthor() {
       return this.user.email === this.board.memEmail;
     }
   },
   mounted() {
     this.fetchBoardDetail();
+    this.fetchComments();
   },
   methods: {
     async fetchBoardDetail() {
@@ -79,6 +108,43 @@ export default {
       } catch (error) {
         this.errorMessage = '게시글 상세 조회에 실패했습니다.';
         console.error('게시글 상세 조회에 실패했습니다:', error);
+      }
+    },
+
+    // 댓글 조회 메서드
+    async fetchComments() {
+      const boardId = this.$route.params.id;
+      try {
+        const response = await axios.get(`http://localhost:8081/comment/all/board/${boardId}`);
+        this.comments = response.data;
+      } catch (error) {
+        console.error('댓글 조회에 실패했습니다:', error);
+      }
+    },
+
+
+    async addComment() {
+      const boardId = this.board.id;
+      const memEmail = this.user.email;
+      try {
+        const response = await axios.post(`http://localhost:8081/comment/${boardId}/${memEmail}`, {
+          content: this.newComment
+        });
+        this.comments.push(response.data);
+        this.newComment = '';
+      } catch (error) {
+        console.error('댓글 추가에 실패했습니다:', error);
+      }
+    },
+
+
+    async deleteComment(commentId) {
+      const boardId = this.board.id;
+      try {
+        await axios.delete(`http://localhost:8081/comment/board/${boardId}/delete/${commentId}`);
+        this.comments = this.comments.filter(comment => comment.id !== commentId);
+      } catch (error) {
+        console.error('댓글 삭제에 실패했습니다:', error);
       }
     },
     async fetchCounts(boardId) {
@@ -102,13 +168,13 @@ export default {
         if (this.isBookmarked) {
           await axios.delete(`http://localhost:8081/bookmark/${boardId}/users/${memEmail}`);
           this.board.bookmarkCount--;
-          this.$store.dispatch('setBookmark', false);
+          this.$store.dispatch('setBookmark', { boardId, status: false });
           localStorage.setItem('isBookmarked', 'false');
           alert("즐겨찾기가 취소되었습니다.");
         } else {
           await axios.post(`http://localhost:8081/bookmark/${boardId}/users/${memEmail}`);
           this.board.bookmarkCount++;
-          this.$store.dispatch('setBookmark', true);
+          this.$store.dispatch('setBookmark', { boardId, status: true });
           localStorage.setItem('isBookmarked', 'true');
           alert("즐겨찾기에 추가되었습니다.");
         }
@@ -123,13 +189,13 @@ export default {
         if (this.isLiked) {
           await axios.delete(`http://localhost:8081/like/${boardId}/users/${memEmail}`);
           this.board.likeCount--;
-          this.$store.dispatch('setLike', false);
+          this.$store.dispatch('setLike', {boardId,status : false});
           localStorage.setItem('isLiked', 'false');
           alert("좋아요가 취소되었습니다.");
         } else {
           await axios.post(`http://localhost:8081/like/${boardId}/users/${memEmail}`);
           this.board.likeCount++;
-          this.$store.dispatch('setLike', true);
+          this.$store.dispatch('setLike', {boardId,status : true});
           localStorage.setItem('isLiked', 'true');
           alert("좋아요가 추가되었습니다.");
         }
@@ -145,13 +211,13 @@ export default {
         if (this.isDisliked) {
           await axios.delete(`http://localhost:8081/dislike/${boardId}/users/${memEmail}`);
           this.board.dislikeCount--;
-          this.$store.dispatch('setDislike', false);
+          this.$store.dispatch('setDislike', {boardId,status : false});
           localStorage.setItem('isDisliked', 'false');
           alert("싫어요가 취소되었습니다.");
         } else {
           await axios.post(`http://localhost:8081/dislike/${boardId}/users/${memEmail}`);
           this.board.dislikeCount++;
-          this.$store.dispatch('setDislike', true);
+          this.$store.dispatch('setDislike', {boardId,status : true});
           localStorage.setItem('isDisliked', 'true');
           alert("싫어요가 추가되었습니다.");
         }
@@ -191,7 +257,8 @@ export default {
 </script>
 
 
-<style scoped> .detail-board {
+<style scoped>
+.detail-board {
   width: 60%;
   min-height: 950px;
   margin: 0 auto;
@@ -253,24 +320,136 @@ export default {
   text-align: left;
   border-top: 1px solid #1a1a1a;
 }
-
-
-
-::v-deep(.toastui-editor-contents) {
-  color: white !important;
-  height: 600px;
-}
 ::v-deep(.toastui-editor-contents *) {
   color: white !important;
   font-size: 14px;
 }
+::v-deep(.toastui-editor-contents) {
+  min-height: 500px;
+}
+/* 댓글 섹션 스타일 */
+.comment-section {
+  margin-top: 60px;
+  color: white;
+  padding: 10px;
+  font-size: 13px;
+}
+
+.comment-header {
+  display: flex; /* 또는 inline-flex */
+  align-items: center; /* 수직 정렬 */
+}
+
+.comment-header h3 {
+  margin: 0; /* h3의 기본 여백 제거 */
+  margin-right: 5px; /* 댓글 수와의 간격 조정 */
+}
+
+.commnet-line{
+  border:  1px solid #1E1E1E;
+  position: relative;
+  top:10px;
+}
+.comment-section h3 {
+  text-align: left;
+  font-size: 15px;
+}
+
+.comment-input {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.comment-input input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #1E1E1E;
+  color: black;
+  transition: border 0.3s;
+}
+
+.comment-input input:focus {
+  border: 1px solid #4CAF50; /* 포커스 시 테두리 색상 변경 */
+}
+
+.comment-input button {
+  padding: 10px 15px;
+  background-color: darkgreen;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: background-color 0.3s;
+}
+
+.comment-input button:hover {
+  background-color: #45a049; /* 버튼 호버 시 색상 변경 */
+}
+
+.comment-list {
+  padding: 0;
+  text-align: left;
+  position: relative;
+  top:10px;
+}
+
+.comment-item {
+  display: flex;
+  flex-direction: column; /* 세로 정렬 */
+  margin-bottom: 15px;
+  padding: 5px;
+  border-radius: 6px;
+  transition: background-color 0.3s;
+}
+
+
+
+.comment-details {
+  display: flex;
+  justify-content: space-between; /* 닉네임과 내용을 양쪽으로 배치 */
+}
+
+.comment-nickname {
+  font-weight: lighter;
+}
+
+.comment-content {
+  margin-top: 5px; /* 닉네임과 내용 간격 */
+  float: left;
+}
+
+.comment-date {
+  font-size: 12px;
+  color: gray; /* 날짜 색상 */
+  margin-top: 5px; /* 날짜와 내용 간격 */
+  text-align: right; /* 오른쪽 정렬 */
+}
+
+.delete-comment-btn {
+  background-color: transparent;
+  color: #e74c3c; /* 삭제 버튼 색상 */
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s;
+  text-align: right;
+  position: relative;
+  top: -10px;
+}
+
+.delete-comment-btn:hover {
+  text-decoration: underline; /* 마우스 오버 시 효과 */
+}
+
 .button-container {
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
 }
 
-.edit-btn, .delete-btn {
+.edit-btn,
+.delete-btn {
   font-size: 14px;
   border: none;
   border-radius: 6px;
@@ -293,6 +472,22 @@ export default {
   color: red;
 }
 
+.board-detail-back-btn {
+  width: 90px;
+  height: 35px;
+  font-size: 12.5px;
+  background-color: #1E1E1E;
+  border: #EB6015;
+  border-radius: 3px;
+  float: right;
+  color: white;
+}
+
+.board-detail-back-btn:hover {
+  cursor: pointer;
+  background-color: #1a1a1a;
+  transform: scale(1.03);
+}
 
 @media screen and (max-width: 768px) {
   .detail-board {
@@ -309,20 +504,4 @@ export default {
     justify-content: center;
   }
 }
-
-.board-detail-back-btn {
-  width: 90px;
-  height: 35px;
-  font-size: 12.5px;
-  background-color: #1E1E1E;
-  border: #EB6015;
-  border-radius: 3px;
-  float: right;
-  color: white;
-}
-
-.board-detail-back-btn:hover {
-  cursor: pointer;
-  background-color: #1a1a1a;
-  transform: scale(1.03);
-} </style>
+</style>

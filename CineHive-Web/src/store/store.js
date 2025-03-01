@@ -9,9 +9,9 @@ export default new Vuex.Store({
         user: null, // 사용자 정보
         loginType: null, // 로그인 타입 (kakao, google, naver)
         searchResults: null, // 검색 결과 저장
-        isBookmarked: false,
-        isLiked: false,
-        isDisliked: false
+        bookmarks: {},
+        likes: {},
+        dislikes: {}
     },
     mutations: {
         SET_LOGIN(state, payload) {
@@ -37,25 +37,25 @@ export default new Vuex.Store({
         SET_SEARCH_RESULTS(state, results) {
             state.searchResults = results;
         },
-        SET_BOOKMARK(state, status) {
-            state.isBookmarked = status;
+        SET_BOOKMARK(state, { boardId, status }) {
+            state.bookmarks[boardId] = status;
         },
-        SET_LIKE(state, status) {
-            state.isLiked = status;
+        SET_LIKE(state, { boardId, status }) {
+            state.likes[boardId] = status;
         },
-        SET_DISLIKE(state, status) {
-            state.isDisliked = status;
-        }
+        SET_DISLIKE(state, { boardId, status }) {
+            state.dislikes[boardId] = status;
+        },
     },
     actions: {
-        setBookmark({ commit }, status) {
-            commit('SET_BOOKMARK', status);
+        setBookmark({ commit }, { boardId, status }) {
+            commit('SET_BOOKMARK', { boardId, status });
         },
-        setLike({ commit }, status) {
-            commit('SET_LIKE', status);
+        setLike({ commit }, { boardId, status }) {
+            commit('SET_LIKE', { boardId, status });
         },
-        setDislike({ commit }, status) {
-            commit('SET_DISLIKE', status);
+        setDislike({ commit }, { boardId, status }) {
+            commit('SET_DISLIKE', { boardId, status });
         },
         // 로그인 액션
         async login({ commit }, { user, loginType }) {
