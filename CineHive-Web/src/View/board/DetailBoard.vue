@@ -377,7 +377,7 @@ export default {
 
 .comment-input button {
   padding: 10px 15px;
-  background-color: darkgreen;
+  background-color: #4a5855;
   color: white;
   font-size: 12.5px;
   width: 70px;
@@ -393,7 +393,7 @@ export default {
 }
 
 .comment-input button:hover {
-  background-color: #45a049;
+  background-color: #2a584f;
 }
 
 .comment-list {
@@ -481,9 +481,9 @@ export default {
 }
 
 .board-detail-back-btn {
-  width: 90px;
+  width: 87px;
   height: 35px;
-  font-size: 12.5px;
+  font-size: 12.2px;
   background-color: #1E1E1E;
   border: #EB6015;
   border-radius: 3px;

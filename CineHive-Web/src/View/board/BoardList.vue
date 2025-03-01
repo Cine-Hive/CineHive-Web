@@ -1,6 +1,17 @@
 <template>
   <div class="board-list">
     <div class="board-list-title">자유 게시판</div>
+
+    <div class="sort-container">
+      <label for="sortSelect">정렬 기준:</label>
+      <select id="sortSelect" v-model="selectedSort" @change="sortPosts">
+        <option value="latest">최신 순</option>
+        <option value="oldest">오래된 순</option>
+        <option value="likes">좋아요 순</option>
+        <option value="views">조회 순</option>
+      </select>
+    </div>
+
     <div class="board-container">
       <div class="table-header">
         <div class="table-title" style="position: relative; left:-40%;">NO</div>
@@ -61,6 +72,7 @@ export default {
       postsPerPage: 10,
       selectedSort: '최신 순',
       searchQuery: '',
+      filteredPosts: [],
     };
   },
   computed: {
@@ -77,6 +89,7 @@ export default {
       try {
         const response = await axios.get('http://localhost:8081/boards');
         this.posts = response.data;
+        this.filteredPosts = response.data; // 초기 게시글은 필터링된 게시글로 설정
         console.log("전체 목록 조회 res",response);
       } catch (error) {
         console.error('게시글 목록 조회에 실패했습니다:', error);
@@ -85,16 +98,27 @@ export default {
     goToDetailPage(id) {
       this.$router.push({ path: `/boards/detail/${id}` });
     },
-    sortPosts(order) {
-      this.selectedSort = order === 'latest' ? '최신 순' : order === 'oldest' ? '오래된 순' : '좋아요 순';
-      if (order === 'latest') {
-        this.posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      } else if (order === 'oldest') {
-        this.posts.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-      } else if (order === 'likes') {
-        this.posts.sort((a, b) => b.likeCount - a.likeCount);
+
+    async filterPosts() {
+      try {
+        const response = await axios.get(`http://localhost:8081/boards/search?keyword=${this.searchQuery}`);
+        this.posts = response.data;
+        this.currentPage = 1;
+      } catch (error) {
+        console.error('게시글 검색에 실패했습니다:', error);
       }
-      this.currentPage = 1;
+    },
+    sortPosts() {
+      if (this.selectedSort === 'latest') {
+        this.filteredPosts.sort((a, b) => new Date(b.brgRegDate) - new Date(a.brgRegDate));
+      } else if (this.selectedSort === 'oldest') {
+        this.filteredPosts.sort((a, b) => new Date(a.brgRegDate) - new Date(b.brgRegDate));
+      } else if (this.selectedSort === 'likes') {
+        this.filteredPosts.sort((a, b) => b.likeCount - a.likeCount);
+      } else if (this.selectedSort === 'views') {
+        this.filteredPosts.sort((a, b) => b.views - a.views);
+      }
+      this.currentPage = 1; // 정렬 후 첫 페이지로 이동
     },
     formatDate(dateString) {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -131,7 +155,7 @@ export default {
   width: 75%;
   margin: auto;
   border-radius: 10px;
-  min-height: 1150px;
+  min-height: 1250px;
 }
 .board-list-title{
   color: white;
@@ -250,8 +274,8 @@ ul {
   height: 38px;
   position: relative;
   float: right;
-  background-color: darkgreen;
-  border: #d95a15;
+  background-color: #4a5855;
+  border: #4a5855;
   color: white;
   border-radius: 3px;
   top:35px;
@@ -259,7 +283,7 @@ ul {
 
 #create-button:hover{
   cursor: pointer;
-  background-color: #45a049;
+  background-color: #2a584f;
 }
 .search-form {
   display: flex;
@@ -315,6 +339,19 @@ ul {
   position: relative;
   top: -23px;
 }
+.sort-container {
+  margin-bottom: 20px;
+  text-align: right;
+  position: relative;
+  left:-1%;
+}
 
-
+.sort-container select {
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 12.4px;
+  background-color: #4a5855;
+  color: white;
+  border: #4a5855;
+}
 </style>
