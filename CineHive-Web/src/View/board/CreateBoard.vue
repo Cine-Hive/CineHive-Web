@@ -207,7 +207,7 @@ button.submit-btn:hover {
 
 .tui-editor-preview {
   background-color: #ffffff;
-  height: 400px !important;
+  height: 500px !important;
   padding: 20px;
   border-radius: 4px;
   border: 1px solid #333333;

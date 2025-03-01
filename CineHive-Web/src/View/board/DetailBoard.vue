@@ -44,7 +44,6 @@
 
           <span class="comment-content">{{ comment.content }}</span>
 
-
           <button v-if="comment.memEmail === user.email" @click="deleteComment(comment.id)" class="delete-comment-btn">삭제</button>
 
 
@@ -55,7 +54,7 @@
 
       <div class="comment-input">
         <input v-model="newComment" placeholder="댓글을 입력하세요." />
-        <button @click="addComment">댓글 추가</button>
+        <button @click="addComment">등록</button>
       </div>
     </div>
 
@@ -141,7 +140,6 @@ export default {
       }
     },
 
-
     async deleteComment(commentId) {
       const boardId = this.board.id;
       try {
@@ -172,13 +170,13 @@ export default {
         if (this.isBookmarked) {
           await axios.delete(`http://localhost:8081/bookmark/${boardId}/users/${memEmail}`);
           this.board.bookmarkCount--;
-          this.$store.dispatch('setBookmark', { boardId, status: false });
+          this.$store.dispatch('setBookmark', {boardId, status: false});
           localStorage.setItem('isBookmarked', 'false');
           alert("즐겨찾기가 취소되었습니다.");
         } else {
           await axios.post(`http://localhost:8081/bookmark/${boardId}/users/${memEmail}`);
           this.board.bookmarkCount++;
-          this.$store.dispatch('setBookmark', { boardId, status: true });
+          this.$store.dispatch('setBookmark', {boardId, status: true});
           localStorage.setItem('isBookmarked', 'true');
           alert("즐겨찾기에 추가되었습니다.");
         }
@@ -193,13 +191,13 @@ export default {
         if (this.isLiked) {
           await axios.delete(`http://localhost:8081/like/${boardId}/users/${memEmail}`);
           this.board.likeCount--;
-          this.$store.dispatch('setLike', {boardId,status : false});
+          this.$store.dispatch('setLike', {boardId, status: false});
           localStorage.setItem('isLiked', 'false');
           alert("좋아요가 취소되었습니다.");
         } else {
           await axios.post(`http://localhost:8081/like/${boardId}/users/${memEmail}`);
           this.board.likeCount++;
-          this.$store.dispatch('setLike', {boardId,status : true});
+          this.$store.dispatch('setLike', {boardId, status: true});
           localStorage.setItem('isLiked', 'true');
           alert("좋아요가 추가되었습니다.");
         }
@@ -215,13 +213,13 @@ export default {
         if (this.isDisliked) {
           await axios.delete(`http://localhost:8081/dislike/${boardId}/users/${memEmail}`);
           this.board.dislikeCount--;
-          this.$store.dispatch('setDislike', {boardId,status : false});
+          this.$store.dispatch('setDislike', {boardId, status: false});
           localStorage.setItem('isDisliked', 'false');
           alert("싫어요가 취소되었습니다.");
         } else {
           await axios.post(`http://localhost:8081/dislike/${boardId}/users/${memEmail}`);
           this.board.dislikeCount++;
-          this.$store.dispatch('setDislike', {boardId,status : true});
+          this.$store.dispatch('setDislike', {boardId, status: true});
           localStorage.setItem('isDisliked', 'true');
           alert("싫어요가 추가되었습니다.");
         }
@@ -230,7 +228,7 @@ export default {
       }
     },
     formatDate(dateString) {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      const options = {year: 'numeric', month: 'long', day: 'numeric'};
       return new Date(dateString).toLocaleDateString('ko-KR', options);
     },
     goToBack() {
@@ -254,7 +252,7 @@ export default {
     },
     goToEdit() {
       const boardId = this.board.id;
-      this.$router.push({ path: `/boards/${boardId}` });
+      this.$router.push({path: `/boards/${boardId}`});
     }
   }
 };
@@ -381,6 +379,8 @@ export default {
   padding: 10px 15px;
   background-color: darkgreen;
   color: white;
+  font-size: 12.5px;
+  width: 70px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
