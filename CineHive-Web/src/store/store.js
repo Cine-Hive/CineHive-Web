@@ -33,6 +33,16 @@ export default new Vuex.Store({
             state.isLoggedIn = false;
             state.user = null;
             state.loginType = null;
+
+            // 다른 계정으로 로그인 시 즐겨찾기, 좋아요, 싫어요 오류가 남에 따라 -> 로그아웃 시 해당 상태 값 초기화 하도록 추가
+            state.bookmarks = {};
+            state.likes = {};
+            state.dislikes = {};
+
+            // 상태 값 제거
+            localStorage.removeItem('bookmarks');
+            localStorage.removeItem('likes');
+            localStorage.removeItem('dislikes');
         },
         SET_SEARCH_RESULTS(state, results) {
             state.searchResults = results;
@@ -101,29 +111,37 @@ export default new Vuex.Store({
             if (isLoggedIn === 'true' && user) {
                 const loginType = user.mem_type || localStorage.getItem('loginType');
                 commit('SET_LOGIN', { isLoggedIn: true, user, loginType });
-
-                console.log("스토어 초기화 - 가져온 user 데이터:", user); // ✅ 로그 확인
             } else {
                 commit('SET_LOGOUT');
             }
-            const isBookmarked = localStorage.getItem('isBookmarked') === 'true';
-            const isLiked = localStorage.getItem('isLiked') === 'true';
-            const isDisliked = localStorage.getItem('isDisliked') === 'true';
 
-            commit('SET_BOOKMARK', isBookmarked);
-            commit('SET_LIKE', isLiked);
-            commit('SET_DISLIKE', isDisliked);
-            // ✅ email이 저장되었는지 확인
-            console.log("스토어 초기화 - email 확인:", localStorage.getItem("email"));
+            // 즐겨찾기 상태 초기화
+            const bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || {};
+            for (const [boardId, status] of Object.entries(bookmarks)) {
+                commit('SET_BOOKMARK', { boardId, status });
+            }
+
+            // 좋아요 상태 초기화
+            const likes = JSON.parse(localStorage.getItem('likes')) || {};
+            for (const [boardId, status] of Object.entries(likes)) {
+                commit('SET_LIKE', { boardId, status });
+            }
+            // 싫어요 상태 초기화
+            const dislikes = JSON.parse(localStorage.getItem('dislikes')) || {};
+            for (const [boardId, status] of Object.entries(dislikes)) {
+                commit('SET_DISLIKE', { boardId, status });
+            }
         }
+
 
     },
     getters: {
         getUserId: (state) => (state.user ? state.user.userid : null),
         getUserInfo: (state) => state.user,
         getLoginType: (state) => state.loginType,
-        isBookmarked: state => state.isBookmarked,
-        isLiked: state => state.isLiked,
-        isDisliked: state => state.isDisliked
+        isBookmarked: (state) => (boardId) => state.bookmarks[boardId] || false,
+        isLiked: (state) => (boardId) => state.likes[boardId] || false,
+        isDisliked: (state) => (boardId) => state.dislikes[boardId] || false,
     }
+
 });

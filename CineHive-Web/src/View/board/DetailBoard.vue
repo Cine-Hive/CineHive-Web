@@ -7,11 +7,11 @@
     <div class="title-section">
       <h1 class="board-title">{{ board.brdTitle }}</h1>
       <div class="info">
-        <span @click="toggleBookmark" :style="{ cursor: 'pointer', color: isBookmarked ? 'gold' : 'gray' }">⭐</span>
+        <span @click="toggleBookmark" :style="{ cursor: 'pointer', color: isBookmarked(board.id) ? 'gold' : 'gray' }">⭐</span>
         {{ board.bookmarkCount }}
-        <span @click="toggleLike" :style="{ cursor: 'pointer', color: isLiked ? 'yellow' : 'gray' }">👍</span>
+        <span @click="toggleLike" :style="{ cursor: 'pointer', color: isLiked(board.id) ? 'yellow' : 'gray' }">👍</span>
         {{ board.likeCount }}
-        <span @click="toggleDisLike" :style="{ cursor: 'pointer', color: isDisliked ? 'red' : 'gray' }">👎</span>
+        <span @click="toggleDisLike" :style="{ cursor: 'pointer', color: isDisliked(board.id) ? 'red' : 'gray' }">👎</span>
         {{ board.dislikeCount }}
         <span>{{ formatDate(board.brgRedDate) }}</span>
       </div>
@@ -63,7 +63,7 @@
 
 <script>
 import axios from 'axios';
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import { Viewer } from '@toast-ui/vue-editor';
 
 export default {
@@ -84,15 +84,7 @@ export default {
       user: state => state.user,
       isLoggedIn: state => state.isLoggedIn,
     }),
-    isBookmarked() {
-      return this.$store.state.bookmarks[this.board.id] || false;
-    },
-    isLiked() {
-      return this.$store.state.likes[this.board.id] || false;
-    },
-    isDisliked() {
-      return this.$store.state.dislikes[this.board.id] || false;
-    },
+    ...mapGetters(['isBookmarked', 'isLiked', 'isDisliked']),
     isAuthor() {
       return this.user.email === this.board.memEmail;
     }
@@ -108,6 +100,8 @@ export default {
         const response = await axios.get(`http://localhost:8081/boards/detail/${boardId}`);
         this.board = response.data;
         await this.fetchCounts(boardId);
+        const isBookmarked = this.$store.state.bookmarks[boardId] || false;
+        this.$store.dispatch('setBookmark', { boardId, status: isBookmarked });
       } catch (error) {
         this.errorMessage = '게시글 상세 조회에 실패했습니다.';
         console.error('게시글 상세 조회에 실패했습니다:', error);
@@ -167,17 +161,27 @@ export default {
       const boardId = this.board.id;
       const memEmail = this.user.email;
       try {
-        if (this.isBookmarked) {
+        if (this.isBookmarked(boardId)) {
           await axios.delete(`http://localhost:8081/bookmark/${boardId}/users/${memEmail}`);
           this.board.bookmarkCount--;
-          this.$store.dispatch('setBookmark', {boardId, status: false});
-          localStorage.setItem('isBookmarked', 'false');
+          this.$store.dispatch('setBookmark', { boardId, status: false });
+
+
+          let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || {};
+          bookmarks[boardId] = false;
+          localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+
           alert("즐겨찾기가 취소되었습니다.");
         } else {
           await axios.post(`http://localhost:8081/bookmark/${boardId}/users/${memEmail}`);
           this.board.bookmarkCount++;
-          this.$store.dispatch('setBookmark', {boardId, status: true});
-          localStorage.setItem('isBookmarked', 'true');
+          this.$store.dispatch('setBookmark', { boardId, status: true });
+
+
+          let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || {};
+          bookmarks[boardId] = true;
+          localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+
           alert("즐겨찾기에 추가되었습니다.");
         }
       } catch (error) {
@@ -188,20 +192,29 @@ export default {
       const boardId = this.board.id;
       const memEmail = this.user.email;
       try {
-        if (this.isLiked) {
+        if (this.isLiked(boardId)) {
           await axios.delete(`http://localhost:8081/like/${boardId}/users/${memEmail}`);
           this.board.likeCount--;
-          this.$store.dispatch('setLike', {boardId, status: false});
-          localStorage.setItem('isLiked', 'false');
+          this.$store.dispatch('setLike', { boardId, status: false });
+
+
+          let likes = JSON.parse(localStorage.getItem('likes')) || {};
+          likes[boardId] = false;
+          localStorage.setItem('likes', JSON.stringify(likes));
+
           alert("좋아요가 취소되었습니다.");
         } else {
           await axios.post(`http://localhost:8081/like/${boardId}/users/${memEmail}`);
           this.board.likeCount++;
-          this.$store.dispatch('setLike', {boardId, status: true});
-          localStorage.setItem('isLiked', 'true');
+          this.$store.dispatch('setLike', { boardId, status: true });
+
+
+          let likes = JSON.parse(localStorage.getItem('likes')) || {};
+          likes[boardId] = true;
+          localStorage.setItem('likes', JSON.stringify(likes));
+
           alert("좋아요가 추가되었습니다.");
         }
-
       } catch (error) {
         console.error('좋아요 처리에 실패했습니다:', error);
       }
@@ -210,17 +223,27 @@ export default {
       const boardId = this.board.id;
       const memEmail = this.user.email;
       try {
-        if (this.isDisliked) {
+        if (this.isDisliked(boardId)) {
           await axios.delete(`http://localhost:8081/dislike/${boardId}/users/${memEmail}`);
           this.board.dislikeCount--;
-          this.$store.dispatch('setDislike', {boardId, status: false});
-          localStorage.setItem('isDisliked', 'false');
+          this.$store.dispatch('setDislike', { boardId, status: false });
+
+
+          let dislikes = JSON.parse(localStorage.getItem('dislikes')) || {};
+          dislikes[boardId] = false;
+          localStorage.setItem('dislikes', JSON.stringify(dislikes));
+
           alert("싫어요가 취소되었습니다.");
         } else {
           await axios.post(`http://localhost:8081/dislike/${boardId}/users/${memEmail}`);
           this.board.dislikeCount++;
-          this.$store.dispatch('setDislike', {boardId, status: true});
-          localStorage.setItem('isDisliked', 'true');
+          this.$store.dispatch('setDislike', { boardId, status: true });
+
+
+          let dislikes = JSON.parse(localStorage.getItem('dislikes')) || {};
+          dislikes[boardId] = true;
+          localStorage.setItem('dislikes', JSON.stringify(dislikes));
+
           alert("싫어요가 추가되었습니다.");
         }
       } catch (error) {
@@ -329,7 +352,7 @@ export default {
 ::v-deep(.toastui-editor-contents) {
   min-height: 500px;
 }
-/* 댓글 섹션 스타일 */
+
 .comment-section {
   margin-top: 60px;
   color: white;
@@ -360,11 +383,13 @@ export default {
 .comment-input {
   display: flex;
   margin-bottom: 15px;
+  position: relative;
+  top:20px;
 }
 
 .comment-input input {
   flex: 1;
-  padding: 10px;
+  padding: 5px;
   border-radius: 4px;
   border: 1px solid #1E1E1E;
   color: black;
@@ -407,7 +432,7 @@ export default {
   display: flex;
   flex-direction: column;
   margin-bottom: 15px;
-  padding: 5px;
+  padding: 1px;
   border-radius: 6px;
   transition: background-color 0.3s;
 }

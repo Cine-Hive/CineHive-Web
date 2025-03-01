@@ -89,7 +89,7 @@ export default {
       try {
         const response = await axios.get('http://localhost:8081/boards');
         this.posts = response.data;
-        this.filteredPosts = response.data; // 초기 게시글은 필터링된 게시글로 설정
+        this.filteredPosts = response.data;
         console.log("전체 목록 조회 res",response);
       } catch (error) {
         console.error('게시글 목록 조회에 실패했습니다:', error);
@@ -118,7 +118,7 @@ export default {
       } else if (this.selectedSort === 'views') {
         this.filteredPosts.sort((a, b) => b.views - a.views);
       }
-      this.currentPage = 1; // 정렬 후 첫 페이지로 이동
+      this.currentPage = 1;
     },
     formatDate(dateString) {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
