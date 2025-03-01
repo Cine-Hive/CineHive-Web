@@ -245,7 +245,8 @@ export default {
       console.log('Sending User Data:', userData);
       try {
         const response = await axios.post('http://localhost:8081/register', userData);
-        alert(response.data);
+        console.log(response);
+        alert("회원가입에 성공하였습니다.");
         window.location.reload();
       } catch (error) {
         if (error.response) {
