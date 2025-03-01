@@ -43,12 +43,15 @@
           </div>
 
           <span class="comment-content">{{ comment.content }}</span>
-          <button @click="deleteComment(comment.id)" class="delete-comment-btn">삭제</button>
 
-          <!-- Add a separator line after each comment, except the last one -->
+
+          <button v-if="comment.memEmail === user.email" @click="deleteComment(comment.id)" class="delete-comment-btn">삭제</button>
+
+
           <div v-if="index < comments.length - 1" class="comment-separator"></div>
         </li>
       </ul>
+
 
       <div class="comment-input">
         <input v-model="newComment" placeholder="댓글을 입력하세요." />
