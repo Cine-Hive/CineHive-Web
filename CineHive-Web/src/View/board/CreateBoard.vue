@@ -69,8 +69,13 @@ export default {
 
       this.brdContent = editorInstance.invoke('getMarkdown');
 
-      if (!this.brdTitle || !this.brdContent || !this.user.email) {
-        this.errorMessage = '모든 필드를 채워주세요.';
+      if (!this.brdTitle) {
+        alert("제목을 입력하세요.");
+        return;
+      }
+
+      if(!this.brdContent) {
+        alert("내용을 입력하세요.");
         return;
       }
 
@@ -80,7 +85,8 @@ export default {
           brdTitle: this.brdTitle,
           brdContent: this.brdContent,
         });
-        this.successMessage = "게시글이 등록되었습니다.";
+        alert("게시글이 등록되었습니다.");
+        this.$router.go(-1);
         console.log("res", response);
       } catch (error) {
         this.errorMessage = '게시물 등록에 실패했습니다. 다시 시도해주세요.';
