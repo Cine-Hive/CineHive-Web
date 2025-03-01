@@ -122,5 +122,8 @@ export default new Vuex.Store({
         getUserId: (state) => (state.user ? state.user.userid : null),
         getUserInfo: (state) => state.user,
         getLoginType: (state) => state.loginType,
+        isBookmarked: state => state.isBookmarked,
+        isLiked: state => state.isLiked,
+        isDisliked: state => state.isDisliked
     }
 });

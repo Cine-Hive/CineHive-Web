@@ -38,7 +38,7 @@
 
 <script>
 import axios from 'axios';
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import { Viewer } from '@toast-ui/vue-editor';
 
 export default {
@@ -56,10 +56,12 @@ export default {
     ...mapState({
       user: state => state.user,
       isLoggedIn: state => state.isLoggedIn,
-      isBookmarked: state => state.isBookmarked,
-      isLiked: state => state.isLiked,
-      isDisliked: state => state.isDisliked,
     }),
+    ...mapGetters([
+      'isBookmarked',
+      'isLiked',
+      'isDisliked'
+    ]),
     isAuthor() {
       return this.user.email === this.board.memEmail;
     }
@@ -131,6 +133,7 @@ export default {
           localStorage.setItem('isLiked', 'true');
           alert("좋아요가 추가되었습니다.");
         }
+
       } catch (error) {
         console.error('좋아요 처리에 실패했습니다:', error);
       }
@@ -186,6 +189,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped> .detail-board {
   width: 60%;
