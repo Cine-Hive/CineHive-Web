@@ -12,6 +12,10 @@ import MovieList from "@/View/movie/MovieList.vue";
 import AnimationList from "@/View/animation/AnimationList.vue";
 import DramaList from "@/View/drama/DramaList.vue";
 import ReviewPage from '@/View/ReviewPage.vue';
+import CreateBoard from "@/View/board/CreateBoard.vue";
+import BoardList from "@/View/board/BoardList.vue";
+import DetailBoard from "@/View/board/DetailBoard.vue";
+import EditBoard from "@/View/board/EditBoard.vue";
 
 Vue.use(Router);
 
@@ -56,8 +60,31 @@ const routes = [
         name: 'DramaList',
         component: DramaList,
         meta: { hideFooter: true }
+    },
+    {
+        path: '/create/board',
+        name: 'CreateBoard',
+        component: CreateBoard,
+        meta: {hideFooter: true}
+    },
+    {
+        path: '/boards',
+        name: 'BoardList',
+        component: BoardList,
+        meta: {hideFooter: true}
+    },
+    {
+        path: '/boards/detail/:id',
+        name: DetailBoard,
+        component: DetailBoard,
+        meta: {hideFooter: true}
+    },
+    {
+        path: '/boards/:id',
+        name: EditBoard,
+        component: EditBoard,
+        meta: {hideFooter: true}
     }
-
 ];
 
 const router = new Router({
