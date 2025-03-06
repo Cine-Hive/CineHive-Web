@@ -27,6 +27,7 @@ export default new Vuex.Store({
 
             // ✅ localStorage에 email 저장
             localStorage.setItem('email', payload.user.email);
+            localStorage.setItem("nickname", payload.user.nickname);
         }
         ,
         SET_LOGOUT(state) {
