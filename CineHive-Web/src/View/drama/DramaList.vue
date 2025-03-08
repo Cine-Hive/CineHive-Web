@@ -130,6 +130,7 @@ export default {
   background-color: black;
   color: white;
   overflow-x: hidden;
+  min-height: 950px;
 }
 
 .drama-list h1 {
