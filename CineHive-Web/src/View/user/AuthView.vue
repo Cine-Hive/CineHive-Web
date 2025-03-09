@@ -245,7 +245,8 @@ export default {
       console.log('Sending User Data:', userData);
       try {
         const response = await axios.post('http://localhost:8081/register', userData);
-        alert(response.data);
+        console.log(response);
+        alert("회원가입에 성공하였습니다.");
         window.location.reload();
       } catch (error) {
         if (error.response) {
@@ -271,7 +272,7 @@ export default {
           const user = {
             name: response.data.user.name || '',
             nickname: response.data.user.nickname || '',
-            email: response.data.user.memEmail || '',
+            email: response.data.user.email || '',
             preferredGenres: response.data.user.genres || []
           };
 
@@ -310,16 +311,15 @@ export default {
 
 
     kakaoLogin() {
-      this.loginType='kakao';
+      localStorage.setItem('loginType', 'kakao');
       window.location.href = 'http://localhost:8081/api/auth/kakao';
-
     },
     googleLogin() {
-      this.loginType='google';
+      localStorage.setItem('loginType', 'google');
       window.location.href = 'http://localhost:8081/api/auth/google';
     },
     naverLogin() {
-      this.loginType='naver';
+      localStorage.setItem('loginType', 'naver');
       window.location.href = 'http://localhost:8081/api/auth/naver';
     },
 

@@ -16,16 +16,16 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      movies: [],  // 영화 목록을 저장할 배열
+      movies: [],
     };
   },
   methods: {
     fetchMovies() {
       axios
-          .get('http://localhost:8080/save-movies')  // Spring 백엔드 API 호출
+          .get('http://localhost:8080/save-movies')
           .then(response => {
             console.log(response.data);
-            // 영화 목록을 받아서 movies 배열에 저장
+
             this.movies = response.data.results;
           })
           .catch(error => {
