@@ -15,10 +15,44 @@
       <path d="M0,100 Q720,0 1440,100" stroke="white" stroke-width="1" fill="black"/>
     </svg>
 
+    <h2 class="section-title">
+      선호 장르
+      <span class="more-info" @click="toggleShowMore" v-if="!showSearchButton">
+          <span class="plus-sign">+</span>
+          <span class="more-text">{{ showMore ? '접기' : '더 보기' }}</span>
+        </span>
+    </h2>
+    <SearchBar v-if="showSearchButton" @click="searchMovies"></SearchBar>
 
+    <div v-if="!user" class="login-prompt-container">
+      <p class="login-prompt">로그인을 하시면 선호하는 장르를 추천해드립니다.</p>
+      <button class="login-button" @click="goToLogin">로그인</button>
+    </div>
+    <div v-else>
+      <div class="prefer-slide">
+        <div
+            class="movie-card"
+            v-for="content in prefer"
+            :key="`prefer-${content.id}`"
+            @click="goToContentDetail(content.id)"
+        >
+          <img :src="'https://image.tmdb.org/t/p/w300' + content.posterPath" alt="movie poster" />
+        </div>
+      </div>
 
+      <div v-if="showMore" class="prefer-slide">
+        <div
+            class="movie-card"
+            v-for="content in prefer.slice(18)"
+            :key="`prefer-more-${content.id}`"
+            @click="goToMovieDetail(content.id)"
+        >
+          <img :src="'https://image.tmdb.org/t/p/w300' + content.posterPath" alt="movie poster" />
+        </div>
+      </div>
+    </div>
     <div class="movie-container">
-      <h2 class="section-title">인기 영화</h2>
+      <h2 class="section-title">상영중인 영화</h2>
       <div class="top-slider">
         <div
             class="movie-card"
@@ -42,45 +76,30 @@
         </div>
       </div>
 
-      <h2 class="section-title">
-        선호 장르
-        <span class="more-info" @click="toggleShowMore" v-if="!showSearchButton">
-          <span class="plus-sign">+</span>
-          <span class="more-text" >{{ showMore ? '접기' : '더 보기' }}</span>
-        </span>
-      </h2>
-      <SearchBar v-if="showSearchButton" @click="searchMovies"></SearchBar>
-
-      <div v-if="!user" class="login-prompt-container">
-        <p class="login-prompt">로그인을 하시면 선호하는 장르를 추천해드립니다.</p>
-        <button class="login-button" @click="goToLogin">로그인</button>
-      </div>
-      <div v-else>
-        <div class="prefer-slide">
-          <div
-              class="movie-card"
-              v-for="content in prefer"
-              :key="`prefer-${content.id}`"
-              @click="goToContentDetail(content.id)"
-          >
-            <img :src="'https://image.tmdb.org/t/p/w300' + content.posterPath" alt="movie poster" />
-          </div>
+      <h2 class="section-title">개봉 예정 영화</h2>
+      <div class="top-slider">
+        <div
+            class="movie-card"
+            v-for="movie in upcomingMovies"
+            :key="`upcoming-${movie.id}`"
+            @click="goToMovieDetail(movie.id)"
+        >
+          <img :src="'https://image.tmdb.org/t/p/w300' + movie.posterPath" alt="movie poster" />
         </div>
-
-        <!-- 더보기 클릭 후, 추가적으로 선호 장르를 보여주고 '검색하기' 버튼을 나타냄 -->
-        <div v-if="showMore" class="prefer-slide">
-          <div
-              class="movie-card"
-              v-for="content in prefer.slice(18)"
-              :key="`prefer-more-${content.id}`"
-              @click="goToMovieDetail(content.id)"
-          >
-            <img :src="'https://image.tmdb.org/t/p/w300' + content.posterPath" alt="movie poster" />
-          </div>
-        </div>
-
-
       </div>
+
+      <h2 class="section-title">인기 영화</h2>
+      <div class="top-slider">
+        <div
+            class="movie-card"
+            v-for="movie in popularMovies"
+            :key="`popular-${movie.id}`"
+            @click="goToMovieDetail(movie.id)"
+        >
+          <img :src="'https://image.tmdb.org/t/p/w300' + movie.posterPath" alt="movie poster" />
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -89,16 +108,19 @@
 import axios from 'axios';
 import { mapState } from 'vuex';
 import SearchBar from "@/components/SearchBar.vue";
+
 export default {
-  components: {SearchBar},
+  components: { SearchBar },
   data() {
     return {
       movies: [],
       topmovies: [],
       prefer: [],
+      upcomingMovies: [], // 개봉 예정 영화
+      popularMovies: [], // 인기 영화
       showMore: false, // 더 보기 상태
       showSearchButton: false, // 검색 버튼 상태
-      searchQuery:'',
+      searchQuery: '',
     };
   },
 
@@ -123,13 +145,33 @@ export default {
         console.error('영화 데이터를 가져오는 중 오류가 발생했습니다:', error);
       }
     },
-    goToMovieDetail(movieId, movieType) {
-      if (movieType === 'top') {
-        this.$router.push({name: 'TopMovieDetail', params: {id: movieId}});
-      } else {
-        this.$router.push({name: 'MovieDetail', params: {id: movieId}});
+
+    async fetchUpcomingMovies() {
+      try {
+        const response = await axios.get('http://localhost:8081/get_upcoming_movies');
+        this.upcomingMovies = response.data.slice(0, 18);
+      } catch (error) {
+        console.error('개봉 예정 영화를 가져오는 중 오류가 발생했습니다:', error);
       }
     },
+
+    async fetchPopularMovies() {
+      try {
+        const response = await axios.get('http://localhost:8081/get_popular_movies');
+        this.popularMovies = response.data.slice(0, 18);
+      } catch (error) {
+        console.error('인기 영화를 가져오는 중 오류가 발생했습니다:', error);
+      }
+    },
+
+    goToMovieDetail(movieId, movieType) {
+      if (movieType === 'top') {
+        this.$router.push({ name: 'TopMovieDetail', params: { id: movieId } });
+      } else {
+        this.$router.push({ name: 'MovieDetail', params: { id: movieId } });
+      }
+    },
+
     async fetchPreferredGenres() {
       try {
         console.log('사용자의 선호 장르:', this.user.preferredGenres);
@@ -139,7 +181,6 @@ export default {
 
         console.log('선호 장르 데이터:', response.data);
 
-        // 🔥 중복된 영화 제거
         const uniqueMovies = [];
         const movieIds = new Set();
 
@@ -154,8 +195,8 @@ export default {
       } catch (error) {
         console.error('선호 장르 데이터를 가져오는 중 오류가 발생했습니다:', error);
       }
-    }
-    ,
+    },
+
     async searchMovies() {
       if (!this.searchQuery.trim()) {
         alert("검색어를 입력하세요!");
@@ -180,6 +221,7 @@ export default {
         this.loading = false;
       }
     },
+
     toggleShowMore() {
       this.showMore = !this.showMore; // 더 보기 상태 변경
       if (!this.showSearchButton) {
@@ -226,6 +268,8 @@ export default {
   mounted() {
     this.fetchMovies();
     this.fetchTopmovies();
+    this.fetchUpcomingMovies();
+    this.fetchPopularMovies();
     if (this.user && this.user.preferredGenres && this.user.preferredGenres.length > 0) {
       this.fetchPreferredGenres();
     } else {

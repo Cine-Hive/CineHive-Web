@@ -57,33 +57,46 @@ export default {
           withCredentials: true
         });
 
-        const userData = response.data;
-        this.userInfo = userData;
+        console.log("응답 데이터:", response.data);  // 응답 데이터 구조 확인용
 
-        console.log(`${loginType} 로그인 사용자 데이터:`, userData);
+        // response.data에서 token과 userInfo 추출
+        const token = response.data.token;
+        const userInfo = response.data.userInfo;
 
-        const finalLoginType = userData.mem_type || loginType;
+        if (!token) {
+          console.error("토큰이 없습니다.");
+          return;
+        }
+        if (!userInfo) {
+          console.error("사용자 정보가 없습니다.");
+          return;
+        }
 
+        // JWT 토큰을 저장
+        localStorage.setItem('token', token);
+
+        // 사용자 정보를 Vuex에 저장
         this.$store.commit('SET_LOGIN', {
           isLoggedIn: true,
           user: {
-            email: userData.memEmail,
-            nickname: userData.memNickname,
-            name: userData.memName || '',
-            preferredGenres: userData.genres || []
+            email: userInfo.memEmail,
+            nickname: userInfo.memNickname,
+            name: userInfo.memName || '',
+            preferredGenres: userInfo.genres || []
           },
-          loginType: finalLoginType
+          loginType: userInfo.mem_type || loginType
         });
 
+        // 로컬 스토리지에 사용자 정보 저장
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('user', JSON.stringify({
-          email: userData.memEmail || '',
-          nickname: userData.memNickname,
-          name: userData.memName || '',
-          preferredGenres: userData.genres || [],
-          mem_type: userData.mem_type
+          email: userInfo.memEmail || '',
+          nickname: userInfo.memNickname,
+          name: userInfo.memName || '',
+          preferredGenres: userInfo.genres || [],
+          mem_type: userInfo.mem_type
         }));
-        localStorage.setItem('loginType', finalLoginType);
+        localStorage.setItem('loginType', userInfo.mem_type || loginType);
       } catch (error) {
         console.error(`${loginType} 사용자 정보 가져오기 실패:`, error);
       }
