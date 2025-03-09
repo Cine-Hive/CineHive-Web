@@ -233,7 +233,7 @@ export default {
 
 .section-title {
   position: relative;
-  left:-47.8%;
+  text-align: left;
   top:-10px;
   margin-bottom: 10px;
   font-size: 18px;
@@ -260,13 +260,6 @@ export default {
   margin-top: 40px;
 }
 
-.section-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #f0f0f0;
-  margin-bottom: 15px;
-  text-align: center;
-}
 
 .similar-animations-section {
   margin-top: 100px;
@@ -281,7 +274,6 @@ export default {
 }
 
 .similar-animation-item {
-  background-color: #222;
   border-radius: 12px;
   padding: 10px;
   text-align: center;
