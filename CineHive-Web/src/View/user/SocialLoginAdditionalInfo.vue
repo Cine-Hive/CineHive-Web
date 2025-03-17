@@ -99,6 +99,8 @@ export default {
           memPassword: '0'
         };
 
+        console.log("회원가입 요청 데이터:", userData);
+
         const response = await axios.post(`http://localhost:8081/api/auth/${this.loginType}/register`, userData);
         console.log('Registration response:', response);
 
