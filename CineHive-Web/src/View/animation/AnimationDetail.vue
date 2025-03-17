@@ -43,9 +43,8 @@
     </div>
 
     <div class="action-buttons">
-      <button class="action-button" @click="viewReviews">감상평 보기</button>
-      <button class="action-button" @click="viewReview">리뷰 보기</button>
-      <button class="action-button" @click="addToFavorites">찜하기</button>
+      <button class="action-button" @click="goToReviewPage">감상평 보기</button>
+      <button class="action-button" @click="toggleBookmark(animation.id)">즐겨찾기({{ bookmarkCount }})</button>
       <button class="action-button" @click="goBack">뒤로 가기</button>
     </div>
 
@@ -81,12 +80,22 @@ export default {
   data() {
     return {
       animation: null,
-      similarAnimations: []
+      similarAnimations: [],
+      bookmarkCount: 0,
     };
   },
-  created() {
+  async  created() {
     this.fetchAnimationDetails();
     this.fetchSimilarAnimations();
+    await this.fetchAnimationDetails();
+    await this.fetchSimilarAnimations();
+
+    const animationId = this.$route.params.id;
+    try {
+      this.bookmarkCount = await this.fetchBookmarkCount(animationId);
+    } catch (error) {
+      console.error("즐겨찾기 개수 로딩 중 오류 발생:", error);
+    }
   },
   watch: {
     '$route.params.id': function() {
@@ -95,6 +104,54 @@ export default {
     }
   },
   methods: {
+    async toggleBookmark(animationId) {
+      const memEmail = localStorage.getItem("email") || ''; // 사용자 이메일 가져오기
+
+      if (!memEmail) {
+        console.error("사용자 이메일이 없습니다. 로그인 후 이용해주세요.");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+            `http://localhost:8081/reply/bookmark/toggle?memEmail=${encodeURIComponent(memEmail)}&movieId=${animationId}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              mode: "cors" // CORS 허용
+            }
+        );
+
+        const result = await response.text();
+        console.log(result);
+
+        // 즐겨찾기한 개수 다시 가져오기
+        this.bookmarkCount = await this.fetchBookmarkCount(animationId);
+      } catch (error) {
+        console.error("즐겨찾기 토글 오류:", error);
+      }
+    },
+    async fetchBookmarkCount(animationId) {
+      try {
+        const response = await fetch(`http://localhost:8081/reply/bookmark/count?movieId=${animationId}`);
+        const count = await response.json();
+        return count;
+      } catch (error) {
+        console.error("즐겨찾기 개수 가져오는 중 오류 발생:", error);
+        return 0;
+      }
+    },
+    goToReviewPage() {
+      this.$router.push({
+        name: 'ReviewPage',
+        query: {
+          id: String(this.animation.id), // 문자열 변환
+          title: this.animation.title || '제목 없음', // undefined 방지
+          posterPath: this.animation.posterPath || '', // 기본값 설정
+          overview: this.animation.overview || '설명 없음' // undefined 방지
+        }
+      });
+    },
     async fetchAnimationDetails() {
       const animationId = this.$route.params.id;
       try {
@@ -110,6 +167,7 @@ export default {
       try {
         const response = await axios.get(`http://localhost:8081/animations/${animationId}/similar`);
         this.similarAnimations = response.data;
+        this.bookmarkCount = await this.fetchBookmarkCount(animationId);
       } catch (error) {
         console.error('추천 애니메이션을 가져오는 중 오류 발생:', error);
       }
@@ -119,14 +177,8 @@ export default {
         this.$router.push(`/animation/${animationId}`);
       }
     },
-    viewReviews() {
-      console.log('감상평 보기 클릭됨');
-    },
-    viewReview() {
-      console.log('리뷰 보기 클릭됨');
-    },
-    addToFavorites() {
-      console.log('찜하기 클릭됨');
+    goToLink(url) {
+      window.open(url, '_blank');
     },
     goBack() {
       this.$router.go(-1);

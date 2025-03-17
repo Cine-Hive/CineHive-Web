@@ -51,9 +51,8 @@
       </div>
     </div>
     <div class="action-buttons">
-      <button class="action-button" @click="viewReviews">감상평 보기</button>
-      <button class="action-button" @click="viewReview">리뷰 보기</button>
-      <button class="action-button" @click="addToFavorites">찜하기</button>
+      <button class="action-button" @click="goToReviewPage">감상평 보기</button>
+      <button class="action-button" @click="toggleBookmark(drama.id)">즐겨찾기({{ bookmarkCount }})</button>
       <button class="action-button" @click="goBack">뒤로 가기</button>
     </div>
     <div class="bottom-section">
@@ -76,6 +75,7 @@ export default {
   data() {
     return {
       drama: {},
+      bookmarkCount: 0,
     };
   },
   created() {
@@ -85,33 +85,73 @@ export default {
     '$route.params.id': 'fetchDramaDetails'
   },
   methods: {
+    async toggleBookmark(dramaId) {
+      const memEmail = localStorage.getItem("email") || ''; // 사용자 이메일 가져오기
+
+      if (!memEmail) {
+        console.error("사용자 이메일이 없습니다. 로그인 후 이용해주세요.");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+            `http://localhost:8081/reply/bookmark/toggle?memEmail=${encodeURIComponent(memEmail)}&movieId=${dramaId}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              mode: "cors" // CORS 허용
+            }
+        );
+
+        const result = await response.text();
+        console.log(result);
+
+        // 즐겨찾기한 개수 다시 가져오기
+        this.bookmarkCount = await this.fetchBookmarkCount(dramaId);
+      } catch (error) {
+        console.error("즐겨찾기 토글 오류:", error);
+      }
+    }
+    ,
+    async fetchBookmarkCount(dramaId) {
+      try {
+        const response = await fetch(`http://localhost:8081/reply/bookmark/count?movieId=${dramaId}`);
+        const count = await response.json();
+        return count;
+      } catch (error) {
+        console.error("즐겨찾기 개수 가져오는 중 오류 발생:", error);
+        return 0;
+      }
+    },
+
     async fetchDramaDetails() {
       const dramaId = this.$route.params.id;
       try {
         const response = await axios.get(`http://localhost:8081/dramas/${dramaId}`);
         this.drama = response.data;
+        this.bookmarkCount = await this.fetchBookmarkCount(dramaId);
       } catch (error) {
         console.error('드라마 상세 정보를 가져오는 중 오류가 발생했습니다:', error);
       }
-    },
-    viewReviews() {
-
-      console.log('감상평 보기 클릭됨');
-    },
-    viewReview() {
-
-      console.log('리뷰 보기 클릭됨');
-    },
-    addToFavorites() {
-
-      console.log('찜하기 클릭됨');
     },
     goBack() {
       this.$router.go(-1);
     },
     goToLink(url) {
       window.open(url, '_blank');
-    }
+    },
+    goToReviewPage() {
+      this.$router.push({
+        name: 'ReviewPage',
+        query: {
+          id: String(this.drama.id), // 문자열 변환
+          title: this.drama.title || '제목 없음', // undefined 방지
+          posterPath: this.drama.posterPath || '', // 기본값 설정
+          overview: this.drama.overview || '설명 없음' // undefined 방지
+        }
+      });
+    },
+
   }
 }
 </script>

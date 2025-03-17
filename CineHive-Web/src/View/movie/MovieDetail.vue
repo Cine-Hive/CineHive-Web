@@ -51,8 +51,7 @@
 
     <div class="action-buttons">
       <button class="action-button" @click="goToReviewPage">감상평 보기</button>
-      <button class="action-button" @click="viewReview">리뷰 보기</button>
-      <button class="action-button" @click="addToFavorites">찜하기</button>
+      <button class="action-button" @click="toggleBookmark(movie.id)">즐겨찾기({{ bookmarkCount }})</button>
       <button class="action-button" @click="goBack">뒤로 가기</button>
     </div>
 
@@ -88,7 +87,8 @@ export default {
   data() {
     return {
       movie: null,
-      similarMovies: []
+      similarMovies: [],
+      bookmarkCount: 0,
     };
   },
   async created() {
@@ -97,10 +97,14 @@ export default {
     try {
       const response = await fetch(`http://localhost:8081/movies/${movieId}`);
       this.movie = await response.json();
+
+      // 즐겨찾기한 개수 가져오기
+      this.bookmarkCount = await this.fetchBookmarkCount(movieId);
     } catch (error) {
       console.error("영화 정보를 불러오는 중 오류 발생:", error);
     }
-  },
+  }
+  ,
   watch: {
     '$route.params.id': 'fetchMovieDetails' // URL 매개변수 변경 시 데이터 다시 로드
   },
@@ -142,11 +146,43 @@ export default {
         }
       });
     },
-    viewReview() {
-      console.log('리뷰 보기 클릭됨');
-    },
-    addToFavorites() {
-      console.log('찜하기 클릭됨');
+    async toggleBookmark(movieId) {
+      const memEmail = localStorage.getItem("email") || ''; // 사용자 이메일 가져오기
+
+      if (!memEmail) {
+        console.error("사용자 이메일이 없습니다. 로그인 후 이용해주세요.");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+            `http://localhost:8081/reply/bookmark/toggle?memEmail=${encodeURIComponent(memEmail)}&movieId=${movieId}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              mode: "cors" // CORS 허용
+            }
+        );
+
+        const result = await response.text();
+        console.log(result);
+
+        // 즐겨찾기한 개수 다시 가져오기
+        this.bookmarkCount = await this.fetchBookmarkCount(movieId);
+      } catch (error) {
+        console.error("즐겨찾기 토글 오류:", error);
+      }
+    }
+    ,
+    async fetchBookmarkCount(movieId) {
+      try {
+        const response = await fetch(`http://localhost:8081/reply/bookmark/count?movieId=${movieId}`);
+        const count = await response.json();
+        return count;
+      } catch (error) {
+        console.error("즐겨찾기 개수 가져오는 중 오류 발생:", error);
+        return 0;
+      }
     },
     goToLink(url) {
       window.open(url, '_blank');
