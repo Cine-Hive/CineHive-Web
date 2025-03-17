@@ -186,7 +186,7 @@ export default {
     async nextStep() {
       if (this.currentStep === 1) {
 
-        if ( !this.memEmail || !this.memPassword) {
+        if (!this.memEmail || !this.memPassword) {
           alert('빈칸을 입력해 주세요.');
           return;
         }
@@ -229,7 +229,7 @@ export default {
         alert('이미 존재하는 닉네임입니다.');
         return;
       }
-      if(this.memNickname.length <4){
+      if (this.memNickname.length < 4) {
         alert('닉네임은 4글자 이상 입력해주세요.');
         return;
       }
@@ -277,8 +277,7 @@ export default {
           };
 
 
-
-          this.$store.commit('SET_LOGIN', { isLoggedIn: true, user });
+          this.$store.commit('SET_LOGIN', {isLoggedIn: true, user});
           localStorage.setItem('isLoggedIn', 'true');
           localStorage.setItem('user', JSON.stringify(user));
 
@@ -307,7 +306,6 @@ export default {
         this.selectedGenres.splice(index, 1);
       }
     },
-
 
 
     kakaoLogin() {
@@ -391,17 +389,18 @@ export default {
   top: -50px;
 }
 
-.login-image:hover{
+.login-image:hover {
   cursor: pointer;
   transform: scale(1.2);
 }
+
 .login-image-sign-up {
   margin: 0 10px;
   transition: transform 0.3s;
   position: relative;
 }
 
-.login-image-sign-up:hover{
+.login-image-sign-up:hover {
   cursor: pointer;
   transform: scale(1.2);
 }
@@ -470,9 +469,10 @@ export default {
   color: white;
   font-size: 11px;
 }
-.signup-prompt p{
+
+.signup-prompt p {
   position: relative;
-  top:30px;
+  top: 30px;
   font-size: 12.5px;
 }
 
@@ -488,9 +488,10 @@ export default {
   border-radius: 5px;
   transition: background-color 0.3s;
   position: relative;
-  top:-20px;
+  top: -20px;
 }
-.signup-button1{
+
+.signup-button1 {
   margin-top: 10px;
   background-color: #1E1E1E;
   width: 120px;
@@ -502,9 +503,10 @@ export default {
   border-radius: 5px;
   transition: background-color 0.3s;
   position: relative;
-  top:40px;
+  top: 40px;
 }
-.signup-button2{
+
+.signup-button2 {
   margin-top: 10px;
   background-color: #d95a15;
   width: 120px;
@@ -516,17 +518,19 @@ export default {
   border-radius: 5px;
   transition: background-color 0.3s;
   position: relative;
-  top:40px;
+  top: 40px;
 }
 
-.signup-button2:hover{
+.signup-button2:hover {
   cursor: pointer;
   background-color: #EB6015;
 }
+
 .signup-button1:hover {
   background-color: #333;
   cursor: pointer;
 }
+
 .signup-button:hover {
   background-color: #333;
   cursor: pointer;
@@ -589,7 +593,7 @@ export default {
   justify-content: space-around;
   margin-bottom: 20px;
   position: relative;
-  top:20px;
+  top: 20px;
 }
 
 .genre-item {
@@ -614,6 +618,7 @@ export default {
   color: #555;
   text-align: center;
 }
+
 .checkmark {
   position: absolute;
   top: 5px;
@@ -621,19 +626,22 @@ export default {
   font-size: 24px;
   color: green;
 }
-.error-message{
-  font-size:11.5px;
+
+.error-message {
+  font-size: 11.5px;
 }
-.step-indicator{
+
+.step-indicator {
   position: relative;
-  top:-30px;
+  top: -30px;
   font-weight: bolder;
   font-size: 15px;
   color: #333333;
 }
-.step-indicator2{
+
+.step-indicator2 {
   position: relative;
-  top:45px;
+  top: 45px;
   font-weight: bolder;
   font-size: 15px;
   color: #333333;
