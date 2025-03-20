@@ -53,7 +53,7 @@ export default {
   methods: {
     async getUserInfo(loginType) {
       try {
-        const response = await axios.get(`http://localhost:8081/api/auth/${loginType}/success`, {
+        const response = await axios.get(`http://localhost:8081/api/auth/${loginType}/login/success`, {
           withCredentials: true
         });
 
@@ -84,7 +84,8 @@ export default {
             name: userInfo.memName || '',
             preferredGenres: userInfo.genres || []
           },
-          loginType: userInfo.mem_type || loginType
+          loginType: userInfo.mem_type || loginType,
+          token: token
         });
 
         // 로컬 스토리지에 사용자 정보 저장
