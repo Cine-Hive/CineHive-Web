@@ -143,12 +143,14 @@ export default {
   created() {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const loginType = localStorage.getItem('loginType');
+    const token = localStorage.getItem('token');
 
     if (storedUser) {
       this.$store.commit('SET_LOGIN', {
         isLoggedIn: true,
         user: storedUser,
-        loginType
+        loginType,
+        token
       });
     } else if (loginType) {
       this.getUserInfo(loginType);
