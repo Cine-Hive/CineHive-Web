@@ -268,23 +268,27 @@ export default {
         const response = await axios.post('http://localhost:8081/login', loginData);
         console.log('API Response:', response.data);
 
-        if (response.data.user) {
+        if (response.data.user && response.data.token) {
           const user = {
             name: response.data.user.name || '',
             nickname: response.data.user.nickname || '',
             email: response.data.user.email || '',
             preferredGenres: response.data.user.genres || []
           };
+          const token = response.data.token;
 
+          // Vuex에 로그인 상태와 토큰을 저장
+          this.$store.commit('SET_LOGIN', { isLoggedIn: true, user, token });
 
-          this.$store.commit('SET_LOGIN', {isLoggedIn: true, user});
+          // localStorage에 로그인 정보와 토큰 저장
           localStorage.setItem('isLoggedIn', 'true');
           localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('token', token);
 
           console.log('User from store after commit:', this.$store.state.user);
 
           if (this.$route.path !== '/') {
-            this.$router.push('/');
+            this.$router.push('/');  // 홈으로 리다이렉트
           }
         } else {
           alert('로그인 실패: 사용자 정보가 없습니다.');
@@ -297,7 +301,6 @@ export default {
         }
       }
     },
-
     toggleGenre(genre) {
       const index = this.selectedGenres.indexOf(genre);
       if (index === -1) {

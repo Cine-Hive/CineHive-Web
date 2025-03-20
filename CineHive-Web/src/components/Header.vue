@@ -140,6 +140,7 @@ export default {
       }
     },
   },
+
   created() {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const loginType = localStorage.getItem('loginType');
