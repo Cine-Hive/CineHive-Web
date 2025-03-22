@@ -97,13 +97,23 @@ export default {
       const boardId = this.$route.params.id;
 
       try {
-        const response = await axios.put(`http://localhost:8081/boards/${boardId}`, {
-          memEmail: this.user.email,
-          brdTitle: this.brdTitle,
-          brdContent: this.brdContent,
-        });
+        const token = localStorage.getItem('token');
+        const response = await axios.put(
+            `http://localhost:8081/boards/${boardId}`,
+            {
+              memEmail: this.user.email,
+              brdTitle: this.brdTitle,
+              brdContent: this.brdContent,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+        );
+
         alert("게시글이 수정되었습니다.");
-        this.$router.go(-1);
+        this.$router.go(-1); // 뒤로가기
         console.log("res", response);
       } catch (error) {
         this.errorMessage = '게시물 수정에 실패했습니다. 다시 시도해주세요.';
@@ -196,7 +206,6 @@ button.submit-btn {
   top: 60px;
 }
 
-
 .input-table tr td {
   font-size: 14px;
 }
@@ -218,7 +227,6 @@ button.submit-btn {
   width: 75%;
 }
 
-
 .tui-editor-preview {
   background-color: #ffffff;
   height: 500px !important;
@@ -228,5 +236,4 @@ button.submit-btn {
   overflow-y: scroll;
   text-align: left;
 }
-
 </style>

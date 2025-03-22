@@ -74,28 +74,43 @@ export default {
         return;
       }
 
-      if(!this.brdContent) {
+      if (!this.brdContent) {
         alert("내용을 입력하세요.");
         return;
       }
 
       try {
+        const token = this.$store.state.token;
+
+        if (!token) {
+          this.errorMessage = '로그인 정보가 없습니다. 로그인 후 다시 시도해주세요.';
+          return;
+        }
+
+        console.log('JWT Token:', token);
+
         const response = await axios.post('http://localhost:8081/boards/create', {
-          memEmail: this.user.email,
           brdTitle: this.brdTitle,
           brdContent: this.brdContent,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
         });
+
         alert("게시글이 등록되었습니다.");
-        this.$router.go(-1);
         console.log("res", response);
+        this.$router.go(-1);
       } catch (error) {
         this.errorMessage = '게시물 등록에 실패했습니다. 다시 시도해주세요.';
+        console.error(error);
       }
     },
     goToback(){
       this.$router.go(-1);
     }
   },
+
 };
 </script>
 
