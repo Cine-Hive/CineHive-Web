@@ -26,10 +26,6 @@ export default {
     boardId: {
       type: Number,
       required: true
-    },
-    userEmail: {
-      type: String,
-      required: true
     }
   },
   data() {
@@ -39,7 +35,10 @@ export default {
   },
   methods: {
     async submitReport() {
-      this.reason = 'ㅎㅇㅎㅇ'; // 직접 설정하여 테스트
+      const confirmReport = confirm('정말 신고하시겠습니까?');
+      if (!confirmReport) {
+        return;
+      }
 
       if (!this.reason.trim()) {
         alert('신고 사유를 입력하세요.');
@@ -47,23 +46,35 @@ export default {
       }
 
       try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('로그인 정보가 없습니다.');
+          return;
+        }
+
+        const config = {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        };
+
         const boardId = this.boardId;
-        const memEmail = this.userEmail;
+        const response = await axios.post(
+            `http://localhost:8081/report/${boardId}`,
+            { reason: this.reason },
+            config
+        );
 
-        const encodedReason = encodeURIComponent(this.reason);
-        const url = `http://localhost:8081/report/${boardId}/users/${memEmail}?reason=${encodedReason}`;
+        console.log(response);
+        alert('신고되었습니다.');
 
-        const response = await axios.post(url, null);
-
-        alert(response.data);
         this.closeModal();
       } catch (error) {
         if (error.response) {
-          alert('신고하기에 실패했습니다: ' + error.response.data);
-        } else if (error.request) {
-          alert('신고하기에 실패했습니다: 요청이 이루어졌으나 응답을 받지 못했습니다.');
+          alert('이미 신고한 게시글입니다.');
         } else {
-          alert('신고하기에 실패했습니다: ' + error.message);
+          alert('신고 처리 중 오류가 발생했습니다.');
         }
       }
     },

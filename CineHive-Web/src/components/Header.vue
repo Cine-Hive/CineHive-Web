@@ -57,9 +57,8 @@ export default {
           withCredentials: true
         });
 
-        console.log("응답 데이터:", response.data);  // 응답 데이터 구조 확인용
+        console.log("응답 데이터:", response.data);
 
-        // response.data에서 token과 userInfo 추출
         const token = response.data.token;
         const userInfo = response.data.userInfo;
 
@@ -72,10 +71,8 @@ export default {
           return;
         }
 
-        // JWT 토큰을 저장
         localStorage.setItem('token', token);
 
-        // 사용자 정보를 Vuex에 저장
         this.$store.commit('SET_LOGIN', {
           isLoggedIn: true,
           user: {
@@ -88,7 +85,6 @@ export default {
           token: token
         });
 
-        // 로컬 스토리지에 사용자 정보 저장
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('user', JSON.stringify({
           email: userInfo.memEmail || '',
@@ -108,15 +104,7 @@ export default {
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('user');
       localStorage.removeItem('loginType');
-
-      axios.get('http://localhost:8081/api/auth/logout', { withCredentials: true })
-          .then(() => {
-            console.log("로그아웃 성공");
-            window.location.reload();
-          })
-          .catch(error => {
-            console.error("로그아웃 오류:", error);
-          });
+      localStorage.removeItem('token');
     },
     goToMoviesList(){
       if(this.$route.path!=='/movies')
@@ -140,15 +128,18 @@ export default {
       }
     },
   },
+
   created() {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const loginType = localStorage.getItem('loginType');
+    const token = localStorage.getItem('token');
 
     if (storedUser) {
       this.$store.commit('SET_LOGIN', {
         isLoggedIn: true,
         user: storedUser,
-        loginType
+        loginType,
+        token
       });
     } else if (loginType) {
       this.getUserInfo(loginType);
