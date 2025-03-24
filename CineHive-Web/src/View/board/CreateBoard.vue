@@ -37,9 +37,9 @@
 </template>
 
 <script>
-import axios from 'axios';
 import { mapState } from 'vuex';
 import { Editor } from '@toast-ui/vue-editor';
+import { createBoardPost } from '@/api/board/createBoard';
 
 export default {
   components: {
@@ -79,24 +79,16 @@ export default {
         return;
       }
 
+      const token = this.$store.state.token;
+
+      if (!token) {
+        this.errorMessage = '로그인 정보가 없습니다. 로그인 후 다시 시도해주세요.';
+        return;
+      }
+
       try {
-        const token = this.$store.state.token;
-
-        if (!token) {
-          this.errorMessage = '로그인 정보가 없습니다. 로그인 후 다시 시도해주세요.';
-          return;
-        }
-
-        console.log('JWT Token:', token);
-
-        const response = await axios.post('http://localhost:8081/boards/create', {
-          brdTitle: this.brdTitle,
-          brdContent: this.brdContent,
-        }, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          }
-        });
+        // boardService에서 게시글 등록 요청을 호출
+        const response = await createBoardPost(this.brdTitle, this.brdContent, token);
 
         alert("게시글이 등록되었습니다.");
         console.log("res", response);
@@ -106,13 +98,13 @@ export default {
         console.error(error);
       }
     },
-    goToback(){
+    goToback() {
       this.$router.go(-1);
     }
   },
-
 };
 </script>
+
 
 <style scoped>
 .create-post-container {

@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { getUserInfo, registerUser } from '@/api/user/userAddInfo';
 
 export default {
   data() {
@@ -49,32 +49,28 @@ export default {
       memSex: '',
       userInfo: null,
       selectedGenres: [],
-      loginType: '' // 초기값을 빈 문자열로 설정
+      loginType: '' // 초기값 설정
     };
   },
   created() {
     this.loginType = this.$route.query.loginType;
     console.log('로그인 타입:', this.loginType);
-    this.getUserInfo();
+    this.loadUserInfo();
   },
   methods: {
-    async getUserInfo() {
+    async loadUserInfo() {
       try {
-        const response = await axios.get(`http://localhost:8081/api/auth/${this.loginType}/success`, {
-          withCredentials: true
-        });
-        this.userInfo = response.data;
+        this.userInfo = await getUserInfo(this.loginType);
 
         this.$store.commit('SET_LOGIN', {
           isLoggedIn: true,
           user: this.userInfo
         });
-
       } catch (error) {
-        console.error('사용자 정보 가져오기 실패:', error);
         alert('로그인 실패. 다시 시도해 주세요.');
       }
     },
+
     async submitAdditionalInfo() {
       if (!this.memName) {
         alert('이름을 입력해 주세요.');
@@ -101,18 +97,17 @@ export default {
 
         console.log("회원가입 요청 데이터:", userData);
 
-        const response = await axios.post(`http://localhost:8081/api/auth/${this.loginType}/register`, userData);
-        console.log('Registration response:', response);
-
-        this.$store.commit('SET_USER', response.data.user);
+        const response = await registerUser(this.loginType, userData);
+        this.$store.commit('SET_USER', response.user);
 
         alert('회원가입에 성공하셨습니다. 다시 로그인해주세요.');
         this.$router.push('/auth');
 
       } catch (error) {
-        alert('정보 제출 중 오류가 발생했습니다. 상세 오류를 확인해 주세요.');
+        alert('정보 제출 중 오류가 발생했습니다. 다시 시도해 주세요.');
       }
     },
+
     toggleGenre(genre) {
       const index = this.selectedGenres.indexOf(genre);
       if (index === -1) {

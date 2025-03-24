@@ -54,8 +54,8 @@
 </template>
 
 <script>
-import {mapState, mapActions} from 'vuex';
-import axios from 'axios';
+import { mapState, mapActions } from 'vuex';
+import { fetchSearchResults } from '@/api/search';
 
 export default {
   name: 'SearchPage',
@@ -77,44 +77,41 @@ export default {
   methods: {
     ...mapActions(['updateSearchResults']),
 
-    async fetchSearchResults() {
+    async fetchSearchData() {
       if (!this.searchQuery) return;
 
       try {
-        const response = await axios.post('http://localhost:8081/search', {
-          query: this.searchQuery
-        });
-
-        console.log("서버 응답 데이터:", response.data);
-        this.updateSearchResults(response.data);
+        const data = await fetchSearchResults(this.searchQuery);
+        this.updateSearchResults(data);
       } catch (error) {
-        console.error("검색 결과 오류:", error);
+        console.error("검색 결과 불러오기 오류:", error);
       }
     },
 
     getImageUrl(path) {
-      if (!path) return "https://via.placeholder.com/150"; // 기본 이미지 처리
-      return `https://image.tmdb.org/t/p/w500${path}`;
+      return path ? `https://image.tmdb.org/t/p/w500${path}` : "https://via.placeholder.com/150";
     },
+
     openMovieDetails(movieId) {
       this.$router.push({ name: 'MovieDetail', params: { id: movieId } });
     },
+
     openDramaDetails(dramaId) {
       this.$router.push({ name: 'DramaDetail', params: { id: dramaId } });
     },
+
     openAnimationDetails(animationId) {
       this.$router.push({ name: 'AnimationDetail', params: { id: animationId } });
-    },
+    }
   },
   created() {
     console.log("페이지 로드됨. 검색어:", this.searchQuery);
     if (this.searchQuery) {
-      this.fetchSearchResults();
+      this.fetchSearchData();
     }
   }
 };
 </script>
-
 
 <style scoped>
 #searchpage {

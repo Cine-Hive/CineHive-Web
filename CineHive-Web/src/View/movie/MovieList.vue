@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { fetchMovies } from '@/api/movie/movieList';
 
 export default {
   name: 'MovieList',
@@ -106,9 +106,8 @@ export default {
     async fetchMovies() {
       this.loading = true;
       try {
-        const response = await axios.get('http://localhost:8081/movies');
-        this.movies = response.data;
-        console.log("res", response.data);
+        this.movies = await fetchMovies();
+        console.log("res", this.movies);
       } catch (error) {
         console.error('영화 데이터를 가져오는 중 오류가 발생했습니다:', error);
       } finally {
@@ -142,6 +141,7 @@ export default {
   }
 }
 </script>
+
 
 
 <style scoped>

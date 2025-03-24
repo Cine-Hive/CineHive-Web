@@ -71,7 +71,16 @@
 </template>
 
 <script>
-import axios from "axios";
+
+import {
+  fetchReviews,
+  toggleLike,
+  toggleDislike,
+  fetchLikeCount,
+  fetchDislikeCount,
+  submitReview,
+  deleteReview
+} from "@/api/review";
 
 export default {
   data() {
@@ -108,40 +117,31 @@ export default {
   computed: {
     userEmail() {
       return localStorage.getItem("email") || "";
+    },
+    userToken() {
+      return localStorage.getItem("token") || "";
     }
   },
   methods: {
     // 감상평 데이터 가져오기
     async fetchReviews() {
       try {
-        const response = await axios.get(`http://localhost:8081/reply/movie/${this.id}`);
-        this.reviews = response.data;
+        this.reviews = await fetchReviews(this.id);
 
         // ✅ 모든 감상평 별로 좋아요/싫어요 개수 가져오기
-        this.reviews.forEach(review => {
-          this.fetchLikeCount(review);
-          this.fetchDislikeCount(review);
-        });
-
+        for (let review of this.reviews) {
+          review.likeCount = await fetchLikeCount(review.id);
+          review.dislikeCount = await fetchDislikeCount(review.id);
+        }
       } catch (error) {
         console.error("감상평을 불러오는 중 오류 발생:", error);
       }
-    }
-    ,
+    },
 
-    // 좋아요 요청 (서버 주소 수정)
     async toggleLike(review) {
       try {
-        await axios.post("http://localhost:8081/reply/judge/like", null, {
-          params: {
-            memEmail: this.userEmail,
-            movieId: this.id,
-            replyId: review.id
-          }
-        });
-
-        this.fetchLikeCount(review);  // ✅ 좋아요 개수 다시 가져오기
-
+        await toggleLike(review.id, this.id, this.userToken);
+        review.likeCount = await fetchLikeCount(review.id);
       } catch (error) {
         console.error("좋아요 처리 중 오류 발생:", error);
       }
@@ -149,51 +149,12 @@ export default {
 
     async toggleDislike(review) {
       try {
-        await axios.post("http://localhost:8081/reply/judge/dislike", null, {
-          params: {
-            memEmail: this.userEmail,
-            movieId: this.id,
-            replyId: review.id
-          }
-        });
-
-        this.fetchDislikeCount(review);  // ✅ 싫어요 개수 다시 가져오기
-
+        await toggleDislike(review.id, this.id, this.userToken);
+        review.dislikeCount = await fetchDislikeCount(review.id);
       } catch (error) {
         console.error("싫어요 처리 중 오류 발생:", error);
       }
     },
-
-    async fetchLikeCount(review) {
-      try {
-        const response = await axios.get("http://localhost:8081/reply/judge/count/like", {
-          params: { replyId: review.id }  // ✅ 특정 감상평의 ID만 가져옴
-        });
-
-        // ✅ 해당 감상평의 `likeCount`만 업데이트
-        this.$set(review, "likeCount", response.data);
-      } catch (error) {
-        console.error("좋아요 개수 불러오기 실패:", error);
-      }
-    }
-    ,
-
-    // ✅ 각 감상평의 싫어요 개수 가져오기
-    async fetchDislikeCount(review) {
-      try {
-        const response = await axios.get("http://localhost:8081/reply/judge/count/dislike", {
-          params: { replyId: review.id }  // ✅ 특정 감상평의 ID만 가져옴
-        });
-
-        // ✅ 해당 감상평의 `dislikeCount`만 업데이트
-        this.$set(review, "dislikeCount", response.data);
-      } catch (error) {
-        console.error("싫어요 개수 불러오기 실패:", error);
-      }
-    }
-    ,
-
-    // 감상평 등록
     async submitReview() {
       if (!this.newReview.text.trim()) {
         alert("감상평을 입력해주세요!");
@@ -203,26 +164,21 @@ export default {
         alert("감상평은 1000자를 초과할 수 없습니다.");
         return;
       }
-      if (!this.userEmail) {
+      if (!this.userToken) {
         alert("로그인이 필요합니다!");
         this.$router.push("/auth");
         return;
       }
 
       try {
-        await axios.post(`http://localhost:8081/reply?` +
-            `memNickname=${encodeURIComponent(this.newReview.nickname)}` +
-            `&memEmail=${encodeURIComponent(this.userEmail)}` +
-            `&movieId=${encodeURIComponent(this.id)}` +
-            `&content=${encodeURIComponent(this.newReview.text)}`
-        );
-
+        await submitReview(this.id, this.newReview.nickname, this.newReview.text, this.userToken);
         alert("감상평이 등록되었습니다!");
         this.newReview.text = "";
         this.closeReviewPopup();
         this.fetchReviews();
       } catch (error) {
         console.error("감상평 등록 중 오류 발생:", error);
+        alert("감상평 등록에 실패했습니다.");
       }
     },
 
@@ -231,15 +187,14 @@ export default {
       if (!confirm("정말 삭제하시겠습니까?")) return;
 
       try {
-        await axios.delete(`http://localhost:8081/reply/${this.id}/${replyId}`);
-
+        await deleteReview(this.id, replyId, this.userToken);
         alert("감상평이 삭제되었습니다!");
         this.fetchReviews();
       } catch (error) {
         console.error("감상평 삭제 중 오류 발생:", error);
+        alert("감상평 삭제에 실패했습니다.");
       }
     },
-
     // 날짜 포맷
     formatDate(dateString) {
       if (!dateString) return "날짜 없음";

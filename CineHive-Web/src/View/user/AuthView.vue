@@ -116,7 +116,7 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
+import { checkDuplicatesEmail, checkDuplicatesNickname, registerUser, loginUser } from '@/api/user/user'; // ✅ auth.js에서 함수 가져오기
 import { mapState } from 'vuex';
 
 export default {
@@ -153,39 +153,20 @@ export default {
       this.currentStep = 1;
     },
 
-
+    // 이메일 중복 체크
     async checkDuplicatesEmail() {
-
-      const memEmail = this.memEmail;
-
-      try {
-        const response = await axios.get(`http://localhost:8081/checkemail/${memEmail}`);
-        return response.data;
-      } catch (error) {
-        if (error.response) {
-          console.log('요청 실패: ' + error.response.data);
-        }
-        return false;
-      }
+      const isUniqueEmail = await checkDuplicatesEmail(this.memEmail);
+      return isUniqueEmail;
     },
 
+    // 닉네임 중복 체크
     async checkDuplicatesNickname() {
-
-      const memNickname = this.memNickname;
-
-      try {
-        const response = await axios.get(`http://localhost:8081/checknickname/${memNickname}`);
-        return response.data;
-      } catch (error) {
-        if (error.response) {
-          console.log('요청 실패: ' + error.response.data);
-        }
-        return false;
-      }
+      const isUniqueNickname = await checkDuplicatesNickname(this.memNickname);
+      return isUniqueNickname;
     },
+
     async nextStep() {
       if (this.currentStep === 1) {
-
         if (!this.memEmail || !this.memPassword) {
           alert('빈칸을 입력해 주세요.');
           return;
@@ -196,7 +177,6 @@ export default {
         }
 
         const isUniqueEmail = await this.checkDuplicatesEmail();
-
         if (!isUniqueEmail) {
           alert('이미 존재하는 이메일입니다.');
           return;
@@ -208,31 +188,31 @@ export default {
         }
 
         this.currentStep++;
-
       } else if (this.currentStep === 2) {
-
         if (!this.memName || !this.memSex || !this.memNickname) {
           alert('빈칸을 입력해 주세요.');
           return;
         }
       }
-
-
     },
+
     async submitForm() {
       if (this.selectedGenres.length === 0) {
         alert('최소 하나의 장르를 선택해야 합니다.');
         return;
       }
+
       const isUniqueNickname = await this.checkDuplicatesNickname();
       if (!isUniqueNickname) {
         alert('이미 존재하는 닉네임입니다.');
         return;
       }
+
       if (this.memNickname.length < 4) {
         alert('닉네임은 4글자 이상 입력해주세요.');
         return;
       }
+
       const userData = {
         memSex: this.memSex,
         memNickname: this.memNickname,
@@ -242,22 +222,16 @@ export default {
         genres: this.selectedGenres,
         loginType: ''
       };
-      console.log('Sending User Data:', userData);
       try {
-        const response = await axios.post('http://localhost:8081/register', userData);
-        console.log(response);
+        const response = await registerUser(userData);
+        console.log("res",response);
         alert("회원가입에 성공하였습니다.");
         window.location.reload();
       } catch (error) {
-        if (error.response) {
-          alert(error.response.data);
-          console.log('Sending User Data:', userData);
-        } else {
-          console.log('Sending User Data:', userData);
-          alert('회원가입 중 오류가 발생했습니다. 다시 시도해 주세요.');
-        }
+        alert(error.response?.data || '회원가입 중 오류가 발생했습니다.');
       }
     },
+
     async login() {
       const loginData = {
         memEmail: this.memEmail,
@@ -265,42 +239,34 @@ export default {
       };
 
       try {
-        const response = await axios.post('http://localhost:8081/login', loginData);
-        console.log('API Response:', response.data);
+        const response = await loginUser(loginData);
 
-        if (response.data.user && response.data.token) {
+        if (response.user && response.token) {
           const user = {
-            name: response.data.user.name || '',
-            nickname: response.data.user.nickname || '',
-            email: response.data.user.email || '',
-            preferredGenres: response.data.user.genres || []
+            name: response.user.name || '',
+            nickname: response.user.nickname || '',
+            email: response.user.email || '',
+            preferredGenres: response.user.genres || []
           };
-          const token = response.data.token;
+          const token = response.token;
 
-          // Vuex에 로그인 상태와 토큰을 저장
           this.$store.commit('SET_LOGIN', { isLoggedIn: true, user, token });
 
-          // localStorage에 로그인 정보와 토큰 저장
           localStorage.setItem('isLoggedIn', 'true');
           localStorage.setItem('user', JSON.stringify(user));
           localStorage.setItem('token', token);
 
-          console.log('User from store after commit:', this.$store.state.user);
-
           if (this.$route.path !== '/') {
-            this.$router.push('/');  // 홈으로 리다이렉트
+            this.$router.push('/');
           }
         } else {
           alert('로그인 실패: 사용자 정보가 없습니다.');
         }
       } catch (error) {
-        if (error.response) {
-          alert(error.response.data.message || '로그인 중 오류가 발생했습니다.');
-        } else {
-          alert('로그인 중 오류가 발생했습니다. 다시 시도해 주세요.');
-        }
+        alert(error.response?.data?.message || '로그인 중 오류가 발생했습니다.');
       }
     },
+
     toggleGenre(genre) {
       const index = this.selectedGenres.indexOf(genre);
       if (index === -1) {
@@ -309,7 +275,6 @@ export default {
         this.selectedGenres.splice(index, 1);
       }
     },
-
 
     kakaoLogin() {
       localStorage.setItem('loginType', 'kakao');
@@ -323,10 +288,10 @@ export default {
       localStorage.setItem('loginType', 'naver');
       window.location.href = 'http://localhost:8081/api/auth/naver';
     },
-
   }
 }
 </script>
+
 
 
 <style scoped>
