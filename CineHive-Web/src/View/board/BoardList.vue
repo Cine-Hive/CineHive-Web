@@ -61,7 +61,7 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
+import { fetchPosts, searchPosts } from '@/api/board/boardList';
 
 export default {
   name: 'BoardList',
@@ -87,10 +87,10 @@ export default {
   methods: {
     async fetchPosts() {
       try {
-        const response = await axios.get('http://localhost:8081/boards');
-        this.posts = response.data;
-        this.filteredPosts = response.data;
-        console.log("전체 목록 조회 res",response);
+        const posts = await fetchPosts(); // boardService에서 게시글 목록 요청
+        this.posts = posts;
+        this.filteredPosts = posts;
+        console.log("전체 목록 조회 res", posts);
       } catch (error) {
         console.error('게시글 목록 조회에 실패했습니다:', error);
       }
@@ -101,8 +101,8 @@ export default {
 
     async filterPosts() {
       try {
-        const response = await axios.get(`http://localhost:8081/boards/search?keyword=${this.searchQuery}`);
-        this.posts = response.data;
+        const posts = await searchPosts(this.searchQuery); // boardService에서 게시글 검색 요청
+        this.posts = posts;
         this.currentPage = 1;
       } catch (error) {
         console.error('게시글 검색에 실패했습니다:', error);
@@ -129,20 +129,18 @@ export default {
     },
     goToCreatePost() {
       if (this.$store.state.isLoggedIn) {
-
         this.$router.push({ path: '/create/board' });
       } else {
-
         alert('로그인 후 게시글을 작성할 수 있습니다.');
       }
     },
-
   },
   mounted() {
     this.fetchPosts();
   }
 };
 </script>
+
 
 <style scoped>
 

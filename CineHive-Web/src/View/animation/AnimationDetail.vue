@@ -74,7 +74,12 @@
 </template>
 
 <script>
-import axios from 'axios';
+import {
+  fetchAnimationDetails,
+  fetchSimilarAnimations,
+  fetchBookmarkCount,
+  toggleBookmark,
+} from '@/api/animation/animationDetail';
 
 export default {
   data() {
@@ -84,12 +89,9 @@ export default {
       bookmarkCount: 0,
     };
   },
-  async  created() {
-    this.fetchAnimationDetails();
-    this.fetchSimilarAnimations();
+  async created() {
     await this.fetchAnimationDetails();
     await this.fetchSimilarAnimations();
-
     const animationId = this.$route.params.id;
     try {
       this.bookmarkCount = await this.fetchBookmarkCount(animationId);
@@ -113,16 +115,7 @@ export default {
       }
 
       try {
-        const response = await fetch(
-            `http://localhost:8081/reply/bookmark/toggle?memEmail=${encodeURIComponent(memEmail)}&movieId=${animationId}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              mode: "cors" // CORS 허용
-            }
-        );
-
-        const result = await response.text();
+        const result = await toggleBookmark(memEmail, animationId);
         console.log(result);
 
         // 즐겨찾기한 개수 다시 가져오기
@@ -133,12 +126,29 @@ export default {
     },
     async fetchBookmarkCount(animationId) {
       try {
-        const response = await fetch(`http://localhost:8081/reply/bookmark/count?movieId=${animationId}`);
-        const count = await response.json();
+        const count = await fetchBookmarkCount(animationId);
         return count;
       } catch (error) {
         console.error("즐겨찾기 개수 가져오는 중 오류 발생:", error);
         return 0;
+      }
+    },
+    async fetchAnimationDetails() {
+      const animationId = this.$route.params.id;
+      try {
+        this.animation = await fetchAnimationDetails(animationId);
+        console.log("res", this.animation);
+      } catch (error) {
+        console.error('애니메이션 상세 정보를 가져오는 중 오류가 발생했습니다:', error);
+      }
+    },
+    async fetchSimilarAnimations() {
+      const animationId = this.$route.params.id;
+      try {
+        this.similarAnimations = await fetchSimilarAnimations(animationId);
+        this.bookmarkCount = await this.fetchBookmarkCount(animationId);
+      } catch (error) {
+        console.error('추천 애니메이션을 가져오는 중 오류 발생:', error);
       }
     },
     goToReviewPage() {
@@ -152,31 +162,6 @@ export default {
         }
       });
     },
-    async fetchAnimationDetails() {
-      const animationId = this.$route.params.id;
-      try {
-        const response = await axios.get(`http://localhost:8081/animations/${animationId}`);
-        this.animation = response.data;
-        console.log("res",response);
-      } catch (error) {
-        console.error('애니메이션 상세 정보를 가져오는 중 오류가 발생했습니다:', error);
-      }
-    },
-    async fetchSimilarAnimations() {
-      const animationId = this.$route.params.id;
-      try {
-        const response = await axios.get(`http://localhost:8081/animations/${animationId}/similar`);
-        this.similarAnimations = response.data;
-        this.bookmarkCount = await this.fetchBookmarkCount(animationId);
-      } catch (error) {
-        console.error('추천 애니메이션을 가져오는 중 오류 발생:', error);
-      }
-    },
-    goToAnimationDetail(animationId) {
-      if (this.$route.path !== `/animation/${animationId}`) {
-        this.$router.push(`/animation/${animationId}`);
-      }
-    },
     goToLink(url) {
       window.open(url, '_blank');
     },
@@ -186,6 +171,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .animation-detail {

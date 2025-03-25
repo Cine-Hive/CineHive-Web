@@ -70,10 +70,20 @@
 </template>
 
 <script>
-import axios from 'axios';
 import { mapState, mapGetters } from 'vuex';
 import { Viewer } from '@toast-ui/vue-editor';
 import ReportModal from '@/components/ReportModal.vue';
+import {
+  fetchBoardDetail,
+  fetchComments,
+  addComment,
+  deleteComment,
+  fetchCounts,
+  toggleBookmark,
+  toggleLike,
+  toggleDisLike,
+  deleteBoard
+} from '@/api/board/boardDetail'; // `board.js`에서 import
 
 export default {
   components: {
@@ -108,7 +118,7 @@ export default {
     async fetchBoardDetail() {
       const boardId = this.$route.params.id;
       try {
-        const response = await axios.get(`http://localhost:8081/boards/detail/${boardId}`);
+        const response = await fetchBoardDetail(boardId);
         this.board = response.data;
         await this.fetchCounts(boardId);
         const isBookmarked = this.$store.state.bookmarks[boardId] || false;
@@ -119,16 +129,16 @@ export default {
       }
     },
 
-    // 댓글 조회 메서드
     async fetchComments() {
       const boardId = this.$route.params.id;
       try {
-        const response = await axios.get(`http://localhost:8081/comment/all/board/${boardId}`);
+        const response = await fetchComments(boardId);
         this.comments = response.data;
       } catch (error) {
         console.error('댓글 조회에 실패했습니다:', error);
       }
     },
+
     async addComment() {
       const boardId = this.board.id;
       const token = localStorage.getItem('token');
@@ -139,14 +149,7 @@ export default {
       }
 
       try {
-        const response = await axios.post(`http://localhost:8081/comment/${boardId}`,
-            { content: this.newComment },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              }
-            }
-        );
+        const response = await addComment(boardId, this.newComment, token);
         this.comments.push(response.data);
         this.newComment = '';
       } catch (error) {
@@ -165,33 +168,26 @@ export default {
       }
 
       try {
-        await axios.delete(`http://localhost:8081/comment/board/${boardId}/delete/${commentId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              }
-            }
-        );
+        await deleteComment(boardId, commentId, token);
         this.comments = this.comments.filter(comment => comment.id !== commentId);
+        alert("삭제 되었습니다.");
       } catch (error) {
         console.error('댓글 삭제에 실패했습니다:', error);
         alert('댓글 삭제에 실패했습니다.');
       }
     },
+
     async fetchCounts(boardId) {
       try {
-        const bookmarkCountResponse = await axios.get(`http://localhost:8081/bookmark/${boardId}/count`);
+        const [bookmarkCountResponse, likeCountResponse, dislikeCountResponse] = await fetchCounts(boardId);
         this.board.bookmarkCount = bookmarkCountResponse.data;
-
-        const likeCountResponse = await axios.get(`http://localhost:8081/like/${boardId}/count`);
         this.board.likeCount = likeCountResponse.data;
-
-        const dislikeCountResponse = await axios.get(`http://localhost:8081/dislike/${boardId}/count`);
         this.board.dislikeCount = dislikeCountResponse.data;
       } catch (error) {
         console.error('카운트 조회에 실패했습니다:', error);
       }
     },
+
     async toggleBookmark() {
       const boardId = this.board.id;
       const token = localStorage.getItem('token');
@@ -203,37 +199,23 @@ export default {
 
       try {
         const bookmarked = this.isBookmarked(boardId);
-
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-
         if (bookmarked) {
-          await axios.delete(`http://localhost:8081/bookmark/${boardId}`, { headers });
+          await toggleBookmark(boardId, token);
           this.board.bookmarkCount--;
           this.$store.commit('SET_BOOKMARK', { boardId, status: false });
-
-          let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || {};
-          bookmarks[boardId] = false;
-          localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-
           alert("즐겨찾기가 취소되었습니다.");
         } else {
-          await axios.post(`http://localhost:8081/bookmark/${boardId}`, {}, { headers });
+          await toggleBookmark(boardId, token);
           this.board.bookmarkCount++;
           this.$store.commit('SET_BOOKMARK', { boardId, status: true });
-
-          let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || {};
-          bookmarks[boardId] = true;
-          localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-
-          alert("즐겨찾기가 추가되었습니다.");
+          alert("즐겨찾기를 등록하였습니다.");
         }
       } catch (error) {
         console.error('즐겨찾기 처리에 실패했습니다:', error);
         alert("즐겨찾기 처리에 실패했습니다.");
       }
     },
+
     async toggleLike() {
       const boardId = this.board.id;
       const token = localStorage.getItem('token');
@@ -245,38 +227,23 @@ export default {
 
       try {
         const liked = this.isLiked(boardId);
-
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-
         if (liked) {
-
-          await axios.delete(`http://localhost:8081/like/${boardId}`, { headers });
+          await toggleLike(boardId, token);
           this.board.likeCount--;
           this.$store.commit('SET_LIKE', { boardId, status: false });
-
-          let likes = JSON.parse(localStorage.getItem('likes')) || {};
-          likes[boardId] = false;
-          localStorage.setItem('likes', JSON.stringify(likes));
-
-          alert("좋아요가 취소되었습니다.");
+          alert("좋아요를 취소하였습니다.")
         } else {
-          await axios.post(`http://localhost:8081/like/${boardId}`, {}, { headers });
+          await toggleLike(boardId, token);
           this.board.likeCount++;
           this.$store.commit('SET_LIKE', { boardId, status: true });
-
-          let likes = JSON.parse(localStorage.getItem('likes')) || {};
-          likes[boardId] = true;
-          localStorage.setItem('likes', JSON.stringify(likes));
-
-          alert("좋아요가 추가되었습니다.");
+          alert("좋아요를 눌렀습니다.")
         }
       } catch (error) {
         console.error('좋아요 처리에 실패했습니다:', error);
         alert("좋아요 처리에 실패했습니다.");
       }
     },
+
     async toggleDisLike() {
       const boardId = this.board.id;
       const token = localStorage.getItem('token');
@@ -288,57 +255,39 @@ export default {
 
       try {
         const disliked = this.isDisliked(boardId);
-
         if (disliked) {
-          await axios.delete(`http://localhost:8081/dislike/${boardId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
+          await toggleDisLike(boardId, token);
           this.board.dislikeCount--;
           this.$store.commit('SET_DISLIKE', { boardId, status: false });
-
-          let dislikes = JSON.parse(localStorage.getItem('dislikes')) || {};
-          dislikes[boardId] = false;
-          localStorage.setItem('dislikes', JSON.stringify(dislikes));
-
-          alert("싫어요가 취소되었습니다.");
+          alert("싫어요를 취소하였습니다.")
         } else {
-
-          await axios.post(`http://localhost:8081/dislike/${boardId}`, {}, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
+          await toggleDisLike(boardId, token);
           this.board.dislikeCount++;
           this.$store.commit('SET_DISLIKE', { boardId, status: true });
-
-          let dislikes = JSON.parse(localStorage.getItem('dislikes')) || {};
-          dislikes[boardId] = true;
-          localStorage.setItem('dislikes', JSON.stringify(dislikes));
-
-          alert("싫어요가 추가되었습니다.");
+          alert("싫어요를 등록하였습니다.")
         }
       } catch (error) {
         console.error('싫어요 처리에 실패했습니다:', error);
       }
     },
+
     formatDate(dateString) {
-      const options = {year: 'numeric', month: 'long', day: 'numeric'};
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
       return new Date(dateString).toLocaleDateString('ko-KR', options);
     },
+
     goToBack() {
       this.$router.go(-1);
     },
+
     confirmDelete() {
       if (confirm("정말 삭제하시겠습니까?")) {
         this.deleteBoard();
       }
     },
+
     async deleteBoard() {
       const boardId = this.board.id;
-
-
       const token = localStorage.getItem('token');
 
       if (!token) {
@@ -347,13 +296,7 @@ export default {
       }
 
       try {
-
-        await axios.delete(`http://localhost:8081/boards/delete/${boardId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
+        await deleteBoard(boardId, token);
         alert("게시글이 삭제되었습니다.");
         this.goToBack();
       } catch (error) {
@@ -361,13 +304,15 @@ export default {
         console.error('게시글 삭제에 실패했습니다:', error);
       }
     },
+
     goToEdit() {
       const boardId = this.board.id;
-      this.$router.push({path: `/boards/${boardId}`});
+      this.$router.push({ path: `/boards/${boardId}` });
     }
   }
 };
 </script>
+
 
 
 <style scoped>

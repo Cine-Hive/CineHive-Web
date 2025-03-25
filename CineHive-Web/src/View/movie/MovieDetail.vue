@@ -81,7 +81,7 @@
 
 
 <script>
-import axios from 'axios';
+import { fetchMovieDetails, fetchSimilarMovies, toggleBookmark, fetchBookmarkCount } from '@/api/movie/movieDetail'; // ✅ movieService.js에서 함수 가져오기
 
 export default {
   data() {
@@ -95,18 +95,16 @@ export default {
     this.fetchSimilarMovies();
     const movieId = this.$route.params.id;
     try {
-      const response = await fetch(`http://localhost:8081/movies/${movieId}`);
-      this.movie = await response.json();
+      this.movie = await fetchMovieDetails(movieId);
 
       // 즐겨찾기한 개수 가져오기
       this.bookmarkCount = await this.fetchBookmarkCount(movieId);
     } catch (error) {
       console.error("영화 정보를 불러오는 중 오류 발생:", error);
     }
-  }
-  ,
+  },
   watch: {
-    '$route.params.id': 'fetchMovieDetails' // URL 매개변수 변경 시 데이터 다시 로드
+    '$route.params.id': 'fetchMovieDetails', // URL 매개변수 변경 시 데이터 다시 로드
   },
   methods: {
     goToMovieDetail(movieId) {
@@ -117,8 +115,7 @@ export default {
     async fetchSimilarMovies() {
       const movieId = this.$route.params.id;
       try {
-        const response = await axios.get(`http://localhost:8081/movies/${movieId}/similar`);
-        this.similarMovies = response.data;
+        this.similarMovies = await fetchSimilarMovies(movieId);
       } catch (error) {
         console.error('추천 영화를 가져오는 중 오류 발생:', error);
       }
@@ -126,8 +123,7 @@ export default {
     async fetchMovieDetails() {
       const movieId = this.$route.params.id;
       try {
-        const response = await axios.get(`http://localhost:8081/movies/${movieId}`);
-        this.movie = response.data;
+        this.movie = await fetchMovieDetails(movieId);
       } catch (error) {
         console.error('영화 상세 정보를 가져오는 중 오류가 발생했습니다:', error);
       }
@@ -147,41 +143,27 @@ export default {
       });
     },
     async toggleBookmark(movieId) {
-      const memEmail = localStorage.getItem("email") || ''; // 사용자 이메일 가져오기
+      const token = localStorage.getItem("token");
 
-      if (!memEmail) {
-        console.error("사용자 이메일이 없습니다. 로그인 후 이용해주세요.");
+      if (!token) {
+        alert("로그인 후 이용해 주세요.");
+        this.$router.push("/auth");
         return;
       }
 
       try {
-        const response = await fetch(
-            `http://localhost:8081/reply/bookmark/toggle?memEmail=${encodeURIComponent(memEmail)}&movieId=${movieId}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              mode: "cors" // CORS 허용
-            }
-        );
+        await toggleBookmark(movieId, token);
 
-        const result = await response.text();
-        console.log(result);
-
-        // 즐겨찾기한 개수 다시 가져오기
         this.bookmarkCount = await this.fetchBookmarkCount(movieId);
       } catch (error) {
         console.error("즐겨찾기 토글 오류:", error);
       }
-    }
-    ,
+    },
     async fetchBookmarkCount(movieId) {
       try {
-        const response = await fetch(`http://localhost:8081/reply/bookmark/count?movieId=${movieId}`);
-        const count = await response.json();
-        return count;
+        this.bookmarkCount = await fetchBookmarkCount(movieId);
       } catch (error) {
         console.error("즐겨찾기 개수 가져오는 중 오류 발생:", error);
-        return 0;
       }
     },
     goToLink(url) {
@@ -190,6 +172,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .movie-detail {

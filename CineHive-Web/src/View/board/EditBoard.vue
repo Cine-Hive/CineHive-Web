@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { fetchBoardDetail, updateBoardPost } from '@/api/board/boardEdit';
 import { mapState } from 'vuex';
 import { Editor } from '@toast-ui/vue-editor';
 
@@ -60,18 +60,17 @@ export default {
     }),
   },
   mounted() {
-    this.fetchBoardDetail();
+    this.fetchBoardDetailData();
   },
   methods: {
-    async fetchBoardDetail() {
+    async fetchBoardDetailData() {
       const boardId = this.$route.params.id;
       try {
-        const response = await axios.get(`http://localhost:8081/boards/detail/${boardId}`);
-        this.brdTitle = response.data.brdTitle;
-        this.brdContent = response.data.brdContent;
+        const data = await fetchBoardDetail(boardId);
+        this.brdTitle = data.brdTitle;
+        this.brdContent = data.brdContent;
       } catch (error) {
         this.errorMessage = '게시글 조회에 실패했습니다.';
-        console.error('게시글 조회에 실패했습니다:', error);
       }
     },
     confirmUpdate() {
@@ -95,22 +94,10 @@ export default {
       }
 
       const boardId = this.$route.params.id;
+      const token = localStorage.getItem('token');
 
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.put(
-            `http://localhost:8081/boards/${boardId}`,
-            {
-              memEmail: this.user.email,
-              brdTitle: this.brdTitle,
-              brdContent: this.brdContent,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-        );
+        const response = await updateBoardPost(boardId, this.user.email, this.brdTitle, this.brdContent, token);
 
         alert("게시글이 수정되었습니다.");
         this.$router.go(-1); // 뒤로가기
@@ -125,6 +112,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .create-post-container {

@@ -83,7 +83,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { fetchMovieDetails, fetchSimilarMovies } from '@/api/movie/topRatedMovie';
 
 export default {
   data() {
@@ -94,25 +94,30 @@ export default {
   },
   async created() {
     const movieId = this.$route.params.id;
-    await this.fetchMovieDetails(movieId);
-    await this.fetchSimilarMovies(movieId);
+    await this.loadMovieData(movieId);
   },
   watch: {
     '$route.params.id': 'fetchMovieDetails' // URL 매개변수 변경 시 데이터 다시 로드
   },
   methods: {
+    async loadMovieData(movieId) {
+      try {
+        this.movie = await fetchMovieDetails(movieId);
+        this.similarMovies = await fetchSimilarMovies(movieId);
+      } catch (error) {
+        console.error('영화 정보를 불러오는 중 오류 발생:', error);
+      }
+    },
     async fetchMovieDetails(movieId) {
       try {
-        const response = await axios.get(`http://localhost:8081/movies/${movieId}`);
-        this.movie = response.data;
+        this.movie = await fetchMovieDetails(movieId);
       } catch (error) {
         console.error("영화 정보를 불러오는 중 오류 발생:", error);
       }
     },
     async fetchSimilarMovies(movieId) {
       try {
-        const response = await axios.get(`http://localhost:8081/movies/${movieId}/similar`);
-        this.similarMovies = response.data;
+        this.similarMovies = await fetchSimilarMovies(movieId);
       } catch (error) {
         console.error('추천 영화를 가져오는 중 오류 발생:', error);
       }
@@ -148,6 +153,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .movie-detail {

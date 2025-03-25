@@ -67,9 +67,8 @@
     </div>
   </div>
 </template>
-
 <script>
-import axios from 'axios';
+import { fetchDramaDetails, fetchBookmarkCount, toggleBookmark } from '@/api/drama/dramaDetail';
 
 export default {
   data() {
@@ -82,7 +81,7 @@ export default {
     this.fetchDramaDetails();
   },
   watch: {
-    '$route.params.id': 'fetchDramaDetails'
+    '$route.params.id': 'fetchDramaDetails',
   },
   methods: {
     async toggleBookmark(dramaId) {
@@ -94,42 +93,21 @@ export default {
       }
 
       try {
-        const response = await fetch(
-            `http://localhost:8081/reply/bookmark/toggle?memEmail=${encodeURIComponent(memEmail)}&movieId=${dramaId}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              mode: "cors" // CORS 허용
-            }
-        );
-
-        const result = await response.text();
+        // 즐겨찾기 토글 처리
+        const result = await toggleBookmark(memEmail, dramaId);
         console.log(result);
 
         // 즐겨찾기한 개수 다시 가져오기
-        this.bookmarkCount = await this.fetchBookmarkCount(dramaId);
+        this.bookmarkCount = await fetchBookmarkCount(dramaId);
       } catch (error) {
         console.error("즐겨찾기 토글 오류:", error);
       }
-    }
-    ,
-    async fetchBookmarkCount(dramaId) {
-      try {
-        const response = await fetch(`http://localhost:8081/reply/bookmark/count?movieId=${dramaId}`);
-        const count = await response.json();
-        return count;
-      } catch (error) {
-        console.error("즐겨찾기 개수 가져오는 중 오류 발생:", error);
-        return 0;
-      }
     },
-
     async fetchDramaDetails() {
       const dramaId = this.$route.params.id;
       try {
-        const response = await axios.get(`http://localhost:8081/dramas/${dramaId}`);
-        this.drama = response.data;
-        this.bookmarkCount = await this.fetchBookmarkCount(dramaId);
+        this.drama = await fetchDramaDetails(dramaId);
+        this.bookmarkCount = await fetchBookmarkCount(dramaId);
       } catch (error) {
         console.error('드라마 상세 정보를 가져오는 중 오류가 발생했습니다:', error);
       }
@@ -151,9 +129,8 @@ export default {
         }
       });
     },
-
-  }
-}
+  },
+};
 </script>
 
 

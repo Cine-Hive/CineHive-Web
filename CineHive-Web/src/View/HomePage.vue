@@ -105,8 +105,15 @@
 </template>
 
 <script>
-import axios from 'axios';
 import { mapState } from 'vuex';
+import {
+  fetchMovies,
+  fetchTopMovies,
+  fetchUpcomingMovies,
+  fetchPopularMovies,
+  fetchPreferredGenres,
+  searchMovies
+} from '@/api/movie/movie';
 import SearchBar from "@/components/SearchBar.vue";
 
 export default {
@@ -116,82 +123,36 @@ export default {
       movies: [],
       topmovies: [],
       prefer: [],
-      upcomingMovies: [], // 개봉 예정 영화
-      popularMovies: [], // 인기 영화
-      showMore: false, // 더 보기 상태
-      showSearchButton: false, // 검색 버튼 상태
+      upcomingMovies: [],
+      popularMovies: [],
+      showMore: false,
+      showSearchButton: false,
       searchQuery: '',
+      loading: false,
     };
   },
 
   computed: {
     ...mapState(['user']),
   },
+
   methods: {
-    async fetchMovies() {
+    async loadMovies() {
       try {
-        const response = await axios.get('http://localhost:8081/now_playing');
-        this.movies = response.data.slice(0, 18);
+        this.movies = await fetchMovies();
+        this.topmovies = await fetchTopMovies();
+        this.upcomingMovies = await fetchUpcomingMovies();
+        this.popularMovies = await fetchPopularMovies();
       } catch (error) {
         console.error('영화 데이터를 가져오는 중 오류가 발생했습니다:', error);
-      }
-    },
-
-    async fetchTopmovies() {
-      try {
-        const response1 = await axios.get('http://localhost:8081/get_topmovies');
-        this.topmovies = response1.data.slice(0, 18);
-      } catch (error) {
-        console.error('영화 데이터를 가져오는 중 오류가 발생했습니다:', error);
-      }
-    },
-
-    async fetchUpcomingMovies() {
-      try {
-        const response = await axios.get('http://localhost:8081/get_upcoming_movies');
-        this.upcomingMovies = response.data.slice(0, 18);
-      } catch (error) {
-        console.error('개봉 예정 영화를 가져오는 중 오류가 발생했습니다:', error);
-      }
-    },
-
-    async fetchPopularMovies() {
-      try {
-        const response = await axios.get('http://localhost:8081/get_popular_movies');
-        this.popularMovies = response.data.slice(0, 18);
-      } catch (error) {
-        console.error('인기 영화를 가져오는 중 오류가 발생했습니다:', error);
-      }
-    },
-
-    goToMovieDetail(movieId, movieType) {
-      if (movieType === 'top') {
-        this.$router.push({ name: 'TopMovieDetail', params: { id: movieId } });
-      } else {
-        this.$router.push({ name: 'MovieDetail', params: { id: movieId } });
       }
     },
 
     async fetchPreferredGenres() {
       try {
-        console.log('사용자의 선호 장르:', this.user.preferredGenres);
-        const response = await axios.post('http://localhost:8081/preferredGenres', {
-          genres: this.user.preferredGenres
-        });
-
-        console.log('선호 장르 데이터:', response.data);
-
-        const uniqueMovies = [];
-        const movieIds = new Set();
-
-        response.data.forEach(movie => {
-          if (!movieIds.has(movie.id)) {
-            movieIds.add(movie.id);
-            uniqueMovies.push(movie);
-          }
-        });
-
-        this.prefer = uniqueMovies.slice(0, 18);
+        if (this.user && this.user.preferredGenres) {
+          this.prefer = await fetchPreferredGenres(this.user.preferredGenres);
+        }
       } catch (error) {
         console.error('선호 장르 데이터를 가져오는 중 오류가 발생했습니다:', error);
       }
@@ -205,12 +166,8 @@ export default {
       this.loading = true;
 
       try {
-        const response = await axios.post('http://localhost:8081/search', {
-          query: this.searchQuery
-        });
-
-        this.updateSearchResults(response.data);
-
+        const results = await searchMovies(this.searchQuery);
+        this.updateSearchResults(results);
         this.$router.push({
           path: '/search',
           query: { q: this.searchQuery }
@@ -223,9 +180,17 @@ export default {
     },
 
     toggleShowMore() {
-      this.showMore = !this.showMore; // 더 보기 상태 변경
+      this.showMore = !this.showMore;
       if (!this.showSearchButton) {
-        this.showSearchButton = true; // '검색하기' 버튼 보이기
+        this.showSearchButton = true;
+      }
+    },
+
+    goToMovieDetail(movieId, movieType) {
+      if (movieType === 'top') {
+        this.$router.push({ name: 'TopMovieDetail', params: { id: movieId } });
+      } else {
+        this.$router.push({ name: 'MovieDetail', params: { id: movieId } });
       }
     },
 
@@ -249,15 +214,14 @@ export default {
     },
 
     goToSearchPage() {
-      // 검색 페이지로 이동하는 로직 추가
       this.$router.push('/search');
     },
 
     goToLogin() {
       this.$router.push('/auth');
     },
-
   },
+
   watch: {
     user(newUser) {
       if (newUser && newUser.preferredGenres && newUser.preferredGenres.length > 0) {
@@ -265,11 +229,9 @@ export default {
       }
     }
   },
+
   mounted() {
-    this.fetchMovies();
-    this.fetchTopmovies();
-    this.fetchUpcomingMovies();
-    this.fetchPopularMovies();
+    this.loadMovies();
     if (this.user && this.user.preferredGenres && this.user.preferredGenres.length > 0) {
       this.fetchPreferredGenres();
     } else {
@@ -278,6 +240,7 @@ export default {
   }
 };
 </script>
+
 <style scoped>
 
 #homepage {

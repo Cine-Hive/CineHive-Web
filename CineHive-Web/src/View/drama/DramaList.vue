@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { fetchDramas } from '@/api/drama/dramaList';
 
 export default {
   name: 'DramaList',
@@ -99,8 +99,7 @@ export default {
   methods: {
     async fetchDramas() {
       try {
-        const response = await axios.get('http://localhost:8081/dramas');
-        this.dramas = response.data;
+        this.dramas = await fetchDramas();
       } catch (error) {
         console.error('드라마 데이터를 가져오는 중 오류가 발생했습니다:', error);
       }
@@ -123,6 +122,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .drama-list {

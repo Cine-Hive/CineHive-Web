@@ -49,9 +49,8 @@
     </div>
   </div>
 </template>
-
 <script>
-import axios from 'axios';
+import { fetchAnimations } from '@/api/animation/animationList';
 
 export default {
   name: 'AnimationList',
@@ -105,8 +104,7 @@ export default {
   methods: {
     async fetchAnimations() {
       try {
-        const response = await axios.get('http://localhost:8081/animations');
-        this.animations = response.data;
+        this.animations = await fetchAnimations();
       } catch (error) {
         console.error('애니메이션 데이터를 가져오는 중 오류가 발생했습니다:', error);
       }
@@ -136,6 +134,7 @@ export default {
   }
 }
 </script>
+
 
 
 <style scoped>
