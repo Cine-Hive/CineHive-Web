@@ -28,20 +28,20 @@ export const fetchBookmarkCount = async (dramaId) => {
 };
 
 // 즐겨찾기 토글 처리
-export const toggleBookmark = async (memEmail, dramaId) => {
+export const toggleBookmark = async (dramaId, token) => {
     try {
-        const response = await fetch(
-            `${API_BASE_URL}/reply/bookmark/toggle?memEmail=${encodeURIComponent(memEmail)}&movieId=${dramaId}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                mode: 'cors',
-            }
-        );
+        const response = await fetch(`${API_BASE_URL}/reply/bookmark/toggle`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ movieId: dramaId }), // movieId를 객체 형태로 보내기
+        });
         const result = await response.text();
         return result;
     } catch (error) {
-        console.error('즐겨찾기 토글 오류:', error);
+        console.error("즐겨찾기 토글 오류:", error);
         throw error;
     }
 };

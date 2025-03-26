@@ -85,22 +85,29 @@ export default {
   },
   methods: {
     async toggleBookmark(dramaId) {
-      const memEmail = localStorage.getItem("email") || ''; // 사용자 이메일 가져오기
+      const token = localStorage.getItem("token");
 
-      if (!memEmail) {
-        console.error("사용자 이메일이 없습니다. 로그인 후 이용해주세요.");
+      if (!token) {
+        console.error("JWT 토큰이 없습니다. 로그인 후 이용해주세요.");
         return;
       }
 
       try {
-        // 즐겨찾기 토글 처리
-        const result = await toggleBookmark(memEmail, dramaId);
+        const result = await toggleBookmark(dramaId, token);
         console.log(result);
 
-        // 즐겨찾기한 개수 다시 가져오기
-        this.bookmarkCount = await fetchBookmarkCount(dramaId);
+        this.bookmarkCount = await this.fetchBookmarkCount(dramaId);
       } catch (error) {
         console.error("즐겨찾기 토글 오류:", error);
+      }
+    },
+    async fetchBookmarkCount(dramaId) {
+      try {
+        const count = await fetchBookmarkCount(dramaId);
+        return count;
+      } catch (error) {
+        console.error('즐겨찾기 개수 가져오는 중 오류 발생:', error);
+        return 0;
       }
     },
     async fetchDramaDetails() {

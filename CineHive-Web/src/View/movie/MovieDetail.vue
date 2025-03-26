@@ -81,7 +81,7 @@
 
 
 <script>
-import { fetchMovieDetails, fetchSimilarMovies, toggleBookmark, fetchBookmarkCount } from '@/api/movie/movieDetail'; // ✅ movieService.js에서 함수 가져오기
+import { fetchMovieDetails, fetchSimilarMovies, fetchBookmarkCount, toggleBookmark } from '@/api/movie/movieDetail'; // ✅ movieService.js에서 함수 가져오기
 
 export default {
   data() {
@@ -143,27 +143,30 @@ export default {
       });
     },
     async toggleBookmark(movieId) {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
 
       if (!token) {
-        alert("로그인 후 이용해 주세요.");
-        this.$router.push("/auth");
+        console.error('JWT 토큰이 없습니다. 로그인 후 이용해주세요.');
         return;
       }
 
       try {
-        await toggleBookmark(movieId, token);
+        const result = await toggleBookmark(movieId, token);
+        console.log(result);
 
         this.bookmarkCount = await this.fetchBookmarkCount(movieId);
       } catch (error) {
-        console.error("즐겨찾기 토글 오류:", error);
+        console.error('즐겨찾기 토글 오류:', error);
       }
     },
+
     async fetchBookmarkCount(movieId) {
       try {
-        this.bookmarkCount = await fetchBookmarkCount(movieId);
+        const count = await fetchBookmarkCount(movieId);
+        return count;
       } catch (error) {
-        console.error("즐겨찾기 개수 가져오는 중 오류 발생:", error);
+        console.error('즐겨찾기 개수 가져오는 중 오류 발생:', error);
+        return 0;
       }
     },
     goToLink(url) {

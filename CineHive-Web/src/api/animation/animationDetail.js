@@ -38,21 +38,21 @@ export const fetchBookmarkCount = async (animationId) => {
     }
 };
 
-// 즐겨찾기 토글 처리
-export const toggleBookmark = async (memEmail, animationId) => {
+// 즐겨찾기 토글 처리 (애니메이션)
+export const toggleBookmark = async (animationId, token) => {
     try {
-        const response = await fetch(
-            `${API_BASE_URL}/reply/bookmark/toggle?memEmail=${encodeURIComponent(memEmail)}&movieId=${animationId}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                mode: 'cors', // CORS 허용
-            }
-        );
+        const response = await fetch(`${API_BASE_URL}/reply/bookmark/toggle`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ movieId: animationId }),
+        });
         const result = await response.text();
         return result;
     } catch (error) {
-        console.error('즐겨찾기 토글 오류:', error);
+        console.error("즐겨찾기 토글 오류:", error);
         throw error;
     }
 };

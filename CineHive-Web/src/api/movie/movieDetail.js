@@ -29,16 +29,14 @@ export const fetchSimilarMovies = async (movieId) => {
 // 즐겨찾기 토글
 export const toggleBookmark = async (movieId, token) => {
     try {
-        const response = await fetch(
-            `${API_BASE_URL}/reply/bookmark/toggle?movieId=${movieId}`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                },
-            }
-        );
+        const response = await fetch(`${API_BASE_URL}/reply/bookmark/toggle`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ movieId: movieId }),
+        });
         const result = await response.text();
         return result;
     } catch (error) {
@@ -47,10 +45,15 @@ export const toggleBookmark = async (movieId, token) => {
     }
 };
 
-// 즐겨찾기 개수 가져오기
+
 export const fetchBookmarkCount = async (movieId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/reply/bookmark/count?movieId=${movieId}`);
+        const response = await fetch(`${API_BASE_URL}/reply/bookmark/count?movieId=${movieId}`, {
+            method: "GET", // GET 요청으로 변경
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
         const count = await response.json();
         return count;
     } catch (error) {
@@ -58,3 +61,4 @@ export const fetchBookmarkCount = async (movieId) => {
         return 0;
     }
 };
+
