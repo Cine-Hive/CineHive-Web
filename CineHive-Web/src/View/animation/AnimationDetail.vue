@@ -107,23 +107,23 @@ export default {
   },
   methods: {
     async toggleBookmark(animationId) {
-      const memEmail = localStorage.getItem("email") || ''; // 사용자 이메일 가져오기
+      const token = localStorage.getItem("token");
 
-      if (!memEmail) {
-        console.error("사용자 이메일이 없습니다. 로그인 후 이용해주세요.");
+      if (!token) {
+        console.error("JWT 토큰이 없습니다. 로그인 후 이용해주세요.");
         return;
       }
 
       try {
-        const result = await toggleBookmark(memEmail, animationId);
+        const result = await toggleBookmark(animationId, token);
         console.log(result);
 
-        // 즐겨찾기한 개수 다시 가져오기
         this.bookmarkCount = await this.fetchBookmarkCount(animationId);
       } catch (error) {
         console.error("즐겨찾기 토글 오류:", error);
       }
     },
+
     async fetchBookmarkCount(animationId) {
       try {
         const count = await fetchBookmarkCount(animationId);

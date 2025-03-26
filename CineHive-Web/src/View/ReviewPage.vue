@@ -123,16 +123,21 @@ export default {
     }
   },
   methods: {
-    // 감상평 데이터 가져오기
     async fetchReviews() {
       try {
         this.reviews = await fetchReviews(this.id);
 
-        // ✅ 모든 감상평 별로 좋아요/싫어요 개수 가져오기
-        for (let review of this.reviews) {
-          review.likeCount = await fetchLikeCount(review.id);
-          review.dislikeCount = await fetchDislikeCount(review.id);
-        }
+        const reviewsWithLikesAndDislikes = await Promise.all(this.reviews.map(async (review) => {
+          const likeCount = await fetchLikeCount(review.id);
+          const dislikeCount = await fetchDislikeCount(review.id);
+          return {
+            ...review,
+            likeCount,
+            dislikeCount,
+          };
+        }));
+
+        this.reviews = reviewsWithLikesAndDislikes;
       } catch (error) {
         console.error("감상평을 불러오는 중 오류 발생:", error);
       }
@@ -142,6 +147,8 @@ export default {
       try {
         await toggleLike(review.id, this.id, this.userToken);
         review.likeCount = await fetchLikeCount(review.id);
+
+        console.log(`좋아요 처리됨. 리뷰 ID: ${review.id}, 좋아요 개수: ${review.likeCount}`);  // 로그 추가
       } catch (error) {
         console.error("좋아요 처리 중 오류 발생:", error);
       }
@@ -151,6 +158,7 @@ export default {
       try {
         await toggleDislike(review.id, this.id, this.userToken);
         review.dislikeCount = await fetchDislikeCount(review.id);
+        console.log(`싫어요 처리됨. 리뷰 ID: ${review.id}, 싫어요 개수: ${review.dislikeCount}`);  // 로그 추가
       } catch (error) {
         console.error("싫어요 처리 중 오류 발생:", error);
       }
