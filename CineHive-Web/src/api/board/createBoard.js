@@ -7,7 +7,7 @@ const API_BASE_URL = 'http://localhost:8081';
 // 게시글 등록 요청 함수
 export const createBoardPost = async (brdTitle, brdContent, token) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/boards/create`, {
+        const response = await axios.post(`${API_BASE_URL}/boards`, {
             brdTitle,
             brdContent,
         }, {

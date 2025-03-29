@@ -7,7 +7,7 @@ const API_BASE_URL = 'http://localhost:8081';
 // 게시글 목록 조회 요청 함수
 export const fetchPosts = async () => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/boards`);
+        const response = await axios.get(`${API_BASE_URL}/boards/all`);
         return response.data; // 게시글 목록
     } catch (error) {
         console.error('게시글 목록 조회에 실패했습니다:', error);

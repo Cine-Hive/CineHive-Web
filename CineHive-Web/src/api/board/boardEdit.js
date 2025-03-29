@@ -7,7 +7,7 @@ const API_BASE_URL = 'http://localhost:8081';
 // 게시글 상세 조회 요청 함수
 export const fetchBoardDetail = async (boardId) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/boards/detail/${boardId}`);
+        const response = await axios.get(`${API_BASE_URL}/boards/${boardId}`);
         return response.data; // 게시글 상세 데이터
     } catch (error) {
         console.error('게시글 조회에 실패했습니다:', error);

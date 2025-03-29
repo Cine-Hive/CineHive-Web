@@ -6,12 +6,12 @@ const API_BASE_URL = 'http://localhost:8081';
 
 // 게시글 상세 조회
 export const fetchBoardDetail = (boardId) => {
-    return axios.get(`${API_BASE_URL}/boards/detail/${boardId}`);
+    return axios.get(`${API_BASE_URL}/boards/${boardId}`);
 };
 
 // 댓글 조회
 export const fetchComments = (boardId) => {
-    return axios.get(`${API_BASE_URL}/comment/all/board/${boardId}`);
+    return axios.get(`${API_BASE_URL}/comment/${boardId}/board/all`);
 };
 
 // 댓글 추가
@@ -25,7 +25,7 @@ export const addComment = (boardId, content, token) => {
 
 // 댓글 삭제
 export const deleteComment = (boardId, commentId, token) => {
-    return axios.delete(`${API_BASE_URL}/comment/board/${boardId}/delete/${commentId}`, {
+    return axios.delete(`${API_BASE_URL}/comment/${boardId}/board/delete/${commentId}`, {
         headers: {
             Authorization: `Bearer ${token}`,
         }
@@ -70,7 +70,7 @@ export const toggleDisLike = (boardId, token) => {
 
 // 게시글 삭제
 export const deleteBoard = (boardId, token) => {
-    return axios.delete(`${API_BASE_URL}/boards/delete/${boardId}`, {
+    return axios.delete(`${API_BASE_URL}/boards/${boardId}`, {
         headers: {
             Authorization: `Bearer ${token}`,
         }

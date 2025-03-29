@@ -27,7 +27,7 @@
             <span class="post-id" style="position: relative; left:-45%;">{{ post.id }}</span>
             <span class="post-user" style="position: relative; left:-45%;">{{ post.memNickname }}</span>
             <span class="post-title" style="position: relative; left:-43%;" >{{ post.brdTitle }}</span>
-            <span class="post-date" style="position: relative; left:-130%;">{{ formatDate(post.brgRegDate) }}</span>
+            <span class="post-date" style="position: relative; left:-130%;">{{ formatDate(post.brdRegDate) }}</span>
             <span class="like-count" style="position: relative; left:345%;">{{ post.likeCount }}</span>
             <span class="join-page-count" style="position: relative; left:345%;">{{ post.views }}</span>
             <span> </span>
@@ -110,9 +110,9 @@ export default {
     },
     sortPosts() {
       if (this.selectedSort === 'latest') {
-        this.filteredPosts.sort((a, b) => new Date(b.brgRegDate) - new Date(a.brgRegDate));
+        this.filteredPosts.sort((a, b) => new Date(b.brdRegDate) - new Date(a.brdRegDate));
       } else if (this.selectedSort === 'oldest') {
-        this.filteredPosts.sort((a, b) => new Date(a.brgRegDate) - new Date(b.brgRegDate));
+        this.filteredPosts.sort((a, b) => new Date(a.brdRegDate) - new Date(b.brdRegDate));
       } else if (this.selectedSort === 'likes') {
         this.filteredPosts.sort((a, b) => b.likeCount - a.likeCount);
       } else if (this.selectedSort === 'views') {
