@@ -50,7 +50,7 @@
     </div>
 
     <!-- 감상평 작성 버튼 -->
-    <button @click="openReviewPopup">감상평 작성</button>
+    <button @click="openReviewPopup" class="review-create-btn">작성하기</button>
 
     <!-- 감상평 작성 팝업 -->
     <div v-if="showPopup" class="popup-overlay">
@@ -226,6 +226,7 @@ export default {
   background-color: black;
   padding: 40px;
   border-radius: 10px;
+  min-height: 900px;
 }
 
 .char-limit {
@@ -250,7 +251,13 @@ export default {
 .movie-details {
   max-width: 600px;
 }
-
+.movie-details h2{
+  text-align: left;
+}
+.overview{
+  position: relative;
+  top:50px;
+}
 .review-section {
   margin-top: 30px;
 }
@@ -357,5 +364,12 @@ textarea {
 
 .popup-buttons button:hover {
   background-color: #555;
+}
+.review-create-btn{
+  position: relative;
+  top:100px;
+  left:46%;
+  width: 90px;
+  height: 40px;
 }
 </style>
