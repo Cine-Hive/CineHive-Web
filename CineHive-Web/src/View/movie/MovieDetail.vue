@@ -130,6 +130,9 @@ export default {
       this.$router.go(-1);
     },
     goToReviewPage() {
+      const userConfirmed = confirm("스포일러가 포함될 수 있습니다. 계속 하시겠습니까?");
+      if (!userConfirmed) return;
+
       this.$router.push({
         name: 'ReviewPage',
         query: {

@@ -158,13 +158,16 @@ export default {
       }
     },
     goToReviewPage() {
+      const userConfirmed = confirm("스포일러가 포함될 수 있습니다. 계속 하시겠습니까?");
+      if (!userConfirmed) return;
+
       this.$router.push({
         name: 'ReviewPage',
         query: {
-          id: String(this.animation.id), // 문자열 변환
-          title: this.animation.title || '제목 없음', // undefined 방지
-          posterPath: this.animation.posterPath || '', // 기본값 설정
-          overview: this.animation.overview || '설명 없음' // undefined 방지
+          id: String(this.movie.id), // 문자열 변환
+          title: this.movie.title || '제목 없음', // undefined 방지
+          posterPath: this.movie.posterPath || '', // 기본값 설정
+          overview: this.movie.overview || '설명 없음' // undefined 방지
         }
       });
     },
