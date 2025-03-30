@@ -111,7 +111,7 @@ export default {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        console.error("JWT 토큰이 없습니다. 로그인 후 이용해주세요.");
+        alert("로그인 후 이용해주세요.");
         return;
       }
 
