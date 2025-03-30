@@ -171,6 +171,9 @@ export default {
         this.bookmarkCount = await this.fetchBookmarkCount(movieId);
       } catch (error) {
         console.error('즐겨찾기 토글 오류:', error);
+        alert("다시 로그인해 주세요.");
+        this.$store.dispatch('logout');
+        this.$router.push("/auth");
       }
     },
 

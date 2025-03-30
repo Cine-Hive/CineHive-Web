@@ -150,7 +150,10 @@ export default {
 
         console.log(`좋아요 처리됨. 리뷰 ID: ${review.id}, 좋아요 개수: ${review.likeCount}`);  // 로그 추가
       } catch (error) {
-        console.error("좋아요 처리 중 오류 발생:", error);
+        console.error("좋아요 처리 중 오류 발생: 토큰 만료", error);
+        alert("다시 로그인해 주세요.");
+        this.$store.dispatch('logout');
+        this.$router.push("/auth");
       }
     },
 
@@ -160,7 +163,10 @@ export default {
         review.dislikeCount = await fetchDislikeCount(review.id);
         console.log(`싫어요 처리됨. 리뷰 ID: ${review.id}, 싫어요 개수: ${review.dislikeCount}`);  // 로그 추가
       } catch (error) {
-        console.error("싫어요 처리 중 오류 발생:", error);
+        console.error("싫어요 처리 중 오류 발생: 토큰 만료", error);
+        alert("다시 로그인해 주세요.");
+        this.$store.dispatch('logout');
+        this.$router.push("/auth");
       }
     },
     async submitReview() {
@@ -185,8 +191,10 @@ export default {
         this.closeReviewPopup();
         this.fetchReviews();
       } catch (error) {
-        console.error("감상평 등록 중 오류 발생:", error);
-        alert("감상평 등록에 실패했습니다.");
+        console.error("감상평 등록 중 오류 발생: 토큰 만료", error);
+        alert("다시 로그인해 주세요.");
+        this.$store.dispatch('logout');
+        this.$router.push("/auth");
       }
     },
 
@@ -199,8 +207,10 @@ export default {
         alert("감상평이 삭제되었습니다!");
         this.fetchReviews();
       } catch (error) {
-        console.error("감상평 삭제 중 오류 발생:", error);
-        alert("감상평 삭제에 실패했습니다.");
+        console.error("감상평 삭제 중 오류 발생: 토큰 만료", error);
+        alert("다시 로그인해 주세요.");
+        this.$store.dispatch('logout');
+        this.$router.push("/auth");
       }
     },
     // 날짜 포맷
