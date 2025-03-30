@@ -43,10 +43,13 @@
       </div>
     </div>
 
+    <div class="bookmark-container">
+      <img src="@/assets/reviewLogo/like.png" height="20" width="20" class="movie-detail-bookmark" @click="toggleBookmark(drama.id)" />
+      <span style="position: relative; left:0.3%;">{{bookmarkCount}}</span>
+    </div>
 
     <div class="action-buttons">
       <button class="action-button" @click="goToReviewPage">감상평 보기</button>
-      <button class="action-button" @click="toggleBookmark(drama.id)">즐겨찾기({{ bookmarkCount }})</button>
       <button class="action-button" @click="goBack">뒤로 가기</button>
     </div>
 
@@ -327,5 +330,13 @@ export default {
   text-overflow: ellipsis;
 }
 
+.bookmark-container {
+  display: inline-flex;
+  align-items: center; /* 세로 정렬을 맞추기 위해 추가 */
+}
 
+.movie-detail-bookmark {
+  cursor: pointer;
+  margin-right: 5px; /* 이미지와 숫자 간의 간격을 설정 */
+}
 </style>
