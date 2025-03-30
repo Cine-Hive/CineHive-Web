@@ -23,15 +23,7 @@
               <span v-else>정보 없음</span>
             </p>
           </div>
-          <div class="info-item">
-            <span class="info-label">출연진</span>
-            <p class="info-text">
-              <span v-if="drama.actors.length > 0">
-                {{ drama.actors.map(actor => actor.name).join(', ') }}
-              </span>
-              <span v-else>정보 없음</span>
-            </p>
-          </div>
+
           <div class="info-item">
             <span class="info-label">줄거리</span>
             <p class="info-text">{{ drama.overview || '설명 없음' }}</p>
@@ -50,10 +42,28 @@
         ></iframe>
       </div>
     </div>
+
+
     <div class="action-buttons">
       <button class="action-button" @click="goToReviewPage">감상평 보기</button>
       <button class="action-button" @click="toggleBookmark(drama.id)">즐겨찾기({{ bookmarkCount }})</button>
       <button class="action-button" @click="goBack">뒤로 가기</button>
+    </div>
+
+    <div class="info-item">
+      <span class="info-label" style="position: relative; left:-48%; top:20px; font-size: 16.5px; font-weight: bolder">배우 정보</span>
+      <div v-if="drama.actors && drama.actors.length > 0" class="actors-list">
+        <div v-for="actor in drama.actors.slice(0, 5)" :key="actor.id" class="actor-item">
+          <img
+              v-if="actor.posterPath"
+              :src="'https://image.tmdb.org/t/p/w200' + actor.posterPath"
+              alt="배우 프로필"
+              class="actor-image"
+          />
+          <span class="actor-name">{{ actor.name }}</span>
+        </div>
+      </div>
+      <p v-else class="info-text">정보 없음</p>
     </div>
     <div class="bottom-section">
       <h3 class="section-title">바로가기</h3>
@@ -272,5 +282,50 @@ export default {
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
+
+.actors-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+  position: relative;
+  top:40px;
+}
+
+.actor-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 130px;
+  background-color: #393636;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.actor-item:hover{
+  background-color: #555555;
+}
+.actor-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 5px rgba(255, 255, 255, 0.2);
+}
+
+.actor-name {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #ddd;
+  font-weight: bold;
+  text-align: center;
+  max-width: 70px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 
 </style>

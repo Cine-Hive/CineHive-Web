@@ -15,14 +15,6 @@
             <p v-if="movie.voteAverage" class="info-text">{{ movie.voteAverage }}</p>
           </div>
           <div class="info-item">
-            <span class="info-label">출연진</span>
-            <div v-if="movie.actors && movie.actors.length > 0" class="actors-list">
-              <span v-for="actor in movie.actors.slice(0, 5)" :key="actor.id" class="actor-item">
-                {{ actor.name }}
-              </span>
-            </div>
-          </div>
-          <div class="info-item">
             <span class="info-label">감독</span>
             <p class="info-text">{{ movie.director ? movie.director.name : '정보 없음' }}</p>
           </div>
@@ -55,6 +47,21 @@
       <button class="action-button" @click="goBack">뒤로 가기</button>
     </div>
 
+    <div class="info-item">
+      <span class="info-label" style="position: relative; left:-48%; top:20px; font-size: 16.5px; font-weight: bolder">배우 정보</span>
+      <div v-if="movie.actors && movie.actors.length > 0" class="actors-list">
+        <div v-for="actor in movie.actors.slice(0, 5)" :key="actor.id" class="actor-item">
+          <img
+              v-if="actor.posterPath"
+              :src="'https://image.tmdb.org/t/p/w200' + actor.posterPath"
+              alt="배우 프로필"
+              class="actor-image"
+          />
+          <span class="actor-name">{{ actor.name }}</span>
+        </div>
+      </div>
+
+    </div>
     <div class="bottom-section">
       <h3 class="section-title">바로가기</h3>
       <div class="streaming-services">
@@ -295,6 +302,8 @@ export default {
   flex-direction: row;
   flex-wrap: wrap;
   gap: 10px;
+  position: relative;
+  top:40px;
 }
 
 
@@ -361,4 +370,41 @@ export default {
   color: #ddd;
   font-weight: bold;
 }
+.actors-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: flex-start;
+}
+
+.actor-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 130px;
+}
+
+.actor-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 5px rgba(255, 255, 255, 0.2);
+}
+
+.actor-name {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #ddd;
+  font-weight: bold;
+  text-align: center;
+  max-width: 70px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 </style>
