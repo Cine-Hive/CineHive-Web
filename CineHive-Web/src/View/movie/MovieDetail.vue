@@ -79,9 +79,8 @@
   </div>
 </template>
 
-
 <script>
-import { fetchMovieDetails, fetchSimilarMovies, fetchBookmarkCount, toggleBookmark } from '@/api/movie/movieDetail'; // ✅ movieService.js에서 함수 가져오기
+import { fetchMovieDetails, fetchSimilarMovies, fetchBookmarkCount, toggleBookmark } from '@/api/movie/movieDetail';
 
 export default {
   data() {
@@ -89,6 +88,7 @@ export default {
       movie: null,
       similarMovies: [],
       bookmarkCount: 0,
+      isBookmarked: false,
     };
   },
   async created() {
@@ -96,15 +96,13 @@ export default {
     const movieId = this.$route.params.id;
     try {
       this.movie = await fetchMovieDetails(movieId);
-
-      // 즐겨찾기한 개수 가져오기
       this.bookmarkCount = await this.fetchBookmarkCount(movieId);
     } catch (error) {
       console.error("영화 정보를 불러오는 중 오류 발생:", error);
     }
   },
   watch: {
-    '$route.params.id': 'fetchMovieDetails', // URL 매개변수 변경 시 데이터 다시 로드
+    '$route.params.id': 'fetchMovieDetails',
   },
   methods: {
     goToMovieDetail(movieId) {
@@ -154,6 +152,12 @@ export default {
         const result = await toggleBookmark(movieId, token);
         console.log(result);
 
+        this.isBookmarked = !this.isBookmarked;
+
+        const message = this.isBookmarked ? '즐겨찾기에 추가하였습니다.' : '즐겨찾기를 취소하였습니다';
+        alert(message);
+
+        // 즐겨찾기 개수 업데이트
         this.bookmarkCount = await this.fetchBookmarkCount(movieId);
       } catch (error) {
         console.error('즐겨찾기 토글 오류:', error);
@@ -175,7 +179,6 @@ export default {
   }
 }
 </script>
-
 
 <style scoped>
 .movie-detail {

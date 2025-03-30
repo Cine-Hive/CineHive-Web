@@ -75,6 +75,7 @@ export default {
     return {
       drama: {},
       bookmarkCount: 0,
+      isBookmarked: false,
     };
   },
   created() {
@@ -95,6 +96,11 @@ export default {
       try {
         const result = await toggleBookmark(dramaId, token);
         console.log(result);
+
+        this.isBookmarked = !this.isBookmarked;
+
+        const message = this.isBookmarked ? '즐겨찾기에 추가하였습니다.' : '즐겨찾기를 취소하였습니다';
+        alert(message);
 
         this.bookmarkCount = await this.fetchBookmarkCount(dramaId);
       } catch (error) {

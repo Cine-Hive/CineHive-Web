@@ -87,6 +87,7 @@ export default {
       animation: null,
       similarAnimations: [],
       bookmarkCount: 0,
+      isBookmarked: false,
     };
   },
   async created() {
@@ -117,6 +118,11 @@ export default {
       try {
         const result = await toggleBookmark(animationId, token);
         console.log(result);
+
+        this.isBookmarked = !this.isBookmarked;
+
+        const message = this.isBookmarked ? '즐겨찾기에 추가하였습니다.' : '즐겨찾기를 취소하였습니다';
+        alert(message);
 
         this.bookmarkCount = await this.fetchBookmarkCount(animationId);
       } catch (error) {
