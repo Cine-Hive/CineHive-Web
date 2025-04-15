@@ -21,8 +21,8 @@ export default {
   name: 'SearchBar',
   data() {
     return {
-      searchQuery: "", // 검색어
-      loading: false,  // 로딩 상태
+      searchQuery: "",
+      loading: false,
     };
   },
   methods: {
@@ -42,7 +42,7 @@ export default {
 
         this.updateSearchResults(response.data);
 
-        // 현재 경로와 같다면 이동하지 않음
+
         const newRoute = `/search?q=${encodeURIComponent(this.searchQuery)}`;
         if (this.$route.fullPath !== newRoute) {
           this.$router.push(newRoute);

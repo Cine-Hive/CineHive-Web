@@ -5,11 +5,11 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        isLoggedIn: false, // 로그인 상태
-        user: null, // 사용자 정보
-        loginType: null, // 로그인 타입 (kakao, google, naver)
-        token: null, // ✅ JWT 토큰 추가
-        searchResults: null, // 검색 결과 저장
+        isLoggedIn: false,
+        user: null,
+        loginType: null,
+        token: null,
+        searchResults: null,
         bookmarks: {},
         likes: {},
         dislikes: {}
@@ -24,31 +24,29 @@ export default new Vuex.Store({
                 preferredGenres: payload.user.preferredGenres || [],
             };
             state.loginType = payload.loginType || payload.user.mem_type;
-            state.token = payload.token; // ✅ 토큰 저장
+            state.token = payload.token;
 
             console.log("✅ Vuex 저장된 사용자 정보:", state.user);
-            console.log("✅ Vuex 저장된 토큰:", state.token); // ✅ 토큰 로그 찍기
+            console.log("✅ Vuex 저장된 토큰:", state.token);
 
             // ✅ localStorage에 저장
             localStorage.setItem('email', payload.user.email);
             localStorage.setItem('nickname', payload.user.nickname);
-            localStorage.setItem('token', payload.token); // ✅ 토큰 저장
+            localStorage.setItem('token', payload.token);
         },
         SET_LOGOUT(state) {
             state.isLoggedIn = false;
             state.user = null;
             state.loginType = null;
-            state.token = null; // ✅ 토큰 초기화
-
-            // 즐겨찾기, 좋아요, 싫어요 초기화
+            state.token = null;
             state.bookmarks = {};
             state.likes = {};
             state.dislikes = {};
 
-            // localStorage에서 제거
+
             localStorage.removeItem('email');
             localStorage.removeItem('nickname');
-            localStorage.removeItem('token'); // ✅ 토큰 제거
+            localStorage.removeItem('token');
             localStorage.removeItem('bookmarks');
             localStorage.removeItem('likes');
             localStorage.removeItem('dislikes');
@@ -71,12 +69,11 @@ export default new Vuex.Store({
             try {
                 commit('SET_LOGIN', {
                     isLoggedIn: true,
-                    userInfo: response.userInfo,  // ✅ userInfo 구조 맞추기
-                    token: response.token,  // ✅ token 포함
+                    userInfo: response.userInfo,
+                    token: response.token,
                     loginType: response.userInfo.mem_type
                 });
 
-                // ✅ localStorage 저장 (안전 확인)
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('user', JSON.stringify(response.userInfo));
                 localStorage.setItem('loginType', response.userInfo.mem_type);
@@ -90,11 +87,10 @@ export default new Vuex.Store({
         logout({ commit }) {
             commit('SET_LOGOUT');
 
-            // ✅ localStorage에서 로그인 정보 제거
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('user');
             localStorage.removeItem('loginType');
-            localStorage.removeItem('token'); // ✅ 토큰 제거
+            localStorage.removeItem('token');
 
             console.log("로그아웃 후 localStorage:", localStorage.getItem('isLoggedIn'), localStorage.getItem('user'));
         },
@@ -104,7 +100,7 @@ export default new Vuex.Store({
         initializeStore({ commit }) {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
             const user = JSON.parse(localStorage.getItem('user'));
-            const token = localStorage.getItem('token'); // ✅ 토큰 불러오기
+            const token = localStorage.getItem('token');
 
             if (isLoggedIn === 'true' && user && token) {
                 const loginType = user.mem_type || localStorage.getItem('loginType');

@@ -51,7 +51,7 @@ const routes = [
         meta: {hideFooter: true}
     },
     {
-        path: '/animation/:id',  
+        path: '/animation/:id',
         name: 'AnimationDetail',
         component: AnimationDetail,
         meta: {hideFooter: true}

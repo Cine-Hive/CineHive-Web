@@ -1,7 +1,6 @@
 <template>
   <footer>
-    <p>2025 movie introduce web project- bbb, team - cinehive. All rights reserved.</p>
-    <!-- 추가적인 푸터 내용 -->
+    <p>2025 movie introduce cinehive project- bbb, team - cinehive. All rights reserved.</p>
   </footer>
 </template>
 
