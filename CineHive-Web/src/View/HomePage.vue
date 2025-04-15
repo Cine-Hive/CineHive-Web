@@ -141,7 +141,6 @@ export default {
         disney: [],
         watcha: [],
         tving: [],
-        wavve: []
       },
       selectedPlatform: 'netflix',
       platformNames: {
@@ -149,7 +148,6 @@ export default {
         disney: 'Disney+',
         watcha: 'Watcha',
         tving: 'Tving',
-        wavve: 'Wavve'
       }
     };
   },
@@ -174,7 +172,6 @@ export default {
       this.ottMovies.disney = await fetchOttMovies(337);
       this.ottMovies.watcha = await fetchOttMovies(97);
       this.ottMovies.tving = await fetchOttMovies(356);
-      this.ottMovies.wavve = await fetchOttMovies(356);
     },
     selectPlatform(platform) {
       this.selectedPlatform = platform;
