@@ -20,46 +20,70 @@ import EditBoard from "@/View/board/EditBoard.vue";
 Vue.use(Router);
 
 const routes = [
-    { path: '/', component: Home },
-    { path: '/auth', component: AuthView, meta: { hideHeader: true, hideFooter: true } }, // 헤더와 푸터 숨기기
-    { path: '/additional-info', component: SocialLoginAdditionalInfo, meta: {hideHeader: true} },
-    { path: '/search', component: SearchPage },
-    {path: '/movie/:id',
+    {
+        path: '/',
+        component: Home
+    },
+    {
+        path: '/auth',
+        component: AuthView,
+        meta: {hideHeader: true,
+            hideFooter: true}},
+    {
+        path: '/additional-info',
+        component: SocialLoginAdditionalInfo,
+        meta: {hideHeader: true}
+    },
+    {
+        path: '/search',
+        component: SearchPage
+    },
+    {
+        path: '/movie/:id',
         name: 'MovieDetail',
         component: MovieDetail,
-        meta: { hideFooter: true }},
-    { path: '/drama/:id',  // 드라마 디테일 경로 추가
+        meta: {hideFooter: true}
+    },
+    {
+        path: '/drama/:id',
         name: 'DramaDetail',
         component: DramaDetail,
-        meta: { hideFooter: true }},
-    { path: '/animation/:id',  // 드라마 디테일 경로 추가
+        meta: {hideFooter: true}
+    },
+    {
+        path: '/animation/:id',  
         name: 'AnimationDetail',
         component: AnimationDetail,
-        meta: { hideFooter: true }},
-    {path: '/topmovies/:id',
+        meta: {hideFooter: true}
+    },
+    {
+        path: '/topmovies/:id',
         name: 'TopMovieDetail',
         component: TopMovieDetail,
-        meta: { hideFooter: true }},
-    { path: '/movies/:id/reviews',
+        meta: {hideFooter: true}
+    },
+    {
+        path: '/movies/:id/reviews',
         name: 'ReviewPage',
-        component: ReviewPage },
+        component: ReviewPage
+    },
     {
         path: '/movies',
         name: 'MovieList',
         component: MovieList,
-        meta: { hideFooter: true }
+        meta: {hideFooter: true}
     },
     {
         path: '/animations',
         name: 'AnimationList',
         component: AnimationList,
-        meta: { hideFooter: true }
+        meta: {hideFooter: true}
     },
     {
         path: '/dramas',
         name: 'DramaList',
         component: DramaList,
-        meta: { hideFooter: true }
+        meta: {hideFooter: true}
     },
     {
         path: '/create/board',
