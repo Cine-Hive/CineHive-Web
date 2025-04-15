@@ -9,58 +9,49 @@
       </div>
     </div>
 
-    <!-- 감상평 목록 (테이블 형식) -->
+    <!-- 감상평 목록 (카드 형식) -->
     <div class="review-section">
-      <table class="review-table">
-        <thead>
-        <tr>
-          <th>NO</th>
-          <th>닉네임</th>
-          <th>감상평</th>
-          <th>작성일</th>
-          <th>평가</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="(review, index) in reviews" :key="review.id">
-          <td>{{ index + 1 }}</td>
-          <td>{{ review.memNickname }}</td>
-          <td>{{ review.reviewContent }}</td>
-          <td>{{ formatDate(review.replyRegDate) }}</td>
-          <td>
-            <!-- 좋아요 버튼 -->
-            <button class="action-button" @click="toggleLike(review)">
-              👍({{ review.likeCount }})
-            </button>
+      <div v-if="reviews.length === 0" class="no-reviews">아직 감상평이 없습니다.</div>
 
-            <!-- 싫어요 버튼 -->
-            <button class="action-button" @click="toggleDislike(review)">
-              👎({{ review.dislikeCount }})
-            </button>
-
-            <!-- 리뷰 삭제 버튼 (작성자와 현재 사용자 이메일이 같을 경우에만 표시) -->
-            <button v-if="review.memEmail === userEmail" @click="deleteReview(review.id)">
-              삭제
-            </button>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-      <p v-if="reviews.length === 0">아직 감상평이 없습니다.</p>
+      <div class="review-cards">
+        <div v-for="(review) in reviews" :key="review.id" class="review-card">
+          <div class="review-header">
+            <div class="review-author">
+              <span class="nickname">{{ review.memNickname }}</span>
+              <span class="review-date">{{ formatDate(review.replyRegDate) }}</span>
+            </div>
+            <div v-if="review.memEmail === userEmail" class="delete-btn">
+              <button @click="deleteReview(review.id)">삭제</button>
+            </div>
+          </div>
+          <div class="review-content">
+            <p>{{ review.reviewContent }}</p>
+          </div>
+          <div class="review-footer">
+            <div class="like-dislike">
+              <button class="action-button" @click="toggleLike(review)">
+                <img src="@/assets/reviewLogo/like.png" height="15" width="15">
+                {{ review.likeCount }}
+              </button>
+              <button class="action-button" @click="toggleDislike(review)">
+                <img src="@/assets/reviewLogo/dislike.png" height="15" width="15">
+                {{review.dislikeCount}}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 감상평 작성 버튼 -->
-    <button @click="openReviewPopup">감상평 작성</button>
+    <button @click="openReviewPopup" class="review-create-btn">작성하기</button>
 
     <!-- 감상평 작성 팝업 -->
     <div v-if="showPopup" class="popup-overlay">
       <div class="popup-content">
         <h3>감상평 작성</h3>
-
-        <!-- 감상평 입력 -->
         <textarea v-model="newReview.text" placeholder="여러분의 감상평을 남겨주세요"></textarea>
         <p class="char-limit">{{ newReview.text.length }} / 1000</p>
-
         <div class="popup-buttons">
           <button @click="submitReview">등록</button>
           <button @click="closeReviewPopup">취소</button>
@@ -71,7 +62,6 @@
 </template>
 
 <script>
-
 import {
   fetchReviews,
   toggleLike,
@@ -104,7 +94,6 @@ export default {
       console.error("영화 ID가 없습니다!");
       return;
     }
-
     try {
       const response = await fetch(`http://localhost:8081/movies/${movieId}`);
       if (!response.ok) throw new Error("영화 정보를 가져오지 못했습니다.");
@@ -126,7 +115,6 @@ export default {
     async fetchReviews() {
       try {
         this.reviews = await fetchReviews(this.id);
-
         const reviewsWithLikesAndDislikes = await Promise.all(this.reviews.map(async (review) => {
           const likeCount = await fetchLikeCount(review.id);
           const dislikeCount = await fetchDislikeCount(review.id);
@@ -136,31 +124,31 @@ export default {
             dislikeCount,
           };
         }));
-
         this.reviews = reviewsWithLikesAndDislikes;
       } catch (error) {
         console.error("감상평을 불러오는 중 오류 발생:", error);
       }
     },
-
     async toggleLike(review) {
       try {
         await toggleLike(review.id, this.id, this.userToken);
         review.likeCount = await fetchLikeCount(review.id);
-
-        console.log(`좋아요 처리됨. 리뷰 ID: ${review.id}, 좋아요 개수: ${review.likeCount}`);  // 로그 추가
       } catch (error) {
         console.error("좋아요 처리 중 오류 발생:", error);
+        alert("다시 로그인해 주세요.");
+        this.$store.dispatch('logout');
+        this.$router.push("/auth");
       }
     },
-
     async toggleDislike(review) {
       try {
         await toggleDislike(review.id, this.id, this.userToken);
         review.dislikeCount = await fetchDislikeCount(review.id);
-        console.log(`싫어요 처리됨. 리뷰 ID: ${review.id}, 싫어요 개수: ${review.dislikeCount}`);  // 로그 추가
       } catch (error) {
         console.error("싫어요 처리 중 오류 발생:", error);
+        alert("다시 로그인해 주세요.");
+        this.$store.dispatch('logout');
+        this.$router.push("/auth");
       }
     },
     async submitReview() {
@@ -177,7 +165,6 @@ export default {
         this.$router.push("/auth");
         return;
       }
-
       try {
         await submitReview(this.id, this.newReview.nickname, this.newReview.text, this.userToken);
         alert("감상평이 등록되었습니다!");
@@ -186,30 +173,29 @@ export default {
         this.fetchReviews();
       } catch (error) {
         console.error("감상평 등록 중 오류 발생:", error);
-        alert("감상평 등록에 실패했습니다.");
+        alert("다시 로그인해 주세요.");
+        this.$store.dispatch('logout');
+        this.$router.push("/auth");
       }
     },
-
-    // 감상평 삭제
     async deleteReview(replyId) {
       if (!confirm("정말 삭제하시겠습니까?")) return;
-
       try {
         await deleteReview(this.id, replyId, this.userToken);
-        alert("감상평이 삭제되었습니다!");
+        alert("삭제되었습니다.");
         this.fetchReviews();
       } catch (error) {
         console.error("감상평 삭제 중 오류 발생:", error);
-        alert("감상평 삭제에 실패했습니다.");
+        alert("다시 로그인해 주세요.");
+        this.$store.dispatch('logout');
+        this.$router.push("/auth");
       }
     },
-    // 날짜 포맷
     formatDate(dateString) {
       if (!dateString) return "날짜 없음";
       const date = new Date(dateString);
       return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
     },
-
     openReviewPopup() {
       this.showPopup = true;
     },
@@ -226,13 +212,7 @@ export default {
   background-color: black;
   padding: 40px;
   border-radius: 10px;
-}
-
-.char-limit {
-  font-size: 12px;
-  color: gray;
-  text-align: right;
-  margin-top: 5px;
+  min-height: 900px;
 }
 
 .movie-info {
@@ -241,51 +221,124 @@ export default {
 }
 
 .poster-image {
-  width: 150px;
+  width: 180px;
   height: auto;
-  margin-right: 20px;
+  margin-right: 30px;
   border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.poster-image:hover {
+  transform: scale(1.05);
 }
 
 .movie-details {
   max-width: 600px;
 }
 
+.movie-details h2{
+  text-align: left;
+}
 .review-section {
-  margin-top: 30px;
+  margin-top: 50px;
 }
 
-.review-table {
-  width: 100%;
-  border-collapse: collapse;
+.overview{
+  position: relative;
+  top: 30px;
+  text-align: left;
+}
+.review-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
 }
 
-.review-table th, .review-table td {
-  border: 1px solid #555;
-  padding: 10px;
-  text-align: center;
+.review-card {
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.review-table th {
-  background-color: #222;
+.review-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+.review-cards img:hover {
+  transform: scale(1.2);
+  filter: brightness(1.2);
+}
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.nickname {
+  font-weight: bold;
+  color: #fff;
+}
+
+.review-date {
+  color: #aaa;
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+.delete-btn button {
+  color: red;
+  border: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: black;
+}
+.review-content {
   color: white;
+  margin-bottom: 15px;
+  text-align: left;
 }
 
-button {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #1a1a1a;
+.review-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.like-dislike button {
+  background-color: black;
   color: white;
   border: none;
   cursor: pointer;
+  padding: 5px 10px;
   border-radius: 5px;
 }
 
-button:hover {
+.like-dislike button:hover {
   background-color: #555;
 }
 
-/* 팝업 스타일 */
+.review-create-btn {
+  position: relative;
+  top: 100px;
+  left: 46%;
+  width: 90px;
+  height: 40px;
+  background-color: #4a5855;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+}
+
+.review-create-btn:hover {
+  background-color: #4a5855;
+  transform: scale(1.01);
+  filter: brightness(1.2);
+  cursor: pointer;
+}
+
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -307,26 +360,9 @@ button:hover {
   width: 450px;
   text-align: center;
   z-index: 1001;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* 별점 스타일 */
-.rating {
-  font-size: 28px;
-  cursor: pointer;
-  margin-bottom: 15px;
-}
-
-.rating span {
-  margin: 0 5px;
-  color: gray;
-  cursor: pointer;
-}
-
-.rating .selected {
-  color: gold;
-}
-
-/* 텍스트 입력창 */
 textarea {
   width: 100%;
   height: 120px;

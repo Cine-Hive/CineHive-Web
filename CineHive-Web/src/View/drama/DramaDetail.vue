@@ -23,15 +23,7 @@
               <span v-else>정보 없음</span>
             </p>
           </div>
-          <div class="info-item">
-            <span class="info-label">출연진</span>
-            <p class="info-text">
-              <span v-if="drama.actors.length > 0">
-                {{ drama.actors.map(actor => actor.name).join(', ') }}
-              </span>
-              <span v-else>정보 없음</span>
-            </p>
-          </div>
+
           <div class="info-item">
             <span class="info-label">줄거리</span>
             <p class="info-text">{{ drama.overview || '설명 없음' }}</p>
@@ -50,10 +42,31 @@
         ></iframe>
       </div>
     </div>
+
+    <div class="bookmark-container">
+      <img src="@/assets/reviewLogo/like.png" height="20" width="20" class="movie-detail-bookmark" @click="toggleBookmark(drama.id)" />
+      <span style="position: relative; left:0.3%;">{{bookmarkCount}}</span>
+    </div>
+
     <div class="action-buttons">
       <button class="action-button" @click="goToReviewPage">감상평 보기</button>
-      <button class="action-button" @click="toggleBookmark(drama.id)">즐겨찾기({{ bookmarkCount }})</button>
       <button class="action-button" @click="goBack">뒤로 가기</button>
+    </div>
+
+    <div class="info-item">
+      <span class="info-label" style="position: relative; left:-48%; top:20px; font-size: 16.5px; font-weight: bolder">배우 정보</span>
+      <div v-if="drama.actors && drama.actors.length > 0" class="actors-list">
+        <div v-for="actor in drama.actors.slice(0, 5)" :key="actor.id" class="actor-item">
+          <img
+              v-if="actor.posterPath"
+              :src="'https://image.tmdb.org/t/p/w200' + actor.posterPath"
+              alt="배우 프로필"
+              class="actor-image"
+          />
+          <span class="actor-name">{{ actor.name }}</span>
+        </div>
+      </div>
+      <p v-else class="info-text">정보 없음</p>
     </div>
     <div class="bottom-section">
       <h3 class="section-title">바로가기</h3>
@@ -75,6 +88,7 @@ export default {
     return {
       drama: {},
       bookmarkCount: 0,
+      isBookmarked: false,
     };
   },
   created() {
@@ -88,13 +102,18 @@ export default {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        console.error("JWT 토큰이 없습니다. 로그인 후 이용해주세요.");
+        alert("로그인 후 이용해주세요.");
         return;
       }
 
       try {
         const result = await toggleBookmark(dramaId, token);
         console.log(result);
+
+        this.isBookmarked = !this.isBookmarked;
+
+        const message = this.isBookmarked ? '즐겨찾기에 추가하였습니다.' : '즐겨찾기를 취소하였습니다';
+        alert(message);
 
         this.bookmarkCount = await this.fetchBookmarkCount(dramaId);
       } catch (error) {
@@ -126,6 +145,9 @@ export default {
       window.open(url, '_blank');
     },
     goToReviewPage() {
+      const userConfirmed = confirm("스포일러가 포함될 수 있습니다. 계속 하시겠습니까?");
+      if (!userConfirmed) return;
+
       this.$router.push({
         name: 'ReviewPage',
         query: {
@@ -264,4 +286,57 @@ export default {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
+.actors-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+  position: relative;
+  top:40px;
+}
+
+.actor-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 130px;
+  background-color: #393636;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.actor-item:hover{
+  background-color: #555555;
+}
+.actor-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 5px rgba(255, 255, 255, 0.2);
+}
+
+.actor-name {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #ddd;
+  font-weight: bold;
+  text-align: center;
+  max-width: 70px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bookmark-container {
+  display: inline-flex;
+  align-items: center; /* 세로 정렬을 맞추기 위해 추가 */
+}
+
+.movie-detail-bookmark {
+  cursor: pointer;
+  margin-right: 5px; /* 이미지와 숫자 간의 간격을 설정 */
+}
 </style>

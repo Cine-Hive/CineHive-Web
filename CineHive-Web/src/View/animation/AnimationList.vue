@@ -25,11 +25,20 @@
           @click="filterByDecade(2000, true)"
           :class="['rating-button', { active: decadeFiltered === 'before2000' }]">2000s 이하</span>
     </div>
+
+    <div class="search-bar">
+      <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="애니메이션 제목 검색..."
+      />
+    </div>
+
     <div class="separator"></div>
     <div class="top-slider">
       <div
           class="animation-card"
-          v-for="animation in sortedAnimations"
+          v-for="animation in paginatedAnimations"
           :key="animation.id"
           @click="goToAnimationDetail(animation.id)"
       >
@@ -42,13 +51,20 @@
             </span>
             <span v-else>정보 없음</span>
           </p>
-          <p class="rating-text" v-if="sorted">평점: {{ animation.voteAverage.toFixed(1) }}</p> <!-- 평점 표시 (평점 순일 때만) -->
-          <p class="popularity-text" v-if="popularitySorted">인기: {{ animation.popularity.toFixed(1) }}</p> <!-- 인기 표시 (인기 순일 때만) -->
+          <p class="rating-text" v-if="sorted">평점: {{ animation.voteAverage.toFixed(1) }}</p>
+          <p class="popularity-text" v-if="popularitySorted">인기: {{ animation.popularity.toFixed(1) }}</p>
         </div>
       </div>
     </div>
+
+    <div class="pagination">
+      <button @click="prevPage" :disabled="currentPage === 1">이전</button>
+      <span class="pagination-total-count">{{ currentPage }} / {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="currentPage === totalPages">다음</button>
+    </div>
   </div>
 </template>
+
 <script>
 import { fetchAnimations } from '@/api/animation/animationList';
 
@@ -60,6 +76,9 @@ export default {
       sorted: false,
       popularitySorted: false,
       decadeFiltered: null, // 연대 필터 상태 추가
+      searchQuery: '',
+      currentPage: 1,
+      itemsPerPage: 21,
     };
   },
   created() {
@@ -68,6 +87,12 @@ export default {
   computed: {
     sortedAnimations() {
       let filtered = this.animations;
+
+      if (this.searchQuery) {
+        filtered = filtered.filter(animation =>
+            animation.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      }
 
       // 연대 필터링
       if (this.decadeFiltered === 2000) {
@@ -92,13 +117,19 @@ export default {
         });
       }
 
-      // 정렬 처리
       if (this.popularitySorted) {
         return filtered.slice().sort((a, b) => b.popularity - a.popularity);
       } else if (this.sorted) {
         return filtered.slice().sort((a, b) => b.voteAverage - a.voteAverage);
       }
-      return filtered; // 기본 목록
+      return filtered;
+    },
+    paginatedAnimations() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      return this.sortedAnimations.slice(start, start + this.itemsPerPage);
+    },
+    totalPages() {
+      return Math.ceil(this.sortedAnimations.length / this.itemsPerPage);
     }
   },
   methods: {
@@ -120,6 +151,7 @@ export default {
       this.sorted = false;
       this.popularitySorted = false;
       this.decadeFiltered = null;
+      this.searchQuery = '';
       this.fetchAnimations();
     },
     sortByPopularity() {
@@ -130,12 +162,20 @@ export default {
       this.decadeFiltered = before2000 ? 'before2000' : decade;
       this.sorted = false;
       this.popularitySorted = false;
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+      }
     }
   }
 }
 </script>
-
-
 
 <style scoped>
 .animation-list {
@@ -152,8 +192,9 @@ export default {
   font-size: 19px;
   margin-bottom: 20px;
   position: relative;
-  left:4%;
+  left: 4%;
 }
+
 .separator {
   width: 93%;
   border-bottom: 1px solid;
@@ -163,11 +204,25 @@ export default {
   left: 4%;
 }
 
+.search-bar {
+  position: relative;
+  text-align: right;
+  width: 97%;
+  top: -10px;
+}
+
+.search-bar input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 500px;
+}
+
 .button-group {
   display: flex;
   margin-bottom: 20px;
   position: relative;
-  left:4%;
+  left: 4%;
 }
 
 .rating-button {
@@ -250,6 +305,37 @@ export default {
   font-size: 1rem;
   color: #FFD700;
   margin-top: 5px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  background-color: #F50000;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  margin: 0 5px;
+  transition: background-color 0.3s;
+}
+
+.pagination button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #c00000;
+}
+
+.pagination-total-count {
+  position: relative;
+  top: 8px;
 }
 </style>
 
