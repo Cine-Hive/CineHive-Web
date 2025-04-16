@@ -12,7 +12,6 @@
           <li @click="goToDramasList">Drama</li>
           <li @click="goToBoardList" >Community</li>
           <li >My List</li>
-          <li >Watched List</li>
         </ul>
       </nav>
 
@@ -214,7 +213,7 @@ header {
 .search-bar-info{
   position: relative;
   top:0px;
-  left: 10px;
+  left: 40px;
 }
 @media (max-width: 768px) {
   .header-container {
