@@ -22,11 +22,21 @@
           @click="filterByDecade('before2000')"
           :class="['rating-button', { active: decadeFiltered === 'before2000' }]">2000s 이하</span>
     </div>
+
+    <div class="search-bar">
+      <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="드라마 제목 검색..."
+      />
+    </div>
+
     <div class="separator"></div>
+
     <div class="top-slider">
       <div
           class="drama-card"
-          v-for="drama in filteredDramas"
+          v-for="drama in paginatedDramas"
           :key="drama.id"
           @click="goToDramaDetail(drama.id)"
       >
@@ -43,6 +53,12 @@
         </div>
       </div>
     </div>
+
+    <div class="pagination">
+      <button @click="prevPage" :disabled="currentPage === 1">이전</button>
+      <span class="pagination-total-count">{{ currentPage }} / {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="currentPage === totalPages">다음</button>
+    </div>
   </div>
 </template>
 
@@ -55,7 +71,10 @@ export default {
     return {
       dramas: [],
       popularitySorted: false,
-      decadeFiltered: null, // 연대 필터 상태 추가
+      decadeFiltered: null,
+      searchQuery: '',
+      currentPage: 1,
+      itemsPerPage: 21,
     };
   },
   created() {
@@ -64,6 +83,12 @@ export default {
   computed: {
     filteredDramas() {
       let filtered = this.dramas;
+
+      if (this.searchQuery) {
+        filtered = filtered.filter(drama =>
+            drama.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      }
 
       // 연대 필터링
       if (this.decadeFiltered === 2000) {
@@ -94,6 +119,13 @@ export default {
       }
 
       return filtered; // 기본 목록
+    },
+    paginatedDramas() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      return this.filteredDramas.slice(start, start + this.itemsPerPage);
+    },
+    totalPages() {
+      return Math.ceil(this.filteredDramas.length / this.itemsPerPage);
     }
   },
   methods: {
@@ -110,6 +142,7 @@ export default {
     resetSort() {
       this.popularitySorted = false;
       this.decadeFiltered = null;
+      this.searchQuery = '';
       this.fetchDramas();
     },
     sortByPopularity() {
@@ -118,11 +151,20 @@ export default {
     filterByDecade(decade) {
       this.decadeFiltered = decade;
       this.popularitySorted = false;
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+      }
     }
   }
 }
 </script>
-
 
 <style scoped>
 .drama-list {
@@ -149,6 +191,20 @@ export default {
   margin-bottom: 20px;
   position: relative;
   left: 4%;
+}
+
+.search-bar {
+  position: relative;
+  text-align: right;
+  width: 97%;
+  top: -10px;
+}
+
+.search-bar input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 500px;
 }
 
 .button-group {
@@ -234,4 +290,36 @@ export default {
   color: #FFD700;
   margin-top: 5px;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  background-color: #F50000;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  margin: 0 5px;
+  transition: background-color 0.3s;
+}
+
+.pagination button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #c00000;
+}
+
+.pagination-total-count {
+  position: relative;
+  top: 8px;
+}
+
 </style>

@@ -15,14 +15,6 @@
             <p v-if="movie.voteAverage" class="info-text">{{ movie.voteAverage }}</p>
           </div>
           <div class="info-item">
-            <span class="info-label">출연진</span>
-            <div v-if="movie.actors && movie.actors.length > 0" class="actors-list">
-              <span v-for="actor in movie.actors.slice(0, 5)" :key="actor.id" class="actor-item">
-                {{ actor.name }}
-              </span>
-            </div>
-          </div>
-          <div class="info-item">
             <span class="info-label">감독</span>
             <p class="info-text">{{ movie.director ? movie.director.name : '정보 없음' }}</p>
           </div>
@@ -51,9 +43,18 @@
 
     <div class="action-buttons">
       <button class="action-button" @click="goToReviewPage">감상평 보기</button>
-      <button class="action-button" @click="viewReview">리뷰 보기</button>
-      <button class="action-button" @click="addToFavorites">찜하기</button>
+      <button class="action-button" @click="toggleBookmark(movie.id)">즐겨찾기({{ bookmarkCount }})</button>
       <button class="action-button" @click="goBack">뒤로 가기</button>
+    </div>
+
+    <div class="info-item">
+      <span class="info-label" style="position: relative; left:-48%; top:20px; font-size: 16.5px; font-weight: bolder">배우 정보</span>
+      <div v-if="movie.actors && movie.actors.length > 0" class="actors-list">
+        <div v-for="actor in movie.actors.slice(0, 5)" :key="actor.id" class="actor-item">
+          <img v-if="actor.posterPath" :src="'https://image.tmdb.org/t/p/w200' + actor.posterPath" alt="배우 프로필" class="actor-image" />
+          <span class="actor-name">{{ actor.name }}</span>
+        </div>
+      </div>
     </div>
 
     <div class="bottom-section">
@@ -82,70 +83,105 @@
   </div>
 </template>
 
+
 <script>
-import { fetchMovieDetails, fetchSimilarMovies } from '@/api/movie/topRatedMovie';
+import { fetchMovieDetails, fetchSimilarMovies, fetchBookmarkCount, toggleBookmark } from '@/api/movie/movieDetail';
 
 export default {
   data() {
     return {
       movie: null,
-      similarMovies: []
+      similarMovies: [],
+      bookmarkCount: 0,
+      isBookmarked: false,
     };
   },
   async created() {
+    this.fetchSimilarMovies();
     const movieId = this.$route.params.id;
-    await this.loadMovieData(movieId);
+    try {
+      this.movie = await fetchMovieDetails(movieId);
+      this.bookmarkCount = await this.fetchBookmarkCount(movieId);
+    } catch (error) {
+      console.error("영화 정보를 불러오는 중 오류 발생:", error);
+    }
   },
   watch: {
-    '$route.params.id': 'fetchMovieDetails' // URL 매개변수 변경 시 데이터 다시 로드
+    '$route.params.id': 'fetchMovieDetails',
   },
   methods: {
-    async loadMovieData(movieId) {
-      try {
-        this.movie = await fetchMovieDetails(movieId);
-        this.similarMovies = await fetchSimilarMovies(movieId);
-      } catch (error) {
-        console.error('영화 정보를 불러오는 중 오류 발생:', error);
+    goToMovieDetail(movieId) {
+      if (this.$route.path !== `/movie/${movieId}`) {
+        this.$router.push(`/movie/${movieId}`);
       }
     },
-    async fetchMovieDetails(movieId) {
-      try {
-        this.movie = await fetchMovieDetails(movieId);
-      } catch (error) {
-        console.error("영화 정보를 불러오는 중 오류 발생:", error);
-      }
-    },
-    async fetchSimilarMovies(movieId) {
+    async fetchSimilarMovies() {
+      const movieId = this.$route.params.id;
       try {
         this.similarMovies = await fetchSimilarMovies(movieId);
       } catch (error) {
         console.error('추천 영화를 가져오는 중 오류 발생:', error);
       }
     },
-    goToMovieDetail(movieId) {
-      if (this.$route.path !== `/movie/${movieId}`) {
-        this.$router.push(`/movie/${movieId}`);
+    async fetchMovieDetails() {
+      const movieId = this.$route.params.id;
+      try {
+        this.movie = await fetchMovieDetails(movieId);
+      } catch (error) {
+        console.error('영화 상세 정보를 가져오는 중 오류가 발생했습니다:', error);
       }
     },
     goBack() {
       this.$router.go(-1);
     },
     goToReviewPage() {
+      const userConfirmed = confirm("스포일러가 포함될 수 있습니다. 계속 하시겠습니까?");
+      if (!userConfirmed) return;
+
       this.$router.push({
         name: 'ReviewPage',
         query: {
-          id: String(this.movie.id),
-          title: this.movie.title || '제목 없음',
-          posterPath: this.movie.posterPath || '',
-          overview: this.movie.overview || '설명 없음'
+          id: String(this.movie.id), // 문자열 변환
+          title: this.movie.title || '제목 없음', // undefined 방지
+          posterPath: this.movie.posterPath || '', // 기본값 설정
+          overview: this.movie.overview || '설명 없음' // undefined 방지
         }
       });
     },
-    viewReview() {
-      console.log('리뷰 보기 클릭됨');
+    async toggleBookmark(movieId) {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        alert("로그인 후 이용해주세요.");
+        return;
+      }
+
+      try {
+        const result = await toggleBookmark(movieId, token);
+        console.log(result);
+
+        this.isBookmarked = !this.isBookmarked;
+
+        const message = this.isBookmarked ? '즐겨찾기에 추가하였습니다.' : '즐겨찾기를 취소하였습니다';
+        alert(message);
+
+        this.bookmarkCount = await this.fetchBookmarkCount(movieId);
+      } catch (error) {
+        console.error('즐겨찾기 토글 오류:', error);
+        alert("다시 로그인해 주세요.");
+        this.$store.dispatch('logout');
+        this.$router.push("/auth");
+      }
     },
-    addToFavorites() {
-      console.log('찜하기 클릭됨');
+
+    async fetchBookmarkCount(movieId) {
+      try {
+        const count = await fetchBookmarkCount(movieId);
+        return count;
+      } catch (error) {
+        console.error('즐겨찾기 개수 가져오는 중 오류 발생:', error);
+        return 0;
+      }
     },
     goToLink(url) {
       window.open(url, '_blank');
@@ -267,6 +303,8 @@ export default {
   flex-direction: row;
   flex-wrap: wrap;
   gap: 10px;
+  position: relative;
+  top:30px;
 }
 
 .actor-item {
@@ -335,5 +373,40 @@ export default {
   color: #ddd;
   font-weight: bold;
 }
+.actors-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: flex-start;
+}
 
+.actor-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 130px;
+}
+
+.actor-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 5px rgba(255, 255, 255, 0.2);
+}
+
+.actor-name {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #ddd;
+  font-weight: bold;
+  text-align: center;
+  max-width: 70px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>

@@ -42,9 +42,13 @@
       </div>
     </div>
 
+    <div class="bookmark-container">
+      <img src="@/assets/reviewLogo/like.png" height="20" width="20" class="movie-detail-bookmark" @click="toggleBookmark(animation.id)" />
+      <span style="position: relative; left:0.3%;">{{bookmarkCount}}</span>
+    </div>
+
     <div class="action-buttons">
       <button class="action-button" @click="goToReviewPage">감상평 보기</button>
-      <button class="action-button" @click="toggleBookmark(animation.id)">즐겨찾기({{ bookmarkCount }})</button>
       <button class="action-button" @click="goBack">뒤로 가기</button>
     </div>
 
@@ -87,6 +91,7 @@ export default {
       animation: null,
       similarAnimations: [],
       bookmarkCount: 0,
+      isBookmarked: false,
     };
   },
   async created() {
@@ -110,13 +115,18 @@ export default {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        console.error("JWT 토큰이 없습니다. 로그인 후 이용해주세요.");
+        alert("로그인 후 이용해주세요.");
         return;
       }
 
       try {
         const result = await toggleBookmark(animationId, token);
         console.log(result);
+
+        this.isBookmarked = !this.isBookmarked;
+
+        const message = this.isBookmarked ? '즐겨찾기에 추가하였습니다.' : '즐겨찾기를 취소하였습니다';
+        alert(message);
 
         this.bookmarkCount = await this.fetchBookmarkCount(animationId);
       } catch (error) {
@@ -152,6 +162,9 @@ export default {
       }
     },
     goToReviewPage() {
+      const userConfirmed = confirm("스포일러가 포함될 수 있습니다. 계속 하시겠습니까?");
+      if (!userConfirmed) return;
+
       this.$router.push({
         name: 'ReviewPage',
         query: {
@@ -336,6 +349,16 @@ export default {
   font-size: 14px;
   color: #ddd;
   font-weight: bold;
+}
+
+.bookmark-container {
+  display: inline-flex;
+  align-items: center; /* 세로 정렬을 맞추기 위해 추가 */
+}
+
+.movie-detail-bookmark {
+  cursor: pointer;
+  margin-right: 5px; /* 이미지와 숫자 간의 간격을 설정 */
 }
 
 </style>

@@ -36,7 +36,7 @@
       </ul>
 
       <form class="search-form" @submit.prevent="filterPosts">
-        <input class="search-input" type="text" v-model="searchQuery" placeholder="검색...">
+        <input class="search-input" typ e="text" v-model="searchQuery" placeholder="검색...">
         <button type="submit" class="btn-search">
           <img src="@/assets/board/searchButton.png" alt="검색" class="search-icon" />
         </button>

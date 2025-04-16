@@ -2,7 +2,7 @@
   <div class="movie-list">
     <h1>영화 목록</h1>
 
-    <div class="button-group"> <!-- 버튼 그룹 추가 -->
+    <div class="button-group">
       <span
           @click="resetSort"
           :class="['rating-button', { active: !sorted && !popularitySorted && !decadeFiltered }]">전체</span> &nbsp;&nbsp;
@@ -24,8 +24,15 @@
       <span
           @click="filterByDecade(2000, true)"
           :class="['rating-button', { active: decadeFiltered === 'before2000' }]">2000s 이하</span>
-    </div>
 
+    </div>
+    <div class="search-bar">
+      <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="영화 제목 검색..."
+      />
+    </div>
     <div class="separator"></div>
 
     <div v-if="loading" class="loading">로딩 중...</div>
@@ -33,7 +40,7 @@
     <div class="top-slider" v-if="!loading">
       <div
           class="movie-card"
-          v-for="movie in filteredMovies"
+          v-for="movie in paginatedMovies"
           :key="movie.id"
           @click="goToMovieDetail(movie.id)"
       >
@@ -42,9 +49,15 @@
           <h3 class="movie-title">{{ movie.title }}</h3>
           <p class="info-text">{{ movie.director ? movie.director.name : '정보 없음' }}</p>
           <p v-if="sorted" class="rating-text">평점: {{ movie.voteAverage }}</p>
-          <p v-if="popularitySorted" class="popularity-text">인기: {{ movie.popularity }}</p> <!-- 인기 데이터 표시 -->
+          <p v-if="popularitySorted" class="popularity-text">인기: {{ movie.popularity }}</p>
         </div>
       </div>
+    </div>
+
+    <div class="pagination">
+      <button @click="prevPage" :disabled="currentPage === 1">이전</button>
+      <span class="pagination-total-count">{{ currentPage }} / {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="currentPage === totalPages">다음</button>
     </div>
   </div>
 </template>
@@ -61,6 +74,9 @@ export default {
       popularitySorted: false,
       loading: false,
       decadeFiltered: null,
+      currentPage: 1,
+      itemsPerPage: 21,
+      searchQuery: '',
     };
   },
   created() {
@@ -69,6 +85,12 @@ export default {
   computed: {
     filteredMovies() {
       let filtered = this.movies;
+
+      if (this.searchQuery) {
+        filtered = filtered.filter(movie =>
+            movie.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      }
 
       // 연대 필터링
       if (this.decadeFiltered === 2000) {
@@ -99,7 +121,14 @@ export default {
       } else if (this.sorted) {
         return filtered.slice().sort((a, b) => b.voteAverage - a.voteAverage);
       }
-      return filtered; // 기본 목록
+      return filtered;
+    },
+    paginatedMovies() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      return this.filteredMovies.slice(start, start + this.itemsPerPage);
+    },
+    totalPages() {
+      return Math.ceil(this.filteredMovies.length / this.itemsPerPage);
     }
   },
   methods: {
@@ -121,22 +150,37 @@ export default {
       this.sorted = true;
       this.popularitySorted = false;
       this.decadeFiltered = null;
+      this.currentPage = 1;
     },
     resetSort() {
       this.sorted = false;
       this.popularitySorted = false;
       this.decadeFiltered = null;
+      this.currentPage = 1;
+      this.searchQuery = '';
       this.fetchMovies();
     },
     sortByPopularity() {
       this.popularitySorted = true;
       this.sorted = false;
       this.decadeFiltered = null;
+      this.currentPage = 1;
     },
     filterByDecade(decade, before2000 = false) {
       this.decadeFiltered = before2000 ? 'before2000' : decade;
       this.sorted = false;
       this.popularitySorted = false;
+      this.currentPage = 1;
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+      }
     }
   }
 }
@@ -159,8 +203,23 @@ export default {
   font-size: 19px;
   margin-bottom: 20px;
   position: relative;
-  left:4%;
+  left: 4%;
 }
+
+.search-bar{
+  position: relative;
+  text-align: right;
+  width: 97%;
+  top:-10px;
+}
+
+.search-bar input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 500px;
+}
+
 .separator {
   width: 93%;
   border-bottom: 1px solid;
@@ -172,9 +231,9 @@ export default {
 
 .button-group {
   display: flex;
-  margin-bottom: 20px; /* 버튼 그룹과 영화 목록 사이 여백 추가 */
+  margin-bottom: 20px;
   position: relative;
-  left:4%;
+  left: 4%;
 }
 
 .rating-button {
@@ -182,23 +241,22 @@ export default {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s; /* 부드러운 전환 효과 */
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .rating-button:hover {
-
-  transform: scale(1.05); /* 버튼 호버 시 확대 효과 */
+  transform: scale(1.05);
 }
 
 .rating-button.active {
-  font-weight: bold; /* 클릭한 버튼을 진하게 표시 */
-  text-decoration: underline; /* 클릭한 버튼에 밑줄 추가 */
+  font-weight: bold;
+  text-decoration: underline;
 }
 
 .loading {
   text-align: center;
   font-size: 18px;
-  color: #FFD700; /* 로딩 텍스트 색상 */
+  color: #FFD700;
   margin-bottom: 20px;
 }
 
@@ -262,7 +320,39 @@ export default {
 
 .popularity-text {
   font-size: 1rem;
-  color: #FFD700; /* 인기 텍스트 색상 */
+  color: #FFD700;
   margin-top: 5px;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  background-color: #F50000;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  margin: 0 5px;
+  transition: background-color 0.3s;
+}
+
+.pagination button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #c00000;
+}
+
+.pagination-total-count {
+  position: relative;
+  top: 8px;
+}
+
 </style>
