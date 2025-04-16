@@ -16,27 +16,8 @@
       <path d="M0,100 Q720,0 1440,100" stroke="white" stroke-width="1" fill="black"/>
     </svg>
 
-    <div class="movie-section-container">
-      <div class="movie-tabs">
-        <button v-for="(movies, category) in movieCategories" :key="category"
-                :class="{ active: selectedCategory === category }"
-                @click="selectCategory(category)">
-          {{ categoryNames[category] }}
-        </button>
-      </div>
-
-      <div class="movie-content" v-if="selectedCategory">
-        <div class="top-slider">
-          <div class="movie-card" v-for="movie in movieCategories[selectedCategory]" :key="movie.id"
-               @click="goToMovieDetail(movie.id, selectedCategory)">
-            <img :src="'https://image.tmdb.org/t/p/w300' + movie.posterPath" alt="movie poster" />
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="ott-container">
-    <span style="text-align: left">오늘의 OTT 핫 콘텐츠</span>
+      <span style="text-align: left">오늘의 OTT 핫 콘텐츠</span>
       <div class="ott-tabs">
         <button v-for="(movies, platform) in ottMovies" :key="platform"
                 :class="{ active: selectedPlatform === platform }"
@@ -63,6 +44,54 @@
       </div>
 
     </div>
+
+    <div class="movie-section-container">
+      <div class="movie-tabs">
+        <button v-for="(movies, category) in movieCategories" :key="category"
+                :class="{ active: selectedCategory === category }"
+                @click="selectCategory(category)">
+          {{ categoryNames[category] }}
+        </button>
+      </div>
+
+      <div class="movie-content" v-if="selectedCategory">
+        <div class="top-slider">
+          <div class="movie-card" v-for="movie in movieCategories[selectedCategory]" :key="movie.id"
+               @click="goToMovieDetail(movie.id, selectedCategory)">
+            <img :src="'https://image.tmdb.org/t/p/w300' + movie.posterPath" alt="movie poster" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="most-popular-movies">
+      <h2>오늘의 1등 영화</h2>
+      <div class="movie-cards">
+        <div class="movie-card" v-if="mostNowPlayingMovie" @click="goToMovieDetail(mostNowPlayingMovie.id, 'nowPlaying')">
+          <img :src="'https://image.tmdb.org/t/p/w300' + mostNowPlayingMovie.posterPath" alt="movie poster" />
+          <div class="most-movie-title">{{ mostNowPlayingMovie.title }}</div>
+          <div class="movie-category">상영중인 영화</div>
+        </div>
+
+        <div class="movie-card" v-if="mostPopularMovie" @click="goToMovieDetail(mostPopularMovie.id, 'popular')">
+          <img :src="'https://image.tmdb.org/t/p/w300' + mostPopularMovie.posterPath" alt="movie poster" />
+          <div class="most-movie-title">{{ mostPopularMovie.title }}</div>
+          <div class="movie-category">인기 영화</div>
+        </div>
+
+        <div class="movie-card" v-if="mostUpcomingMovie" @click="goToMovieDetail(mostUpcomingMovie.id, 'upcoming')">
+          <img :src="'https://image.tmdb.org/t/p/w300' + mostUpcomingMovie.posterPath" alt="movie poster" />
+          <div class="most-movie-title">{{ mostUpcomingMovie.title }}</div>
+          <div class="movie-category">개봉 예정 영화</div>
+        </div>
+
+        <div class="movie-card" v-if="mostTopRatedMovie" @click="goToMovieDetail(mostTopRatedMovie.id, 'topRated')">
+          <img :src="'https://image.tmdb.org/t/p/w300' + mostTopRatedMovie.posterPath" alt="movie poster" />
+          <div class="most-movie-title">{{ mostTopRatedMovie.title }}</div>
+          <div class="movie-category">역대 평점 영화</div>
+        </div>
+      </div>
+    </section>
 
     <section class="prefer-genre">
       <h2 class="section-title">
@@ -118,6 +147,10 @@ export default {
   components: { SearchBar },
   data() {
     return {
+      mostNowPlayingMovie: null,
+      mostUpcomingMovie: null,
+      mostTopRatedMovie: null,
+      mostPopularMovie: null,
       movieCategories: {
         nowPlaying: [],
         upcoming: [],
@@ -159,10 +192,22 @@ export default {
   methods: {
     async loadMovies() {
       try {
-        this.movieCategories.nowPlaying = await fetchMovies();
-        this.movieCategories.upcoming = await fetchUpcomingMovies();
-        this.movieCategories.topRated = await fetchTopMovies();
-        this.movieCategories.popular = await fetchPopularMovies();
+        const nowPlaying = await fetchMovies();
+        const upcoming = await fetchUpcomingMovies();
+        const topRated = await fetchTopMovies();
+        const popular = await fetchPopularMovies();
+
+        this.movieCategories.nowPlaying = nowPlaying;
+        this.movieCategories.upcoming = upcoming;
+        this.movieCategories.topRated = topRated;
+        this.movieCategories.popular = popular;
+
+        // 각 카테고리의 첫 번째 영화 = 1등 영화로 저장
+        this.mostNowPlayingMovie = nowPlaying[0] || null;
+        this.mostUpcomingMovie = upcoming[0] || null;
+        this.mostTopRatedMovie = topRated[0] || null;
+        this.mostPopularMovie = popular[0] || null;
+
       } catch (error) {
         console.error('영화 데이터를 가져오는 중 오류가 발생했습니다:', error);
       }
@@ -406,8 +451,14 @@ h1 {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 15px;
+
 }
 
+.most-movie-title{
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
 .top-slider {
   display: flex;
   overflow-x: auto;
@@ -873,6 +924,104 @@ h1 {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.most-popular-movies {
+  padding: 60px 40px;
+  background-color: #090b09;
+  color: white;
+  text-align: center;
+}
+
+.most-popular-movies h2 {
+  font-size: 1.5rem;
+  margin-bottom: 40px;
+  letter-spacing: -0.5px;
+  line-height: 1.3;
+  color: purple;
+  background: linear-gradient(90deg, purple, #ffdd57);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+  animation: shine 3s infinite linear;
+}
+
+@keyframes shine {
+  0% {
+    background-position: -200%;
+  }
+  100% {
+    background-position: 200%;
+  }
+}
+
+.most-popular-movies h2::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -10px;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(to right, #f5c518, #ffdd57);
+  border-radius: 2px;
+  animation: underline-glow 3s infinite ease-in-out;
+}
+
+@keyframes underline-glow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1.05);
+  }
+}
+
+
+
+.most-popular-movies .movie-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 30px;
+  justify-items: center;
+}
+
+.most-popular-movies .movie-card {
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  max-width: 220px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.most-popular-movies .movie-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(255, 255, 255, 0.1);
+}
+
+.most-popular-movies .movie-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.most-popular-movies .movie-title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 10px 0 5px;
+}
+
+.most-popular-movies .movie-category {
+  font-size: 0.85rem;
+  color: #999;
+  margin-bottom: 12px;
 }
 
 </style>
