@@ -36,7 +36,7 @@
     </div>
 
     <div class="ott-container">
-
+    <span style="text-align: left">오늘의 OTT 핫 콘텐츠</span>
       <div class="ott-tabs">
         <button v-for="(movies, platform) in ottMovies" :key="platform"
                 :class="{ active: selectedPlatform === platform }"
@@ -722,6 +722,16 @@ h1 {
 
 .ott-tabs::-webkit-scrollbar, .movie-tabs::-webkit-scrollbar {
   display: none;
+}
+.ott-container > span {
+  display: block;
+  text-align: center;
+  font-size: 1.3em;
+  font-weight: bold;
+  color: #cccccc;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #eee;
 }
 
 .ott-tabs button, .movie-tabs button {
