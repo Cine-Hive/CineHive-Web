@@ -1,9 +1,9 @@
 <template>
   <div id="homepage">
     <div class="main-image">
-      <img src="@/assets/home/HomeImageSecond.jpg">
-      <img src="@/assets/home/HomeImage.jpg">
-      <img src="@/assets/home/HomeImageThird.jpg">
+      <img src="../assets/home/SplitBannerImage.jpg">
+      <img src="../assets/home/BannerImage.jpg">
+      <img src="../assets/home/SplitBannerImageChild.jpg">
       <div class="main-text">
         <p>다양한 이야기들이 한자리에,</p>
         <p>이곳에서 진정한 감동과 재미를 느끼고,</p>
