@@ -16,7 +16,8 @@
     "@toast-ui/editor": "^3.2.2",
     "@toast-ui/vue-editor": "^3.2.3",
     "@fortawesome/fontawesome-free": "^5.15.4",
-    "jwt-decode": "^3.1.2"
+    "jwt-decode": "^3.1.2",
+    "bootstrap": "^5.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
