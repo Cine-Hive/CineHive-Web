@@ -1,4 +1,4 @@
-//TopMovieDetail.vue
+//TopMovieDetailView.vue
 
 import axios from 'axios';
 

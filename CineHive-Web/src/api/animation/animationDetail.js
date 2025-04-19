@@ -1,4 +1,4 @@
-//AnimationDetail.vue
+//AnimationDetailView.vue
 
 import axios from 'axios';
 

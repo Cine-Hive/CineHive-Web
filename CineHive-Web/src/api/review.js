@@ -1,4 +1,4 @@
-//ReviewPage.vue
+//ReviewView.vue
 
 import axios from "axios";
 

@@ -1,4 +1,4 @@
-//SerachPage.vue
+//SerachView.vue
 
 import axios from 'axios';
 

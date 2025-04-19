@@ -1,4 +1,4 @@
-//BoardList.vue
+//BoardListView.vue
 
 import axios from 'axios';
 

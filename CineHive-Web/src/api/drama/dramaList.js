@@ -1,4 +1,4 @@
-// DramaList.vue
+// DramaListView.vue
 
 import axios from 'axios';
 

@@ -1,4 +1,4 @@
-//HomePage.vue
+//HomeView.vue
 
 import axios from 'axios';
 

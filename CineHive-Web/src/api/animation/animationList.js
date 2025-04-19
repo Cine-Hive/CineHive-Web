@@ -1,4 +1,4 @@
-//AnimationList.vue
+//AnimationListView.vue
 
 import axios from 'axios';
 

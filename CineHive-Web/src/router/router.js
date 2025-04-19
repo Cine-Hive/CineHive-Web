@@ -1,21 +1,21 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from '@/View/HomePage.vue';
+import Home from '@/View/HomeView.vue';
 import AuthView from "@/View/user/AuthView.vue";
-import SocialLoginAdditionalInfo from "@/View/user/SocialLoginAdditionalInfo.vue";
-import SearchPage from "@/View/SearchPage.vue";
-import MovieDetail from "@/View/movie/MovieDetail.vue";
-import DramaDetail from "@/View/drama/DramaDetail.vue";
-import AnimationDetail from "@/View/animation/AnimationDetail.vue";
-import TopMovieDetail from "@/View/movie/TopMovieDetail.vue";
-import MovieList from "@/View/movie/MovieList.vue";
-import AnimationList from "@/View/animation/AnimationList.vue";
-import DramaList from "@/View/drama/DramaList.vue";
-import ReviewPage from '@/View/ReviewPage.vue';
-import CreateBoard from "@/View/board/CreateBoard.vue";
-import BoardList from "@/View/board/BoardList.vue";
-import DetailBoard from "@/View/board/DetailBoard.vue";
-import EditBoard from "@/View/board/EditBoard.vue";
+import SocialLoginAdditionalInfo from "@/View/user/SocialLoginAdditionalInfoView.vue";
+import SearchPage from "@/View/SearchView.vue";
+import MovieDetail from "@/View/movie/MovieDetailView.vue";
+import DramaDetail from "@/View/drama/DramaDetailView.vue";
+import AnimationDetail from "@/View/animation/AnimationDetailView.vue";
+import TopMovieDetail from "@/View/movie/TopMovieDetailView.vue";
+import MovieList from "@/View/movie/MovieListView.vue";
+import AnimationList from "@/View/animation/AnimationListView.vue";
+import DramaList from "@/View/drama/DramaListView.vue";
+import ReviewPage from '@/View/ReviewView.vue';
+import CreateBoard from "@/View/board/CreateBoardView.vue";
+import BoardList from "@/View/board/BoardListView.vue";
+import DetailBoard from "@/View/board/DetailBoardView.vue";
+import EditBoard from "@/View/board/EditBoardView.vue";
 
 Vue.use(Router);
 
