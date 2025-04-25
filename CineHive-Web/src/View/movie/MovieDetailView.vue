@@ -28,16 +28,9 @@
           </div>
         </div>
       </div>
-      <div class="trailer-section" v-if="movie.videos && movie.videos.length > 0">
-        <iframe
-            width="560"
-            height="315"
-            :src="'https://www.youtube.com/embed/' + movie.videos[0].videoKey"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            class="trailer-iframe"
-        ></iframe>
+
+      <div v-if="videoUrl" class="movie-trailer">
+        <iframe :src="videoUrl" width="560" height="315" frameborder="0" allowfullscreen></iframe>
       </div>
     </div>
 
@@ -93,7 +86,7 @@
 </template>
 
 <script>
-import { fetchMovieDetails, fetchSimilarMovies, fetchBookmarkCount, toggleBookmark } from '@/api/movie/movieDetail';
+import { fetchMovieDetails, fetchSimilarMovies, fetchBookmarkCount, toggleBookmark, fetchMovieVideo } from '@/api/movie/movieDetail';
 
 export default {
   data() {
@@ -102,6 +95,7 @@ export default {
       similarMovies: [],
       bookmarkCount: 0,
       isBookmarked: false,
+      videoUrl: null,
     };
   },
   async created() {
@@ -110,6 +104,14 @@ export default {
     try {
       this.movie = await fetchMovieDetails(movieId);
       this.bookmarkCount = await this.fetchBookmarkCount(movieId);
+
+      // 영화 정보가 로드된 후 트레일러 영상도 가져옴
+      const videoData = await fetchMovieVideo(movieId);
+      if (videoData && videoData.key) {
+        // YouTube URL을 구성
+        this.videoUrl = `https://www.youtube.com/embed/${videoData.key}`;
+      }
+
     } catch (error) {
       console.error("영화 정보를 불러오는 중 오류 발생:", error);
     }
@@ -123,6 +125,7 @@ export default {
         this.$router.push(`/movie/${movieId}`);
       }
     },
+
     async fetchSimilarMovies() {
       const movieId = this.$route.params.id;
       try {
@@ -260,7 +263,10 @@ export default {
   display: flex;
   gap: 10px;
 }
-
+.movie-trailer{
+  position: relative;
+  left:100px;
+}
 .action-button {
   padding: 10px 15px;
   background-color: #1a1a1a;
