@@ -19,12 +19,13 @@ export const fetchMovieDetails = async (movieId) => {
 export const fetchSimilarMovies = async (movieId) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/api/v1/movies/${movieId}/similar`);
-        return response.data;
+        return response.data.results; // results 배열만 반환
     } catch (error) {
         console.error('추천 영화를 가져오는 중 오류 발생:', error);
         throw error;
     }
 };
+
 
 // 즐겨찾기 토글
 export const toggleBookmark = async (movieId, token) => {
@@ -79,4 +80,16 @@ export const fetchMovieVideo = async (movieId) => {
         throw error;
     }
 };
+
+// 출연진 및 제작진 정보 가져오기
+export const fetchMovieCredits = async (movieId) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/v1/movies/${movieId}/credits`);
+        return response.data;
+    } catch (error) {
+        console.error('출연/제작진 정보를 가져오는 중 오류 발생:', error);
+        throw error;
+    }
+};
+
 

@@ -16,7 +16,7 @@
           </div>
           <div class="info-item">
             <span class="info-label">감독</span>
-            <p class="info-text">{{ movie.director ? movie.director.name : '정보 없음' }}</p>
+            <p class="info-text">{{ director ? director.name : '정보 없음' }}</p>
           </div>
           <div class="info-item">
             <span class="info-label">출시일</span>
@@ -48,17 +48,18 @@
 
     <div class="info-item">
       <span class="info-label" style="position: relative; left:-48%; top:20px; font-size: 16.5px; font-weight: bolder">배우 정보</span>
-      <div v-if="movie.actors && movie.actors.length > 0" class="actors-list">
-        <div v-for="actor in movie.actors.slice(0, 5)" :key="actor.id" class="actor-item">
+      <div v-if="actors && actors.length > 0" class="actors-list">
+        <div v-for="actor in actors.slice(0, 5)" :key="actor.id" class="actor-item">
           <img
-              v-if="actor.posterPath"
-              :src="'https://image.tmdb.org/t/p/w200' + actor.posterPath"
+              v-if="actor.profilePath"
+              :src="'https://image.tmdb.org/t/p/w200' + actor.profilePath"
               alt="배우 프로필"
               class="actor-image"
           />
           <span class="actor-name">{{ actor.name }}</span>
         </div>
       </div>
+
 
     </div>
     <div class="bottom-section">
@@ -86,7 +87,7 @@
 </template>
 
 <script>
-import { fetchMovieDetails, fetchSimilarMovies, fetchBookmarkCount, toggleBookmark, fetchMovieVideo } from '@/api/movie/movieDetail';
+import { fetchMovieDetails, fetchSimilarMovies, fetchBookmarkCount, toggleBookmark, fetchMovieVideo, fetchMovieCredits  } from '@/api/movie/movieDetail';
 
 export default {
   data() {
@@ -96,21 +97,49 @@ export default {
       bookmarkCount: 0,
       isBookmarked: false,
       videoUrl: null,
+      actors: [],
+      crew: [],
     };
   },
   async created() {
-    this.fetchSimilarMovies();
     const movieId = this.$route.params.id;
     try {
+      // 영화 상세 정보 가져오기
       this.movie = await fetchMovieDetails(movieId);
+
+      // 즐겨찾기 개수 가져오기
       this.bookmarkCount = await this.fetchBookmarkCount(movieId);
 
-      // 영화 정보가 로드된 후 트레일러 영상도 가져옴
+      // 출연/제작진 정보 가져오기
+      const credits = await fetchMovieCredits(movieId);
+      const uniqueActorsMap = new Map();
+      credits.cast.forEach(actor => {
+        if (!uniqueActorsMap.has(actor.id)) {
+          uniqueActorsMap.set(actor.id, actor);
+        }
+      });
+      this.actors = Array.from(uniqueActorsMap.values());
+
+      // 제작진 정보 가져오기
+      const uniqueCrewMap = new Map();
+      credits.crew.forEach(member => {
+        if (!uniqueCrewMap.has(member.id)) {
+          uniqueCrewMap.set(member.id, member);
+        }
+      });
+      this.crew = Array.from(uniqueCrewMap.values());
+
+      // 감독 정보 가져오기
+      this.director = credits.crew.find(member => member.job === "Director") || null;
+
+      // 트레일러 정보 가져오기
       const videoData = await fetchMovieVideo(movieId);
       if (videoData && videoData.key) {
-        // YouTube URL을 구성
         this.videoUrl = `https://www.youtube.com/embed/${videoData.key}`;
       }
+
+      // ⭐ 유사 영화 목록 가져오기
+      this.similarMovies = await fetchSimilarMovies(movieId);
 
     } catch (error) {
       console.error("영화 정보를 불러오는 중 오류 발생:", error);
