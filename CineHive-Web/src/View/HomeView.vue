@@ -141,13 +141,14 @@ import {
   searchMovies
 } from '@/api/movie/movie';
 
+
 import SearchBar from "@/components/SearchBar.vue";
 
 export default {
   components: { SearchBar },
   data() {
     return {
-      mostNowPlayingMovie: null,
+      mostNowPlayingMovsie: null,
       mostUpcomingMovie: null,
       mostTopRatedMovie: null,
       mostPopularMovie: null,

@@ -21,7 +21,7 @@
         {{ board.likeCount }}
         <span @click="toggleDisLike" :style="{ cursor: 'pointer', color: isDisliked(board.id) ? 'red' : 'gray' }">👎</span>
         {{ board.dislikeCount }}
-        <span>{{ formatDate(board.brgRedDate) }}</span>
+        <span>{{ formatDate(board.brdRegDate) }}</span>
       </div>
     </div>
 
@@ -47,7 +47,7 @@
         <li v-for="(comment, index) in comments" :key="comment.id" class="comment-item">
           <div class="comment-details">
             <span class="comment-nickname">{{ comment.memNickname }}</span>
-            <span class="comment-date">{{ formatDate(comment.brgRedDate) }}</span>
+            <span class="comment-date">{{ formatDate(comment.brdRegDate) }}</span>
           </div>
 
           <span class="comment-content">{{ comment.content }}</span>
