@@ -25,7 +25,7 @@ export const addComment = (boardId, content, token) => {
 
 // 댓글 삭제
 export const deleteComment = (boardId, commentId, token) => {
-    return axios.delete(`${API_BASE_URL}/comment/${boardId}/board/delete/${commentId}`, {
+    return axios.delete(`${API_BASE_URL}/comment/${boardId}/board/${commentId}`, {
         headers: {
             Authorization: `Bearer ${token}`,
         }
