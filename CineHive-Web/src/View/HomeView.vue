@@ -11,11 +11,9 @@
       </div>
     </div>
 
-
     <svg class="curved-divider" viewBox="0 0 1440 100" xmlns="http://www.w3.org/2000/svg">
       <path d="M0,100 Q720,0 1440,100" stroke="white" stroke-width="1" fill="black"/>
     </svg>
-
 
     <div class="ott-container">
       <span style="text-align: left">각 플랫폼별 인기 콘텐츠</span>
@@ -239,7 +237,7 @@ export default {
         popular: '인기 영화'
       },
       prefer: [],
-      airingTodayTvSeries: [],  // 오늘 방영하는 TV 시리즈 데이터를 저장할 변수
+      airingTodayTvSeries: [],
       showMore: false,
       showSearchButton: false,
       searchQuery: '',
@@ -413,7 +411,7 @@ export default {
   },
   mounted() {
     this.loadTvShows();
-    this.loadAnimations(); // 추가
+    this.loadAnimations();
     this.loadOttMovies();
     this.loadMovies();
     if (this.user && this.user.preferredGenres && this.user.preferredGenres.length > 0) {
@@ -573,7 +571,6 @@ h1 {
 
 }
 
-
 .movie-title {
   font-size: 18px;
   font-weight: bold;
@@ -581,11 +578,6 @@ h1 {
 
 }
 
-.most-movie-title{
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 15px;
-}
 .top-slider {
   display: flex;
   overflow-x: auto;
@@ -839,8 +831,6 @@ h1 {
   }
 }
 
-
-
 .movie-card {
   flex: 0 0 calc(11.1% - 15px);
   max-width: calc(11.1% - 15px);
@@ -1058,13 +1048,6 @@ h1 {
   white-space: nowrap;
 }
 
-.most-popular-movies {
-  padding: 60px 40px;
-  color: white;
-  text-align: center;
-  height: 450px;
-}
-
 .most-popular-movies h2 {
   font-size: 1.5rem;
   margin-bottom: 40px;
@@ -1112,9 +1095,6 @@ h1 {
     transform: scaleX(1.05);
   }
 }
-
-
-
 .most-popular-movies .movie-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -1139,9 +1119,9 @@ h1 {
 }
 
 .most-popular-movies .movie-card img {
-  width: 70%;  /* 고정 너비로 설정 */
+  width: 70%;
   display: block;
-  object-fit: cover;  /* 이미지 비율을 유지하면서 크기를 맞춤 */
+  object-fit: cover;
   position: relative;
   left:30px;
 }
@@ -1153,14 +1133,14 @@ h1 {
   margin: 10px 0 5px;
 }
 
-.most-popular-movies .movie-category {
+.most-popular-movies {
   font-size: 0.85rem;
   color: #999;
   margin-bottom: 12px;
 }
 
 .airing-today-tv-series {
-  color: #fff; /* 글자 색상을 흰색으로 */
+  color: #fff;
   padding: 40px 20px;
 }
 
@@ -1253,21 +1233,14 @@ h1 {
 
 .media-categories {
   display: flex;
-  flex-direction: row; /* 세로가 아닌 가로로 나열 */
-  gap: 20px; /* 카드 사이 간격 */
-  overflow-x: auto; /* 가로 스크롤 허용 */
+  flex-direction: row;
+  gap: 20px;
+  overflow-x: auto;
   padding-bottom: 20px;
 }
 
 .media-category-section {
   flex: 1;
-}
-
-.media-category-title {
-  font-size: 1rem;
-  color: #fff;
-  margin-bottom: 15px;
-  font-weight: bold;
 }
 
 .media-card {
@@ -1312,7 +1285,7 @@ h1 {
   }
 
   .media-card {
-    width: 180px; /* 모바일에서 카드 크기 조정 */
+    width: 180px;
   }
 
   .media-title {
