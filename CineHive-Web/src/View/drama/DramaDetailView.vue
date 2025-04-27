@@ -58,7 +58,7 @@
 
     <!-- 배우 정보 -->
     <div class="info-item">
-      <span class="info-label" style="position: relative; left:-48%; top:20px; font-size: 16.5px; font-weight: bolder">배우 정보</span>
+      <span class="info-label" style="position: relative; left:-48%; top:20px; font-size: 16.5px; font-weight: bolder">출연진 정보</span>
       <div v-if="actors && actors.length > 0" class="actors-list">
         <div v-for="actor in actors.slice(0, 5)" :key="actor.id" class="actor-item">
           <img
