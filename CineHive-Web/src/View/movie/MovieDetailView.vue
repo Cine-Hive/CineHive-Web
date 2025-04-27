@@ -45,7 +45,6 @@
       <button class="action-button" @click="goBack">뒤로 가기</button>
     </div>
 
-
     <div class="info-item">
       <span class="info-label" style="position: relative; left:-48%; top:20px; font-size: 16.5px; font-weight: bolder">배우 정보</span>
       <div v-if="actors && actors.length > 0" class="actors-list">
@@ -59,9 +58,8 @@
           <span class="actor-name">{{ actor.name }}</span>
         </div>
       </div>
-
-
     </div>
+
     <div class="bottom-section">
       <h3 class="section-title">바로가기</h3>
       <div class="streaming-services">

@@ -28,16 +28,8 @@
           </div>
         </div>
       </div>
-      <div class="trailer-section" v-if="movie.videos && movie.videos.length > 0">
-        <iframe
-            width="560"
-            height="315"
-            :src="'https://www.youtube.com/embed/' + movie.videos[0].videoKey"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            class="trailer-iframe"
-        ></iframe>
+      <div v-if="videoUrl" class="movie-trailer">
+        <iframe :src="videoUrl" width="560" height="315" frameborder="0" allowfullscreen></iframe>
       </div>
     </div>
 
@@ -49,9 +41,14 @@
 
     <div class="info-item">
       <span class="info-label" style="position: relative; left:-48%; top:20px; font-size: 16.5px; font-weight: bolder">배우 정보</span>
-      <div v-if="movie.actors && movie.actors.length > 0" class="actors-list">
-        <div v-for="actor in movie.actors.slice(0, 5)" :key="actor.id" class="actor-item">
-          <img v-if="actor.posterPath" :src="'https://image.tmdb.org/t/p/w200' + actor.posterPath" alt="배우 프로필" class="actor-image" />
+      <div v-if="actors && actors.length > 0" class="actors-list">
+        <div v-for="actor in actors.slice(0, 5)" :key="actor.id" class="actor-item">
+          <img
+              v-if="actor.profilePath"
+              :src="'https://image.tmdb.org/t/p/w200' + actor.profilePath"
+              alt="배우 프로필"
+              class="actor-image"
+          />
           <span class="actor-name">{{ actor.name }}</span>
         </div>
       </div>
@@ -85,7 +82,7 @@
 
 
 <script>
-import { fetchMovieDetails, fetchSimilarMovies, fetchBookmarkCount, toggleBookmark } from '@/api/movie/movieDetail';
+import { fetchMovieDetails, fetchSimilarMovies, fetchBookmarkCount, toggleBookmark, fetchMovieVideo, fetchMovieCredits } from '@/api/movie/movieDetail';
 
 export default {
   data() {
@@ -94,12 +91,43 @@ export default {
       similarMovies: [],
       bookmarkCount: 0,
       isBookmarked: false,
+      videoUrl: null,
+      actors: [],
+      crew: [],
     };
   },
   async created() {
     this.fetchSimilarMovies();
     const movieId = this.$route.params.id;
     try {
+      // 출연/제작진 정보 가져오기
+      const credits = await fetchMovieCredits(movieId);
+      const uniqueActorsMap = new Map();
+      credits.cast.forEach(actor => {
+        if (!uniqueActorsMap.has(actor.id)) {
+          uniqueActorsMap.set(actor.id, actor);
+        }
+      });
+      this.actors = Array.from(uniqueActorsMap.values());
+
+      // 제작진 정보 가져오기
+      const uniqueCrewMap = new Map();
+      credits.crew.forEach(member => {
+        if (!uniqueCrewMap.has(member.id)) {
+          uniqueCrewMap.set(member.id, member);
+        }
+      });
+      this.crew = Array.from(uniqueCrewMap.values());
+
+      // 감독 정보 가져오기
+      this.director = credits.crew.find(member => member.job === "Director") || null;
+
+      // 트레일러 정보 가져오기
+      const videoData = await fetchMovieVideo(movieId);
+      if (videoData && videoData.key) {
+        this.videoUrl = `https://www.youtube.com/embed/${videoData.key}`;
+      }
+
       this.movie = await fetchMovieDetails(movieId);
       this.bookmarkCount = await this.fetchBookmarkCount(movieId);
     } catch (error) {
@@ -253,6 +281,10 @@ export default {
   gap: 10px;
 }
 
+.movie-trailer{
+  position: relative;
+  left:100px;
+}
 .action-button {
   padding: 10px 15px;
   background-color: #1a1a1a;
