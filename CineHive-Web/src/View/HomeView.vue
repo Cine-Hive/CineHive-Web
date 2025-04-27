@@ -46,6 +46,26 @@
     </div>
 
     <div class="movie-section-container">
+      <div class="home-movie-title"><span style="color:red;">CINEHIVE</span>의 오늘의 애니메이션</div>
+      <div class="movie-tabs">
+        <button v-for="(animations, category) in animationCategories" :key="category"
+                :class="{ active: selectedAnimationCategory === category }"
+                @click="selectAnimationCategory(category)">
+          {{ animationCategoryNames[category] }}
+        </button>
+      </div>
+
+      <div class="movie-content" v-if="selectedAnimationCategory">
+        <div class="top-slider">
+          <div class="movie-card" v-for="animation in animationCategories[selectedAnimationCategory]" :key="animation.id"
+               @click="goToAnimationDetail(animation.id, selectedAnimationCategory)">
+            <img :src="'https://image.tmdb.org/t/p/w300' + animation.posterPath" alt="animation poster" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="movie-section-container">
       <div class="home-movie-title"><span style="color:red;">CINEHIVE</span>의 오늘의 영화</div>
       <div class="movie-tabs">
         <button v-for="(movies, category) in movieCategories" :key="category"
@@ -93,26 +113,6 @@
         </div>
       </div>
     </section>
-
-    <div class="movie-section-container">
-      <div class="home-movie-title"><span style="color:red;">CINEHIVE</span>의 오늘의 애니메이션</div>
-      <div class="movie-tabs">
-        <button v-for="(animations, category) in animationCategories" :key="category"
-                :class="{ active: selectedAnimationCategory === category }"
-                @click="selectAnimationCategory(category)">
-          {{ animationCategoryNames[category] }}
-        </button>
-      </div>
-
-      <div class="movie-content" v-if="selectedAnimationCategory">
-        <div class="top-slider">
-          <div class="movie-card" v-for="animation in animationCategories[selectedAnimationCategory]" :key="animation.id"
-               @click="goToAnimationDetail(animation.id, selectedAnimationCategory)">
-            <img :src="'https://image.tmdb.org/t/p/w300' + animation.posterPath" alt="animation poster" />
-          </div>
-        </div>
-      </div>
-    </div>
 
     <section class="prefer-genre">
       <h2 class="section-title">

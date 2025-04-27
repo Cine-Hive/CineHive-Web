@@ -43,8 +43,8 @@
     </div>
 
     <div class="bookmark-container">
-      <img src="@/assets/reviewLogo/like.png" height="20" width="20" class="movie-detail-bookmark" @click="toggleBookmark(animation.id)" />
-      <span style="position: relative; left:0.3%;">{{bookmarkCount}}</span>
+      <img src="@/assets/reviewLogo/like.png" height="20" width="20" class="movie-detail-bookmark" @click="handleToggleBookmark" />
+      <span style="position: relative; left:0.3%;">{{ bookmarkCount }}</span>
     </div>
 
     <div class="action-buttons">
@@ -55,10 +55,10 @@
     <div class="bottom-section">
       <h3 class="section-title">바로가기</h3>
       <div class="streaming-services">
-        <img class="streaming-logo" src="@/assets/movieDetailLogo/Wacha.png" alt="Wave" @click="goToLink('https://www.watcha.com')" />
-        <img class="streaming-logo" src="@/assets/movieDetailLogo/Wiki.png" alt="Watcha" @click="goToLink('https://www.wavve.com')" />
+        <img class="streaming-logo" src="@/assets/movieDetailLogo/Wacha.png" alt="Watcha" @click="goToLink('https://www.watcha.com')" />
+        <img class="streaming-logo" src="@/assets/movieDetailLogo/Wiki.png" alt="Wavve" @click="goToLink('https://www.wavve.com')" />
         <img class="streaming-logo" src="@/assets/movieDetailLogo/Netfilx.png" alt="Netflix" @click="goToLink('https://www.netflix.com')" />
-        <img class="streaming-logo" src="@/assets/movieDetailLogo/Tiving.png" alt="Tiving" @click="goToLink('https://www.tving.com')" />
+        <img class="streaming-logo" src="@/assets/movieDetailLogo/Tiving.png" alt="Tving" @click="goToLink('https://www.tving.com')" />
       </div>
     </div>
 
@@ -72,6 +72,7 @@
       </div>
     </div>
   </div>
+
   <div v-else>
     <p>애니메이션 정보를 불러오는 중...</p>
   </div>
@@ -95,23 +96,26 @@ export default {
     };
   },
   async created() {
-    await this.fetchAnimationDetails();
-    await this.fetchSimilarAnimations();
-    const animationId = this.$route.params.id;
-    try {
-      this.bookmarkCount = await this.fetchBookmarkCount(animationId);
-    } catch (error) {
-      console.error("즐겨찾기 개수 로딩 중 오류 발생:", error);
-    }
+    await this.loadAnimationData();
   },
   watch: {
-    '$route.params.id': function() {
-      this.fetchAnimationDetails();
-      this.fetchSimilarAnimations();
-    }
+    '$route.params.id': async function () {
+      await this.loadAnimationData();
+    },
   },
   methods: {
-    async toggleBookmark(animationId) {
+    async loadAnimationData() {
+      const animationId = this.$route.params.id;
+      try {
+        this.animation = await fetchAnimationDetails(animationId);
+        this.similarAnimations = await fetchSimilarAnimations(animationId);
+        this.bookmarkCount = await fetchBookmarkCount(animationId);
+      } catch (error) {
+        console.error('애니메이션 데이터를 불러오는 중 오류:', error);
+      }
+    },
+    async handleToggleBookmark() {
+      const animationId = this.$route.params.id;
       const token = localStorage.getItem("token");
 
       if (!token) {
@@ -120,45 +124,12 @@ export default {
       }
 
       try {
-        const result = await toggleBookmark(animationId, token);
-        console.log(result);
-
+        await toggleBookmark(animationId, token);
         this.isBookmarked = !this.isBookmarked;
-
-        const message = this.isBookmarked ? '즐겨찾기에 추가하였습니다.' : '즐겨찾기를 취소하였습니다';
-        alert(message);
-
-        this.bookmarkCount = await this.fetchBookmarkCount(animationId);
+        alert(this.isBookmarked ? '즐겨찾기에 추가하였습니다.' : '즐겨찾기를 취소하였습니다.');
+        this.bookmarkCount = await fetchBookmarkCount(animationId);
       } catch (error) {
         console.error("즐겨찾기 토글 오류:", error);
-      }
-    },
-
-    async fetchBookmarkCount(animationId) {
-      try {
-        const count = await fetchBookmarkCount(animationId);
-        return count;
-      } catch (error) {
-        console.error("즐겨찾기 개수 가져오는 중 오류 발생:", error);
-        return 0;
-      }
-    },
-    async fetchAnimationDetails() {
-      const animationId = this.$route.params.id;
-      try {
-        this.animation = await fetchAnimationDetails(animationId);
-        console.log("res", this.animation);
-      } catch (error) {
-        console.error('애니메이션 상세 정보를 가져오는 중 오류가 발생했습니다:', error);
-      }
-    },
-    async fetchSimilarAnimations() {
-      const animationId = this.$route.params.id;
-      try {
-        this.similarAnimations = await fetchSimilarAnimations(animationId);
-        this.bookmarkCount = await this.fetchBookmarkCount(animationId);
-      } catch (error) {
-        console.error('추천 애니메이션을 가져오는 중 오류 발생:', error);
       }
     },
     goToReviewPage() {
@@ -168,11 +139,11 @@ export default {
       this.$router.push({
         name: 'ReviewPage',
         query: {
-          id: String(this.animation.id), // 문자열 변환
-          title: this.animation.title || '제목 없음', // undefined 방지
-          posterPath: this.animation.posterPath || '', // 기본값 설정
-          overview: this.animation.overview || '설명 없음' // undefined 방지
-        }
+          id: String(this.animation.id),
+          title: this.animation.name || '제목 없음', // 애니메이션은 name 사용
+          posterPath: this.animation.posterPath || '',
+          overview: this.animation.overview || '설명 없음',
+        },
       });
     },
     goToLink(url) {
@@ -180,9 +151,12 @@ export default {
     },
     goBack() {
       this.$router.go(-1);
-    }
-  }
-}
+    },
+    goToAnimationDetail(animationId) {
+      this.$router.push({ name: 'AnimationDetail', params: { id: animationId } });
+    },
+  },
+};
 </script>
 
 
