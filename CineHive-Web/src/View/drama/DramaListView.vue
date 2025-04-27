@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import { fetchDramas } from '@/api/drama/dramaList';
+import { fetchDramas } from '@/api/tv/tvList';
 
 export default {
   name: 'DramaList',

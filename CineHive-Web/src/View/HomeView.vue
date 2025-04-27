@@ -188,7 +188,7 @@ import { mapState } from 'vuex';
 import { fetchOttMovies } from '@/api/ott/ott';
 import { fetchMovies, fetchTopMovies, fetchUpcomingMovies, fetchPopularMovies, fetchPreferredGenres, searchMovies } from '@/api/movie/movie';
 import { fetchAnimations, fetchUpcomingAnimations, fetchTopAnimations, fetchPopularAnimations } from '@/api/animation/animation';
-import {fetchPopularTvSeries,fetchTopRatedTvSeries,fetchOnTheAirTvSeries, fetchAiringTodayTvSeries} from '@/api/drama/drama'
+import {fetchPopularTvSeries,fetchTopRatedTvSeries,fetchOnTheAirTvSeries, fetchAiringTodayTvSeries} from '@/api/tv/tv'
 import SearchBar from "@/components/SearchBar.vue";
 
 export default {

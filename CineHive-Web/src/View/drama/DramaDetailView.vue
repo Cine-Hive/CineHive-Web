@@ -81,7 +81,7 @@
   </div>
 </template>
 <script>
-import { fetchDramaDetails, fetchBookmarkCount, toggleBookmark } from '@/api/drama/dramaDetail';
+import { fetchDramaDetails, fetchBookmarkCount, toggleBookmark } from '@/api/tv/tvDetail';
 
 export default {
   data() {
