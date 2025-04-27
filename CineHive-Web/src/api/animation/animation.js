@@ -1,4 +1,3 @@
-/*
 
 //HomeView.vue
 
@@ -45,5 +44,3 @@ export const fetchPopularAnimations = async () => {
         throw error;
     }
 };
-
- */

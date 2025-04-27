@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8081';
+const API_BASE_URL = 'http://localhost:8081/api/v1';
 
 // 애니메이션 상세 정보 가져오기
 export const fetchAnimationDetails = async (animationId) => {
@@ -11,17 +11,6 @@ export const fetchAnimationDetails = async (animationId) => {
         return response.data;
     } catch (error) {
         console.error('애니메이션 상세 정보를 가져오는 중 오류가 발생했습니다:', error);
-        throw error;
-    }
-};
-
-// 애니메이션 추천 목록 가져오기
-export const fetchSimilarAnimations = async (animationId) => {
-    try {
-        const response = await axios.get(`${API_BASE_URL}/animations/${animationId}/similar`);
-        return response.data;
-    } catch (error) {
-        console.error('추천 애니메이션을 가져오는 중 오류 발생:', error);
         throw error;
     }
 };

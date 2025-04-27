@@ -46,6 +46,7 @@
     </div>
 
     <div class="movie-section-container">
+      <div class="home-movie-title"><span style="color:red;">CINEHIVE</span>의 오늘의 영화</div>
       <div class="movie-tabs">
         <button v-for="(movies, category) in movieCategories" :key="category"
                 :class="{ active: selectedCategory === category }"
@@ -92,6 +93,26 @@
         </div>
       </div>
     </section>
+
+    <div class="movie-section-container">
+      <div class="home-movie-title"><span style="color:red;">CINEHIVE</span>의 오늘의 애니메이션</div>
+      <div class="movie-tabs">
+        <button v-for="(animations, category) in animationCategories" :key="category"
+                :class="{ active: selectedAnimationCategory === category }"
+                @click="selectAnimationCategory(category)">
+          {{ animationCategoryNames[category] }}
+        </button>
+      </div>
+
+      <div class="movie-content" v-if="selectedAnimationCategory">
+        <div class="top-slider">
+          <div class="movie-card" v-for="animation in animationCategories[selectedAnimationCategory]" :key="animation.id"
+               @click="goToAnimationDetail(animation.id, selectedAnimationCategory)">
+            <img :src="'https://image.tmdb.org/t/p/w300' + animation.posterPath" alt="animation poster" />
+          </div>
+        </div>
+      </div>
+    </div>
 
     <section class="prefer-genre">
       <h2 class="section-title">
@@ -141,6 +162,7 @@ import {
   searchMovies
 } from '@/api/movie/movie';
 
+import { fetchAnimations, fetchUpcomingAnimations, fetchTopAnimations, fetchPopularAnimations } from '@/api/animation/animation';
 
 import SearchBar from "@/components/SearchBar.vue";
 
@@ -148,6 +170,19 @@ export default {
   components: { SearchBar },
   data() {
     return {
+      animationCategories: {
+        nowPlaying: [],
+        upcoming: [],
+        topRated: [],
+        popular: []
+      },
+      selectedAnimationCategory: 'nowPlaying',
+      animationCategoryNames: {
+        nowPlaying: '상영중인 애니메이션',
+        upcoming: '개봉 예정 애니메이션',
+        topRated: '역대 평점 애니메이션',
+        popular: '인기 애니메이션'
+      },
       mostNowPlayingMovsie: null,
       mostUpcomingMovie: null,
       mostTopRatedMovie: null,
@@ -191,6 +226,26 @@ export default {
   },
 
   methods: {
+    async loadAnimations() {
+      try {
+        const nowPlaying = await fetchAnimations();
+        const upcoming = await fetchUpcomingAnimations();
+        const topRated = await fetchTopAnimations();
+        const popular = await fetchPopularAnimations();
+        this.animationCategories.nowPlaying = nowPlaying;
+        this.animationCategories.upcoming = upcoming;
+        this.animationCategories.topRated = topRated;
+        this.animationCategories.popular = popular;
+      } catch (error) {
+        console.error('애니메이션 데이터를 가져오는 중 오류가 발생했습니다:', error);
+      }
+    },
+    selectAnimationCategory(category) {
+      this.selectedAnimationCategory = category;
+    },
+    goToAnimationDetail(animationId) {
+      this.$router.push({ name: 'AnimationDetail', params: { id: animationId } });
+    },
     async loadMovies() {
       try {
         const nowPlaying = await fetchMovies();
@@ -299,6 +354,7 @@ export default {
     }
   },
   mounted() {
+    this.loadAnimations(); // 추가
     this.loadOttMovies();
     this.loadMovies();
     if (this.user && this.user.preferredGenres && this.user.preferredGenres.length > 0) {
@@ -447,6 +503,17 @@ h1 {
 .movie-content {
   text-align: center;
 }
+
+.home-movie-title {
+  text-align: left;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #dddddd;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif; /* 현대적인 시스템 폰트 스택 사용 */
+  margin-bottom: 24px;
+
+}
+
 
 .movie-title {
   font-size: 18px;
