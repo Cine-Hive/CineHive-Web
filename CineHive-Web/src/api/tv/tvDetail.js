@@ -4,54 +4,51 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8081/api/v1';
 
-// 드라마 상세 정보 가져오기
-export const fetchDramaDetails = async (dramaId, details = false) => {
-    try {
-        const response = await axios.get(`${API_BASE_URL}/tv/${dramaId}`, {
-            params: { details }
-        });
-        return response.data;
-    } catch (error) {
-        console.error('드라마 정보를 가져오는 중 오류 발생:', error);
-        throw error;
-    }
-};
 
-// 드라마 출연진/제작진 가져오기
+// 드라마 출연/제작진 정보 가져오기
 export const fetchDramaCredits = async (dramaId) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/tv/${dramaId}/credits`);
         return response.data;
     } catch (error) {
-        console.error('드라마 출연진 정보를 가져오는 중 오류 발생:', error);
+        console.error('출연/제작진 정보 가져오는 중 오류 발생:', error);
         throw error;
     }
 };
 
-// 드라마 비디오(예고편 등) 가져오기
+
+// 드라마 상세 정보 가져오기 (출연, 제작진, 줄거리 등)
+export const fetchDramaDetails = async (dramaId) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/tv/${dramaId}`);
+        return response.data;
+    } catch (error) {
+        console.error('드라마 상세 정보 가져오는 중 오류 발생:', error);
+        throw error;
+    }
+};
+
+// 비디오 정보 가져오기 (트레일러 등)
 export const fetchDramaVideos = async (dramaId) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/tv/${dramaId}/videos`);
         return response.data;
     } catch (error) {
-        console.error('드라마 비디오 정보를 가져오는 중 오류 발생:', error);
+        console.error('비디오 정보 가져오는 중 오류 발생:', error);
         throw error;
     }
 };
 
-// 드라마와 유사한 드라마 목록 가져오기
-export const fetchSimilarDramas = async (dramaId, page = 1) => {
+// 유사 TV 시리즈 목록 가져오기
+export const fetchSimilarTvSeries = async (dramaId) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/tv/${dramaId}/similar`, {
-            params: { page }
-        });
+        const response = await axios.get(`${API_BASE_URL}/tv/${dramaId}/similar`);
         return response.data;
     } catch (error) {
-        console.error('유사 드라마 목록 가져오는 중 오류 발생:', error);
+        console.error('유사 TV 시리즈 목록 가져오는 중 오류 발생:', error);
         throw error;
     }
 };
-
 // 즐겨찾기 개수 가져오기
 export const fetchBookmarkCount = async (dramaId) => {
     try {

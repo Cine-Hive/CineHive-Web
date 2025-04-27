@@ -1,35 +1,35 @@
 <template>
   <div class="drama-detail">
+    <!-- 드라마 배경과 포스터 -->
     <div class="drama-backdrop">
       <div class="drama-poster">
-        <img :src="'https://image.tmdb.org/t/p/original' + drama.posterPath" alt="포스터" class="poster-image" />
+        <img :src="'https://image.tmdb.org/t/p/original' + drama.posterPath" alt="포스터" class="poster-image"/>
       </div>
       <div class="drama-content">
         <div class="info-item">
           <span class="info-label">제목</span>
-          <p class="info-text">{{ drama.name }}</p>
+          <p class="info-text">{{ drama.title }}</p>
         </div>
         <div class="drama-info">
           <div class="info-item">
             <span class="info-label">인기 지수</span>
             <p class="info-text">{{ drama.popularity }}</p>
           </div>
-          <div class="info-item">
-            <span class="info-label">감독</span>
-            <p class="info-text">
-        <span v-if="drama.directors.length > 0">
-            {{ [...new Set(drama.directors.map(director => director.name))].join(', ') }}
-        </span>
-              <span v-else>정보 없음</span>
-            </p>
+          <div v-if="crew && crew.length > 0" class="info-item">
+            <h4 class="info-label">제작진</h4>
+            <div class="info-text">
+              <span class="info-text">
+                {{ crew[0].name }}
+              </span>
+            </div>
           </div>
-
           <div class="info-item">
             <span class="info-label">줄거리</span>
             <p class="info-text">{{ drama.overview || '설명 없음' }}</p>
           </div>
         </div>
       </div>
+      <!-- 비디오 (트레일러 등) -->
       <div class="trailer-section" v-if="drama.videos && drama.videos.length > 0">
         <iframe
             width="560"
@@ -43,23 +43,27 @@
       </div>
     </div>
 
+    <!-- 즐겨찾기 -->
     <div class="bookmark-container">
-      <img src="@/assets/reviewLogo/like.png" height="20" width="20" class="movie-detail-bookmark" @click="toggleBookmark(drama.id)" />
-      <span style="position: relative; left:0.3%;">{{bookmarkCount}}</span>
+      <img src="@/assets/reviewLogo/like.png" height="20" width="20" class="movie-detail-bookmark"
+           @click="toggleBookmark(drama.id)"/>
+      <span style="position: relative; left:0.3%;">{{ bookmarkCount }}</span>
     </div>
 
+    <!-- 버튼들 -->
     <div class="action-buttons">
       <button class="action-button" @click="goToReviewPage">감상평 보기</button>
       <button class="action-button" @click="goBack">뒤로 가기</button>
     </div>
 
+    <!-- 배우 정보 -->
     <div class="info-item">
       <span class="info-label" style="position: relative; left:-48%; top:20px; font-size: 16.5px; font-weight: bolder">배우 정보</span>
-      <div v-if="drama.actors && drama.actors.length > 0" class="actors-list">
-        <div v-for="actor in drama.actors.slice(0, 5)" :key="actor.id" class="actor-item">
+      <div v-if="actors && actors.length > 0" class="actors-list">
+        <div v-for="actor in actors.slice(0, 5)" :key="actor.id" class="actor-item">
           <img
-              v-if="actor.posterPath"
-              :src="'https://image.tmdb.org/t/p/w200' + actor.posterPath"
+              v-if="actor.profilePath"
+              :src="'https://image.tmdb.org/t/p/w200' + actor.profilePath"
               alt="배우 프로필"
               class="actor-image"
           />
@@ -68,20 +72,37 @@
       </div>
       <p v-else class="info-text">정보 없음</p>
     </div>
-    <div class="bottom-section">
-      <h3 class="section-title">바로가기</h3>
-      <div class="streaming-services">
-        <img class="streaming-logo" src="@/assets/movieDetailLogo/Wacha.png" alt="Wave" @click="goToLink('https://www.watcha.com')" />
-        <img class="streaming-logo" src="@/assets/movieDetailLogo/Wiki.png" alt="Watcha" @click="goToLink('https://www.wavve.com')" />
-        <img class="streaming-logo" src="@/assets/movieDetailLogo/Netfilx.png" alt="Netflix" @click="goToLink('https://www.netflix.com')" />
-        <img class="streaming-logo" src="@/assets/movieDetailLogo/Tiving.png" alt="Tiving" @click="goToLink('https://www.tving.com')" />
 
+    <!-- 유사 TV 시리즈 -->
+    <div v-if="similarTvSeries && similarTvSeries.results && similarTvSeries.results.length > 0"
+         class="similar-tv-series">
+      <h3 class="section-title" style="font-size: 17px;">유사 TV 시리즈</h3>
+      <div class="similar-tv-series-list">
+        <div v-for="tv in similarTvSeries.results.slice(0, 10)" :key="tv.id" class="similar-tv-item"
+             @click="goToTvDetail(tv.id)">
+          <img
+              v-if="tv.posterPath"
+              :src="'https://image.tmdb.org/t/p/w200' + tv.posterPath"
+              alt="유사 TV 시리즈 포스터"
+              class="tv-poster"
+          />
+          <p class="similar-tv-title">{{ tv.name }}</p>
+        </div>
       </div>
     </div>
+
   </div>
 </template>
+
 <script>
-import { fetchDramaDetails, fetchBookmarkCount, toggleBookmark } from '@/api/tv/tvDetail';
+import {
+  fetchDramaDetails,
+  fetchBookmarkCount,
+  toggleBookmark,
+  fetchDramaCredits,
+  fetchDramaVideos,
+  fetchSimilarTvSeries
+} from '@/api/tv/tvDetail';
 
 export default {
   data() {
@@ -89,6 +110,9 @@ export default {
       drama: {},
       bookmarkCount: 0,
       isBookmarked: false,
+      credits: {},
+      videos: [],
+      similarTvSeries: [],
     };
   },
   created() {
@@ -131,9 +155,26 @@ export default {
     },
     async fetchDramaDetails() {
       const dramaId = this.$route.params.id;
+      console.log('Drama ID:', dramaId);
       try {
-        this.drama = await fetchDramaDetails(dramaId);
-        this.bookmarkCount = await fetchBookmarkCount(dramaId);
+
+        const dramaData = await fetchDramaDetails(dramaId);
+        console.log('드라마 상세 정보:', dramaData);
+
+        this.drama = dramaData;
+        this.bookmarkCount = await this.fetchBookmarkCount(dramaId);
+        this.credits = await fetchDramaCredits(dramaId);
+        console.log('출연/제작진:', this.credits);
+
+        this.actors = this.credits.cast || [];
+        this.crew = this.credits.crew || [];
+
+        this.videos = await fetchDramaVideos(dramaId);
+        console.log('비디오 정보:', this.videos);
+
+        this.similarTvSeries = await fetchSimilarTvSeries(dramaId);
+        console.log('유사 TV 시리즈:', this.similarTvSeries);
+
       } catch (error) {
         console.error('드라마 상세 정보를 가져오는 중 오류가 발생했습니다:', error);
       }
@@ -151,10 +192,10 @@ export default {
       this.$router.push({
         name: 'ReviewPage',
         query: {
-          id: String(this.drama.id), // 문자열 변환
-          title: this.drama.title || '제목 없음', // undefined 방지
-          posterPath: this.drama.posterPath || '', // 기본값 설정
-          overview: this.drama.overview || '설명 없음' // undefined 방지
+          id: String(this.drama.id),
+          title: this.drama.title || '제목 없음',
+          posterPath: this.drama.posterPath || '',
+          overview: this.drama.overview || '설명 없음'
         }
       });
     },
@@ -162,9 +203,9 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .drama-detail {
+  min-height: 1150px;
   color: white;
   background-color: black;
   display: flex;
@@ -239,35 +280,13 @@ export default {
   background-color: #555;
 }
 
-.bottom-section {
-  margin-top: 20px;
-  position: relative;
-  top: 50px;
-}
-
 .section-title {
   position: relative;
-  left:-47.8%;
-  top:-10px;
+  text-align: left;
+  top: -10px;
   margin-bottom: 10px;
-  font-size: 18px;
+  font-size: 14px;
   color: #f0f0f0;
-}
-
-.streaming-services {
-  display: flex;
-  gap: 20px;
-}
-
-.streaming-logo {
-  width: 75px;
-  height: 70px;
-  border-radius: 8px;
-  transition: transform 0.3s;
-}
-
-.streaming-logo:hover {
-  transform: scale(1.1);
 }
 
 .trailer-section {
@@ -292,7 +311,7 @@ export default {
   flex-wrap: wrap;
   gap: 10px;
   position: relative;
-  top:40px;
+  top: 40px;
 }
 
 .actor-item {
@@ -306,9 +325,10 @@ export default {
   border-radius: 5px;
 }
 
-.actor-item:hover{
+.actor-item:hover {
   background-color: #555555;
 }
+
 .actor-image {
   width: 100px;
   height: 100px;
@@ -332,11 +352,58 @@ export default {
 
 .bookmark-container {
   display: inline-flex;
-  align-items: center; /* 세로 정렬을 맞추기 위해 추가 */
+  align-items: center;
 }
 
 .movie-detail-bookmark {
   cursor: pointer;
-  margin-right: 5px; /* 이미지와 숫자 간의 간격을 설정 */
+  margin-right: 5px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+.similar-tv-series {
+  margin-top: 40px;
+  border-radius: 10px;
+}
+
+.similar-tv-series-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  justify-items: center;
+}
+
+.similar-tv-item {
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+  background-color: #333;
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.similar-tv-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 15px rgba(255, 255, 255, 0.2);
+}
+
+.tv-poster {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.similar-tv-title {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #ddd;
+  font-weight: bold;
 }
 </style>

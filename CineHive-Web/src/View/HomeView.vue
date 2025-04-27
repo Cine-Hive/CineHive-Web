@@ -282,6 +282,9 @@ export default {
     selectTvCategory(category) {
       this.selectedTvCategory = category;
     },
+    goToTvDetail(tvShowId) {
+      this.$router.push({ name: 'DramaDetail', params: { id: tvShowId } });
+    },
     async loadAnimations() {
       try {
         const nowPlaying = await fetchAnimations();
