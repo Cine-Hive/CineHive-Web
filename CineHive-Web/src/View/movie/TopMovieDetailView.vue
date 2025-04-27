@@ -64,11 +64,10 @@
       </div>
     </div>
 
-    <!-- 추천 영화 섹션 추가 -->
     <div class="similar-movies-section" v-if="similarMovies.length > 0">
-      <h3 class="section-title">추천 영화</h3>
+      <h3 class="section-title">관련 추천 영화</h3>
       <div class="similar-movies-list">
-        <div v-for="similar in similarMovies" :key="similar.id" class="similar-movie-item" @click="goToMovieDetail(similar.id)">
+        <div v-for="similar in similarMovies.slice(0, 10)" :key="similar.id" class="similar-movie-item" @click="goToMovieDetail(similar.id)">
           <img v-if="similar.posterPath" :src="'https://image.tmdb.org/t/p/w200' + similar.posterPath" alt="추천 영화 포스터" />
           <p class="similar-movie-title">{{ similar.title }}</p>
         </div>
@@ -127,6 +126,8 @@ export default {
       if (videoData && videoData.key) {
         this.videoUrl = `https://www.youtube.com/embed/${videoData.key}`;
       }
+      // ⭐ 유사 영화 목록 가져오기
+      this.similarMovies = await fetchSimilarMovies(movieId);
 
       this.movie = await fetchMovieDetails(movieId);
       this.bookmarkCount = await this.fetchBookmarkCount(movieId);
