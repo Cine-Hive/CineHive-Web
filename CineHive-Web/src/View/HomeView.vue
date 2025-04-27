@@ -16,37 +16,9 @@
       <path d="M0,100 Q720,0 1440,100" stroke="white" stroke-width="1" fill="black"/>
     </svg>
 
-    <section class="most-popular-movies">
-      <h2>오늘의 1등 영화</h2>
-      <div class="movie-cards">
-        <div class="movie-card" v-if="mostNowPlayingMovie" @click="goToMovieDetail(mostNowPlayingMovie.id, 'nowPlaying')">
-          <img :src="'https://image.tmdb.org/t/p/w300' + mostNowPlayingMovie.posterPath" alt="movie poster" />
-          <div class="most-movie-title">{{ mostNowPlayingMovie.title }}</div>
-          <div class="movie-category">상영중인 영화</div>
-        </div>
 
-        <div class="movie-card" v-if="mostPopularMovie" @click="goToMovieDetail(mostPopularMovie.id, 'popular')">
-          <img :src="'https://image.tmdb.org/t/p/w300' + mostPopularMovie.posterPath" alt="movie poster" />
-          <div class="most-movie-title">{{ mostPopularMovie.title }}</div>
-          <div class="movie-category">인기 영화</div>
-        </div>
-
-        <div class="movie-card" v-if="mostUpcomingMovie" @click="goToMovieDetail(mostUpcomingMovie.id, 'upcoming')">
-          <img :src="'https://image.tmdb.org/t/p/w300' + mostUpcomingMovie.posterPath" alt="movie poster" />
-          <div class="most-movie-title">{{ mostUpcomingMovie.title }}</div>
-          <div class="movie-category">개봉 예정 영화</div>
-        </div>
-
-        <div class="movie-card" v-if="mostTopRatedMovie" @click="goToMovieDetail(mostTopRatedMovie.id, 'topRated')">
-          <img :src="'https://image.tmdb.org/t/p/w300' + mostTopRatedMovie.posterPath" alt="movie poster" />
-          <div class="most-movie-title">{{ mostTopRatedMovie.title }}</div>
-          <div class="movie-category">역대 평점 영화</div>
-        </div>
-      </div>
-    </section>
-    
     <div class="ott-container">
-      <span style="text-align: left">오늘의 OTT 핫 콘텐츠</span>
+      <span style="text-align: left">각 플랫폼별 인기 콘텐츠</span>
       <div class="ott-tabs">
         <button v-for="(movies, platform) in ottMovies" :key="platform"
                 :class="{ active: selectedPlatform === platform }"
@@ -70,6 +42,52 @@
         </div>
       </div>
     </div>
+
+    <section class="airing-today-tv-series">
+      <div class="home-movie-title">오늘 방영하는 TV 시리즈</div>
+      <div class="tv-series-cards">
+        <div class="tv-series-card" v-for="tvShow in airingTodayTvSeries" :key="tvShow.id" @click="goToTvDetail(tvShow.id)">
+          <img :src="'https://image.tmdb.org/t/p/w300' + tvShow.posterPath" alt="tv series poster" />
+          <div class="tv-series-title">{{ tvShow.name }}</div>
+          <div class="tv-series-category">방영중</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="most-popular-media">
+      <div class="home-movie-title">각 미디어 TOP 1</div>
+      <div class="media-categories">
+        <div v-for="(category, key) in tvCategories" :key="key" class="media-category-section">
+          <div class="media-cards">
+            <div class="media-card" v-if="category[0]" @click="goToTvDetail(category[0].id)">
+              <img :src="'https://image.tmdb.org/t/p/w300' + category[0].posterPath" alt="tv series poster" />
+              <div class="media-title">{{ category[0].name }}</div>
+              <div class="media-category">{{ tvCategoryNames[key] }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div v-for="(category, key) in animationCategories" :key="key" class="media-category-section">
+          <div class="media-cards">
+            <div class="media-card" v-if="category[0]" @click="goToAnimationDetail(category[0].id)">
+              <img :src="'https://image.tmdb.org/t/p/w300' + category[0].posterPath" alt="animation poster" />
+              <div class="media-title">{{ category[0].title }}</div>
+              <div class="media-category">{{ animationCategoryNames[key] }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div v-for="(category, key) in movieCategories" :key="key" class="media-category-section">
+          <div class="media-cards">
+            <div class="media-card" v-if="category[0]" @click="goToMovieDetail(category[0].id, key)">
+              <img :src="'https://image.tmdb.org/t/p/w300' + category[0].posterPath" alt="movie poster" />
+              <div class="media-title">{{ category[0].title }}</div>
+              <div class="media-category">{{ categoryNames[key] }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <div class="movie-section-container">
       <div class="home-movie-title"><span style="color:red;">CINEHIVE</span>의 오늘의 애니메이션</div>
@@ -172,7 +190,7 @@ import { mapState } from 'vuex';
 import { fetchOttMovies } from '@/api/ott/ott';
 import { fetchMovies, fetchTopMovies, fetchUpcomingMovies, fetchPopularMovies, fetchPreferredGenres, searchMovies } from '@/api/movie/movie';
 import { fetchAnimations, fetchUpcomingAnimations, fetchTopAnimations, fetchPopularAnimations } from '@/api/animation/animation';
-import {fetchPopularTvSeries,fetchTopRatedTvSeries,fetchOnTheAirTvSeries} from '@/api/drama/drama'
+import {fetchPopularTvSeries,fetchTopRatedTvSeries,fetchOnTheAirTvSeries, fetchAiringTodayTvSeries} from '@/api/drama/drama'
 import SearchBar from "@/components/SearchBar.vue";
 
 export default {
@@ -180,13 +198,13 @@ export default {
   data() {
     return {
       tvCategories: {
-        upcoming: [],
+        onTheAir: [],
         topRated: [],
         popular: []
       },
-      selectedTvCategory: 'nowPlaying',
+      selectedTvCategory: 'onTheAir',
       tvCategoryNames: {
-        upcoming: '개봉 예정 TV',
+        onTheAir: '방영 중인 TV',
         topRated: '역대 평점 TV',
         popular: '인기 TV'
       },
@@ -221,6 +239,7 @@ export default {
         popular: '인기 영화'
       },
       prefer: [],
+      airingTodayTvSeries: [],  // 오늘 방영하는 TV 시리즈 데이터를 저장할 변수
       showMore: false,
       showSearchButton: false,
       searchQuery: '',
@@ -248,16 +267,16 @@ export default {
   methods: {
     async loadTvShows() {
       try {
-        const nowPlaying = await fetchOnTheAirTvSeries();
-        const upcoming = await fetchPopularTvSeries();
+        const onTheAir = await fetchOnTheAirTvSeries();
         const topRated = await fetchTopRatedTvSeries();
         const popular = await fetchPopularTvSeries();
 
-        this.tvCategories.nowPlaying = nowPlaying;
-        this.tvCategories.upcoming = upcoming;
+        this.tvCategories.onTheAir = onTheAir;
         this.tvCategories.topRated = topRated;
         this.tvCategories.popular = popular;
 
+        const airingToday = await fetchAiringTodayTvSeries();
+        this.airingTodayTvSeries = airingToday;
       } catch (error) {
         console.error('TV 데이터를 가져오는 중 오류가 발생했습니다:', error);
       }
@@ -1036,7 +1055,6 @@ h1 {
 
 .most-popular-movies {
   padding: 60px 40px;
-  background-color: #090b09;
   color: white;
   text-align: center;
   height: 450px;
@@ -1136,4 +1154,168 @@ h1 {
   margin-bottom: 12px;
 }
 
+.airing-today-tv-series {
+  color: #fff; /* 글자 색상을 흰색으로 */
+  padding: 40px 20px;
+}
+
+.airing-today-tv-series h2 {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 30px;
+  font-family: 'Arial', sans-serif;
+  letter-spacing: 1px;
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.tv-series-cards {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding-bottom: 20px;
+  scroll-snap-type: x mandatory;
+}
+
+.tv-series-card {
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  width: 250px;
+}
+
+.tv-series-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.tv-series-card img {
+  width: 80%;
+  height: 250px;
+  object-fit: cover;
+  border-bottom: 2px solid #333;
+}
+
+.tv-series-title {
+  font-size: 1.2rem;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.tv-series-category {
+  font-size: 0.9rem;
+  color: #aaa;
+  text-align: center;
+  padding-bottom: 10px;
+}
+
+@media screen and (max-width: 768px) {
+  .airing-today-tv-series h2 {
+    font-size: 1.8rem;
+  }
+
+  .tv-series-cards {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .tv-series-card {
+    margin: 0 10px;
+  }
+
+  .tv-series-card img {
+    height: 350px;
+  }
+
+  .tv-series-title {
+    font-size: 1rem;
+  }
+
+  .tv-series-category {
+    font-size: 0.8rem;
+  }
+}
+.most-popular-media {
+  padding: 40px 20px;
+  color: #fff;
+}
+
+.media-categories {
+  display: flex;
+  flex-direction: row; /* 세로가 아닌 가로로 나열 */
+  gap: 20px; /* 카드 사이 간격 */
+  overflow-x: auto; /* 가로 스크롤 허용 */
+  padding-bottom: 20px;
+}
+
+.media-category-section {
+  flex: 1;
+}
+
+.media-category-title {
+  font-size: 1rem;
+  color: #fff;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.media-card {
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 250px; /* 카드의 고정된 너비 */
+  margin: 10px;
+}
+
+.media-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.media-card img {
+  width: 66%;
+  height: 200px;
+  object-fit: cover;
+  border-bottom: 2px solid #333;
+}
+
+.media-title {
+  font-size: 1.2rem;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.media-category {
+  font-size: 0.9rem;
+  color: #aaa;
+  text-align: center;
+  padding-bottom: 10px;
+}
+
+@media screen and (max-width: 768px) {
+  .home-media-title {
+    font-size: 1.8rem;
+  }
+
+  .media-card {
+    width: 180px; /* 모바일에서 카드 크기 조정 */
+  }
+
+  .media-title {
+    font-size: 1rem;
+  }
+
+  .media-category {
+    font-size: 0.8rem;
+  }
+}
 </style>

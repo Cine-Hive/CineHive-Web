@@ -36,3 +36,19 @@ export const fetchOnTheAirTvSeries = async () => {
         throw error;
     }
 };
+
+// 오늘 방영하는 TV 시리즈 목록 가져오기
+export const fetchAiringTodayTvSeries = async (page = 1, sort = 'popularity.desc') => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/tv/airing-today`, {
+            params: {
+                page: page,
+                sort: sort
+            }
+        });
+        return response.data.results.slice(0, 18);  // 첫 18개 항목만 가져오기
+    } catch (error) {
+        console.error('오늘 방영하는 TV 시리즈 목록을 가져오는 중 오류 발생:', error);
+        throw error;
+    }
+};
