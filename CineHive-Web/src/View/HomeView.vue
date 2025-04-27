@@ -16,6 +16,35 @@
       <path d="M0,100 Q720,0 1440,100" stroke="white" stroke-width="1" fill="black"/>
     </svg>
 
+    <section class="most-popular-movies">
+      <h2>오늘의 1등 영화</h2>
+      <div class="movie-cards">
+        <div class="movie-card" v-if="mostNowPlayingMovie" @click="goToMovieDetail(mostNowPlayingMovie.id, 'nowPlaying')">
+          <img :src="'https://image.tmdb.org/t/p/w300' + mostNowPlayingMovie.posterPath" alt="movie poster" />
+          <div class="most-movie-title">{{ mostNowPlayingMovie.title }}</div>
+          <div class="movie-category">상영중인 영화</div>
+        </div>
+
+        <div class="movie-card" v-if="mostPopularMovie" @click="goToMovieDetail(mostPopularMovie.id, 'popular')">
+          <img :src="'https://image.tmdb.org/t/p/w300' + mostPopularMovie.posterPath" alt="movie poster" />
+          <div class="most-movie-title">{{ mostPopularMovie.title }}</div>
+          <div class="movie-category">인기 영화</div>
+        </div>
+
+        <div class="movie-card" v-if="mostUpcomingMovie" @click="goToMovieDetail(mostUpcomingMovie.id, 'upcoming')">
+          <img :src="'https://image.tmdb.org/t/p/w300' + mostUpcomingMovie.posterPath" alt="movie poster" />
+          <div class="most-movie-title">{{ mostUpcomingMovie.title }}</div>
+          <div class="movie-category">개봉 예정 영화</div>
+        </div>
+
+        <div class="movie-card" v-if="mostTopRatedMovie" @click="goToMovieDetail(mostTopRatedMovie.id, 'topRated')">
+          <img :src="'https://image.tmdb.org/t/p/w300' + mostTopRatedMovie.posterPath" alt="movie poster" />
+          <div class="most-movie-title">{{ mostTopRatedMovie.title }}</div>
+          <div class="movie-category">역대 평점 영화</div>
+        </div>
+      </div>
+    </section>
+    
     <div class="ott-container">
       <span style="text-align: left">오늘의 OTT 핫 콘텐츠</span>
       <div class="ott-tabs">
@@ -38,11 +67,8 @@
               <span class="movie-overview">{{ movie.overview.length > 100 ? movie.overview.substring(0, 100) + '...' : movie.overview }}</span>
             </div>
           </div>
-
-
         </div>
       </div>
-
     </div>
 
     <div class="movie-section-container">
@@ -104,35 +130,6 @@
         </div>
       </div>
     </div>
-
-    <section class="most-popular-movies">
-      <h2>오늘의 1등 영화</h2>
-      <div class="movie-cards">
-        <div class="movie-card" v-if="mostNowPlayingMovie" @click="goToMovieDetail(mostNowPlayingMovie.id, 'nowPlaying')">
-          <img :src="'https://image.tmdb.org/t/p/w300' + mostNowPlayingMovie.posterPath" alt="movie poster" />
-          <div class="most-movie-title">{{ mostNowPlayingMovie.title }}</div>
-          <div class="movie-category">상영중인 영화</div>
-        </div>
-
-        <div class="movie-card" v-if="mostPopularMovie" @click="goToMovieDetail(mostPopularMovie.id, 'popular')">
-          <img :src="'https://image.tmdb.org/t/p/w300' + mostPopularMovie.posterPath" alt="movie poster" />
-          <div class="most-movie-title">{{ mostPopularMovie.title }}</div>
-          <div class="movie-category">인기 영화</div>
-        </div>
-
-        <div class="movie-card" v-if="mostUpcomingMovie" @click="goToMovieDetail(mostUpcomingMovie.id, 'upcoming')">
-          <img :src="'https://image.tmdb.org/t/p/w300' + mostUpcomingMovie.posterPath" alt="movie poster" />
-          <div class="most-movie-title">{{ mostUpcomingMovie.title }}</div>
-          <div class="movie-category">개봉 예정 영화</div>
-        </div>
-
-        <div class="movie-card" v-if="mostTopRatedMovie" @click="goToMovieDetail(mostTopRatedMovie.id, 'topRated')">
-          <img :src="'https://image.tmdb.org/t/p/w300' + mostTopRatedMovie.posterPath" alt="movie poster" />
-          <div class="most-movie-title">{{ mostTopRatedMovie.title }}</div>
-          <div class="movie-category">역대 평점 영화</div>
-        </div>
-      </div>
-    </section>
 
     <section class="prefer-genre">
       <h2 class="section-title">
@@ -1042,6 +1039,7 @@ h1 {
   background-color: #090b09;
   color: white;
   text-align: center;
+  height: 450px;
 }
 
 .most-popular-movies h2 {
@@ -1118,10 +1116,13 @@ h1 {
 }
 
 .most-popular-movies .movie-card img {
-  width: 100%;
-  height: auto;
+  width: 70%;  /* 고정 너비로 설정 */
   display: block;
+  object-fit: cover;  /* 이미지 비율을 유지하면서 크기를 맞춤 */
+  position: relative;
+  left:30px;
 }
+
 
 .most-popular-movies .movie-title {
   font-size: 1rem;
