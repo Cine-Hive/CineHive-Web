@@ -85,6 +85,26 @@
       </div>
     </div>
 
+    <div class="movie-section-container">
+      <div class="home-movie-title"><span style="color:red;">CINEHIVE</span>의 오늘의 TV</div>
+      <div class="movie-tabs">
+        <button v-for="(tvShows, category) in tvCategories" :key="category"
+                :class="{ active: selectedTvCategory === category }"
+                @click="selectTvCategory(category)">
+          {{ tvCategoryNames[category] }}
+        </button>
+      </div>
+
+      <div class="movie-content" v-if="selectedTvCategory">
+        <div class="top-slider">
+          <div class="movie-card" v-for="tvShow in tvCategories[selectedTvCategory]" :key="tvShow.id"
+               @click="goToTvDetail(tvShow.id, selectedTvCategory)">
+            <img :src="'https://image.tmdb.org/t/p/w300' + tvShow.posterPath" alt="tv poster" />
+          </div>
+        </div>
+      </div>
+    </div>
+
     <section class="most-popular-movies">
       <h2>오늘의 1등 영화</h2>
       <div class="movie-cards">
@@ -153,23 +173,26 @@
 <script>
 import { mapState } from 'vuex';
 import { fetchOttMovies } from '@/api/ott/ott';
-import {
-  fetchMovies,
-  fetchTopMovies,
-  fetchUpcomingMovies,
-  fetchPopularMovies,
-  fetchPreferredGenres,
-  searchMovies
-} from '@/api/movie/movie';
-
+import { fetchMovies, fetchTopMovies, fetchUpcomingMovies, fetchPopularMovies, fetchPreferredGenres, searchMovies } from '@/api/movie/movie';
 import { fetchAnimations, fetchUpcomingAnimations, fetchTopAnimations, fetchPopularAnimations } from '@/api/animation/animation';
-
+import {fetchPopularTvSeries,fetchTopRatedTvSeries,fetchOnTheAirTvSeries} from '@/api/drama/drama'
 import SearchBar from "@/components/SearchBar.vue";
 
 export default {
   components: { SearchBar },
   data() {
     return {
+      tvCategories: {
+        upcoming: [],
+        topRated: [],
+        popular: []
+      },
+      selectedTvCategory: 'nowPlaying',
+      tvCategoryNames: {
+        upcoming: '개봉 예정 TV',
+        topRated: '역대 평점 TV',
+        popular: '인기 TV'
+      },
       animationCategories: {
         nowPlaying: [],
         upcoming: [],
@@ -226,6 +249,25 @@ export default {
   },
 
   methods: {
+    async loadTvShows() {
+      try {
+        const nowPlaying = await fetchOnTheAirTvSeries();
+        const upcoming = await fetchPopularTvSeries();
+        const topRated = await fetchTopRatedTvSeries();
+        const popular = await fetchPopularTvSeries();
+
+        this.tvCategories.nowPlaying = nowPlaying;
+        this.tvCategories.upcoming = upcoming;
+        this.tvCategories.topRated = topRated;
+        this.tvCategories.popular = popular;
+
+      } catch (error) {
+        console.error('TV 데이터를 가져오는 중 오류가 발생했습니다:', error);
+      }
+    },
+    selectTvCategory(category) {
+      this.selectedTvCategory = category;
+    },
     async loadAnimations() {
       try {
         const nowPlaying = await fetchAnimations();
@@ -354,6 +396,7 @@ export default {
     }
   },
   mounted() {
+    this.loadTvShows();
     this.loadAnimations(); // 추가
     this.loadOttMovies();
     this.loadMovies();
