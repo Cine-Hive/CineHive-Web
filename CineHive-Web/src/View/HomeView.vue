@@ -653,6 +653,11 @@ h1 {
   background-color: #555;
 }
 
+.search-bar {
+  position: relative;
+  top: -50px;
+  text-align: right;
+}
 .search-bar input {
   width: 80%;
   max-width: 600px;
