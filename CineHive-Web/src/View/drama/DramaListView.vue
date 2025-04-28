@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { fetchDramas } from '@/api/tv/tvList';
+import { fetchDramasSearch } from '@/api/tv/tvList';
 import { fetchPopularTvSeries, fetchTopRatedTvSeries, fetchOnTheAirTvSeries, fetchAiringTodayTvSeries } from '@/api/tv/tv';
 
 export default {
@@ -122,7 +122,7 @@ export default {
         return;
       }
       try {
-        const data = await fetchDramas(this.searchQuery, this.page);
+        const data = await fetchDramasSearch(this.searchQuery, this.page);
         this.dramas = data.results || [];
       } catch (error) {
         console.error('드라마 검색 중 오류 발생:', error);
