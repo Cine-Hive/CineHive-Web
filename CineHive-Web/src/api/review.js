@@ -1,7 +1,8 @@
 //ReviewView.vue
 
 import axios from "axios";
-
+import store from '@/store';
+import router from '@/router/router';
 const API_BASE_URL = "http://localhost:8081/reply";
 
 export const fetchReviews = async (movieId) => {
@@ -21,8 +22,18 @@ export const toggleLike = async (replyId, movieId, token) => {
             headers: { Authorization: `Bearer ${token}` },
         });
     } catch (error) {
-        console.error("좋아요 처리 중 오류 발생:", error);
-        throw error;
+        if (error.response && error.response.status === 403) {
+            alert('로그아웃 되었습니다. 다시 로그인해 주세요.');
+            store.commit('SET_LOGOUT');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('loginType');
+            router.push('/auth');
+        } else {
+            console.error("좋아요 처리 중 오류 발생:", error);
+            throw error;
+        }
     }
 };
 
@@ -33,8 +44,18 @@ export const toggleDislike = async (replyId, movieId, token) => {
             headers: { Authorization: `Bearer ${token}` },
         });
     } catch (error) {
-        console.error("싫어요 처리 중 오류 발생:", error);
-        throw error;
+        if (error.response && error.response.status === 403) {
+            alert('로그아웃 되었습니다. 다시 로그인해 주세요.');
+            store.commit('SET_LOGOUT');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('loginType');
+            router.push('/auth');
+        } else {
+            console.error("싫어요 처리 중 오류 발생:", error);
+            throw error;
+        }
     }
 };
 
@@ -69,8 +90,18 @@ export const submitReview = async (movieId, nickname, text, token) => {
             headers: { Authorization: `Bearer ${token}` },
         });
     } catch (error) {
-        console.error("감상평 등록 중 오류 발생:", error);
-        throw error;
+        if (error.response && error.response.status === 403) {
+            alert('로그아웃 되었습니다. 다시 로그인해 주세요.');
+            store.commit('SET_LOGOUT');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('loginType');
+            router.push('/auth');
+        } else {
+            console.error("감상평 등록 중 오류 발생:", error);
+            throw error;
+        }
     }
 };
 
@@ -80,7 +111,17 @@ export const deleteReview = async (movieId, replyId, token) => {
             headers: { Authorization: `Bearer ${token}` },
         });
     } catch (error) {
-        console.error("감상평 삭제 중 오류 발생:", error);
-        throw error;
+        if (error.response && error.response.status === 403) {
+            alert('로그아웃 되었습니다. 다시 로그인해 주세요.');
+            store.commit('SET_LOGOUT');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('loginType');
+            router.push('/auth');
+        } else {
+            console.error("감상평 삭제 중 오류 발생:", error);
+            throw error;
+        }
     }
 };
