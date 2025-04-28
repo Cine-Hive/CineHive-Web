@@ -11,9 +11,10 @@
         <ReportModal
             :showModal="showReportModal"
             :boardId="board.id"
-            :userEmail="user.email"
+            :userEmail="user ? user.email : null"
             @close="showReportModal = false"
         />
+
 
         <span @click="toggleBookmark" :style="{ cursor: 'pointer', color: isBookmarked(board.id) ? 'gold' : 'gray' }">⭐</span>
         {{ board.bookmarkCount }}
@@ -107,7 +108,7 @@ export default {
     }),
     ...mapGetters(['isBookmarked', 'isLiked', 'isDisliked']),
     isAuthor() {
-      return this.user.email === this.board.memEmail;
+      return this.user && this.user.email === this.board.memEmail;
     }
   },
   mounted() {
