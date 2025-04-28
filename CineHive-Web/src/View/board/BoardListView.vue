@@ -150,7 +150,7 @@ export default {
 <style scoped>
 .board-list {
   padding: 20px;
-  width: 75%;
+  width: 63%;
   margin: auto;
   border-radius: 10px;
   min-height: 1250px;

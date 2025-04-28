@@ -16,6 +16,7 @@
         />
 
 
+
         <span @click="toggleBookmark" :style="{ cursor: 'pointer', color: isBookmarked(board.id) ? 'gold' : 'gray' }">⭐</span>
         {{ board.bookmarkCount }}
         <span @click="toggleLike" :style="{ cursor: 'pointer', color: isLiked(board.id) ? 'yellow' : 'gray' }">👍</span>
@@ -53,7 +54,7 @@
 
           <span class="comment-content">{{ comment.content }}</span>
 
-          <button v-if="comment.memEmail === user.email" @click="deleteComment(comment.id)" class="delete-comment-btn">삭제</button>
+          <button v-if="user && user.email && comment.memEmail && comment.memEmail === user.email" @click="deleteComment(comment.id)" class="delete-comment-btn">삭제</button>
 
 
           <div v-if="index < comments.length - 1" class="comment-separator"></div>
