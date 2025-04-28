@@ -9,6 +9,7 @@
 <script>
 import HeaderComponent from './components/Header.vue';
 import FooterComponent from './components/Footer.vue';
+import { mapMutations } from 'vuex';
 
 export default {
   name: 'App',
@@ -28,6 +29,19 @@ export default {
     const token = localStorage.getItem('token');
     if (token) {
       this.$store.commit('SET_LOGIN', true);
+    } else {
+      this.handleAutoLogout();
+    }
+  },
+  methods: {
+    ...mapMutations(['SET_LOGOUT']),
+    handleAutoLogout() {
+      this.SET_LOGOUT();
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('user');
+      localStorage.removeItem('loginType');
+      localStorage.removeItem('token');
+      this.$router.push('/auth');
     }
   }
 }

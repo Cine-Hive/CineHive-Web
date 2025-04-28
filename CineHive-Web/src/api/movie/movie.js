@@ -44,25 +44,6 @@
         }
     };
 
-    export const fetchPreferredGenres = async (genres) => {
-        try {
-            const response = await axios.post(`${API_URL}/preferredGenres`, { genres });
-            const uniqueMovies = [];
-            const movieIds = new Set();
-
-            response.data.forEach(movie => {
-                if (!movieIds.has(movie.id)) {
-                    movieIds.add(movie.id);
-                    uniqueMovies.push(movie);
-                }
-            });
-
-            return uniqueMovies.slice(0, 18);
-        } catch (error) {
-            console.error('선호 장르 데이터를 가져오는 중 오류가 발생했습니다:', error);
-            throw error;
-        }
-    };
 
     export const searchMovies = async (query) => {
         try {
