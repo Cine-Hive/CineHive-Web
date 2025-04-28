@@ -41,7 +41,9 @@ export default {
       localStorage.removeItem('user');
       localStorage.removeItem('loginType');
       localStorage.removeItem('token');
-      this.$router.push('/auth');
+      if (this.$route.path !== '/auth') {
+        this.$router.push('/auth');
+      }
     }
   }
 }
