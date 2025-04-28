@@ -1,6 +1,7 @@
 //BoardEditView.vue
-
 import axios from 'axios';
+import store from '@/store'
+import router from '@/router/router'
 
 const API_BASE_URL = 'http://localhost:8081';
 
@@ -8,14 +9,13 @@ const API_BASE_URL = 'http://localhost:8081';
 export const fetchBoardDetail = async (boardId) => {
     try {
         const response = await axios.get(`${API_BASE_URL}/boards/${boardId}`);
-        return response.data; // 게시글 상세 데이터
+        return response.data;
     } catch (error) {
         console.error('게시글 조회에 실패했습니다:', error);
-        throw error; // 에러 처리
+        throw error;
     }
 };
 
-// 게시글 수정 요청 함수
 export const updateBoardPost = async (boardId, memEmail, brdTitle, brdContent, token) => {
     try {
         const response = await axios.put(
@@ -23,9 +23,19 @@ export const updateBoardPost = async (boardId, memEmail, brdTitle, brdContent, t
             { memEmail, brdTitle, brdContent },
             { headers: { Authorization: `Bearer ${token}` } }
         );
-        return response.data; // 수정된 게시글 응답
+        return response.data;
     } catch (error) {
-        console.error('게시물 수정에 실패했습니다.', error);
-        throw error; // 에러 처리
+        if (error.response && error.response.status === 403) {
+            alert('로그아웃 되었습니다. 다시 로그인해 주세요.');
+            store.commit('SET_LOGOUT');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('loginType');
+            router.push('/auth');
+        } else {
+            console.error('게시물 수정에 실패했습니다.', error);
+            throw error;
+        }
     }
 };

@@ -1,8 +1,10 @@
 //CreateBoardView.vue
 
 import axios from 'axios';
-
+import store from '@/store'; // Vuex store import
+import router from '@/router/router'; // router import
 const API_BASE_URL = 'http://localhost:8081';
+
 
 // 게시글 등록 요청 함수
 export const createBoardPost = async (brdTitle, brdContent, token) => {
@@ -16,9 +18,19 @@ export const createBoardPost = async (brdTitle, brdContent, token) => {
             }
         });
 
-        return response.data; // 성공적으로 등록된 게시글의 응답
+        return response.data;
     } catch (error) {
-        console.error('게시물 등록에 실패했습니다.', error);
-        throw error; // 실패 시 에러를 던짐
+        if (error.response && error.response.status === 403) {
+            alert('로그아웃 되었습니다. 다시 로그인해 주세요.');
+            store.commit('SET_LOGOUT');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('loginType');
+            router.push('/auth');
+        } else {
+            console.error('게시물 등록에 실패했습니다.', error);
+            throw error;
+        }
     }
 };
