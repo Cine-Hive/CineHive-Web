@@ -355,14 +355,19 @@ export default {
 .popup-content {
   background: black;
   color: white;
-  padding: 30px;
   border-radius: 10px;
-  width: 450px;
+  width: 600px;
+  min-height: 300px;
   text-align: center;
   z-index: 1001;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
+.popup-content{
+  font-size: 13px;
+  font-weight: bold;
+  text-align: left;
+}
 textarea {
   width: 100%;
   height: 120px;
