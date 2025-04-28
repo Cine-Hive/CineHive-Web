@@ -174,7 +174,6 @@ export default {
   font-family: 'Arial', sans-serif;
 }
 
-/* 검색 안내 텍스트 */
 .search-guide {
   font-size: 16px;
   margin-bottom: 20px;
@@ -238,35 +237,34 @@ export default {
 
 .movie-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr); /* 한 줄에 8개씩 표시 */
-  gap: 20px; /* 카드 간의 간격 */
-  justify-items: center; /* 항목들을 가운데 정렬 */
+  grid-template-columns: repeat(8, 1fr);
+  gap: 20px;
+  justify-items: center;
   padding: 10px;
 }
 
-/* 영화 카드 스타일 */
 .movie-card {
   background-color: #1c1c1c;
   border-radius: 15px;
   padding: 15px;
-  width: 160px; /* 카드의 고정된 너비 */
+  width: 160px;
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* 카드에 그림자 효과 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .movie-card:hover {
-  transform: translateY(-8px); /* 마우스 오버 시 부드러운 상승 효과 */
+  transform: translateY(-8px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 }
 
 /* 영화 포스터 */
 .movie-poster {
   width: 100%;
-  height: 200px; /* 고정된 높이 */
+  height: 200px;
   object-fit: cover;
   border-radius: 10px;
-  margin-bottom: 15px; /* 이미지와 제목 사이의 간격 */
+  margin-bottom: 15px;
 }
 
 /* 영화 제목 */
