@@ -28,6 +28,7 @@ axios.interceptors.response.use(
 );
 
 // 초기 스토어 세팅 후 앱 마운트
+Vue.config.productionTip = false
 store.dispatch('initializeStore').then(() => {
     new Vue({
         store,
