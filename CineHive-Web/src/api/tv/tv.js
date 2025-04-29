@@ -46,6 +46,7 @@ export const fetchAiringTodayTvSeries = async (page = 1, sort = 'popularity.desc
                 sort: sort
             }
         });
+        console.log("res",response.data);
         return response.data.results.slice(0, 18);  // 첫 18개 항목만 가져오기
     } catch (error) {
         console.error('오늘 방영하는 TV 시리즈 목록을 가져오는 중 오류 발생:', error);

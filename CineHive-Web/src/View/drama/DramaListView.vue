@@ -25,14 +25,35 @@
                 :alt="drama.name"
                 class="drama-poster"
             />
-            <p class="drama-title">{{ drama.name }}</p>
+            <p class="drama-title">{{ drama.title }}</p>
           </div>
         </div>
       </div>
     </div>
 
+    <div class="airing-today-drama-section">
+      <div class="airing-today-drama-title">
+        <span >TODAY 방영하는 TV 시리즈</span>
+      </div>
+      <div class="airing-today-drama-grid">
+        <div
+            class="airing-today-drama-card"
+            v-for="drama in dramaCategories.airingToday"
+            :key="drama.id"
+            @click="goToDramaDetail(drama.id, 'airingToday')"
+        >
+          <img
+              :src="'https://image.tmdb.org/t/p/w300' + drama.posterPath"
+              :alt="drama.name"
+              class="airing-today-drama-poster"
+          />
+          <p class="airing-today-drama-name">{{ drama.title }}</p>
+        </div>
+      </div>
+    </div>
+
     <div class="drama-section-container">
-      <div class="home-drama-title"><span style="color:red;">CINEHIVE</span>의 오늘의 드라마</div>
+      <div class="home-drama-title"><span style="color:red;">CINEHIVE</span>의 다양한 TV</div>
       <div class="drama-tabs">
         <button v-for="(dramas, category) in dramaCategories" :key="category"
                 :class="{ active: selectedCategory === category }"
@@ -74,10 +95,10 @@ export default {
       },
       selectedCategory: 'popular',
       categoryNames: {
-        popular: '인기 드라마',
-        topRated: '역대 평점 드라마',
-        onAir: '방영 중인 드라마',
-        airingToday: '오늘 방영 드라마'
+        popular: '인기 TV',
+        topRated: '역대 평점 TV',
+        onAir: '방영 중인 TV',
+        airingToday: '오늘 방영 TV'
       },
       searchQuery: '',
       dramas: [],
@@ -372,6 +393,71 @@ export default {
   position: absolute;
   bottom: -2px;
   left: 0;
+}
+
+.airing-today-drama-section {
+  padding: 40px 20px;
+  background: #121212;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  margin-top: 60px;
+}
+
+.airing-today-drama-title {
+  text-align: left;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 24px;
+  padding-left: 10px;
+  border-left: 4px solid red;
+}
+
+.airing-today-drama-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 24px;
+}
+
+.airing-today-drama-card {
+  background: #1e1e1e;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.05);
+}
+
+.airing-today-drama-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.1);
+}
+
+.airing-today-drama-poster {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.airing-today-drama-name {
+  margin-top: 10px;
+  padding: 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #f5f5f5;
+  text-align: center;
+  line-height: 1.4;
+  max-height: 3.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 </style>
