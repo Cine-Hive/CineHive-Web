@@ -31,7 +31,7 @@
               <li @click="openChangeName">이름 변경</li>
               <li @click="goToPasswordChange">비밀번호 변경</li>
               <li @click="openChangeSex">성별 변경</li>
-              <li>회원 탈퇴</li>
+              <li @click="goToDeleteAccount">회원 탈퇴</li>
             </ul>
           </div>
         </div>
@@ -69,6 +69,12 @@ export default {
     }
   },
   methods: {
+    goToDeleteAccount() {
+      const targetPath = '/mypage/delete-account';
+      if (this.$route.path !== targetPath) {
+        this.$router.push(targetPath);
+      }
+    },
     goToDislikedReplies() {
       const targetPath = '/mypage/disliked-replies';
       if (this.$route.path !== targetPath) {

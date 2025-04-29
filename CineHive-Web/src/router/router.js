@@ -161,7 +161,13 @@ const routes = [
         path: '/mypage/disliked-replies',
         name: 'UserDislikedReplies',
         component: () => import('@/View/user/UserDislikedReplies.vue')
-    }
+    },
+    {
+        path: '/mypage/delete-account',
+        name: 'UserDeleteAccount',
+        component: () => import('@/View/user/UserDeleteAccount.vue')
+    },
+
 
 ];
 
