@@ -17,3 +17,4 @@ export const fetchDramasSearch = async (query, page = 1) => {
         throw error;
     }
 };
+ 
