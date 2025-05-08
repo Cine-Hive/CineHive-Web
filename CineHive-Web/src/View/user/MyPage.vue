@@ -70,7 +70,7 @@ export default {
   },
   methods: {
     goToDeleteAccount() {
-      const targetPath = '/mypage/delete-account';
+      const targetPath = '/myInfo/delete-account';
       if (this.$route.path !== targetPath) {
         this.$router.push(targetPath);
       }
@@ -128,19 +128,19 @@ export default {
       }
 
     },goToPasswordChange() {
-      const targetPath = '/mypage/password-change';
+      const targetPath = '/myInfo/password-change';
       if (this.$route.path !== targetPath) {
         this.$router.push(targetPath).then(() => window.location.reload());
       }
     },
     openChangeName() {
-      const targetPath = '/mypage/name-change';
+      const targetPath = '/myInfo/name-change';
       if (this.$route.path !== targetPath) {
         this.$router.push(targetPath);
       }
     },
     openChangeSex() {
-      const targetPath = '/mypage/sex-change';
+      const targetPath = '/myInfo/sex-change';
       if (this.$route.path !== targetPath) {
         this.$router.push(targetPath);
       }
@@ -155,7 +155,7 @@ export default {
       }
 
       try {
-        const { data } = await axios.get('http://localhost:8081/myPage/info', {
+        const { data } = await axios.get('http://localhost:8081/myInfo/info', {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.user = data;
