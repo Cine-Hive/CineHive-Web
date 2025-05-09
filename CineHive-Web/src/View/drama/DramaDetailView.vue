@@ -96,33 +96,108 @@
 
 <script>
 import {
-  fetchDramaDetails,
+  fetchMediaDetails,
   fetchBookmarkCount,
   toggleBookmark,
-  fetchDramaCredits,
-  fetchDramaVideos,
-  fetchSimilarTvSeries
 } from '@/api/tv/tvDetail';
 
 export default {
   data() {
     return {
-      drama: {},
+      drama: null,
       bookmarkCount: 0,
       isBookmarked: false,
-      credits: {},
       videos: [],
+      credits: null,
+      directors: [],
+      actors: [],
+      crew: [],
       similarTvSeries: [],
     };
   },
-  created() {
-    this.fetchDramaDetails();
+  async created() {
+    const dramaId = this.$route.params.id;
+    const mediaType = 'tv';
+    if (dramaId) {
+      await this.fetchMediaDetailsAndRelated(mediaType, dramaId);
+    }
   },
   watch: {
-    '$route.params.id': 'fetchDramaDetails',
+    '$route.params.id': {
+      handler: 'handleRouteChange',
+    },
   },
   methods: {
+    async handleRouteChange() {
+      const dramaId = this.$route.params.id;
+      const mediaType = 'tv';
+      window.scrollTo(0, 0);
+      this.drama = null;
+      this.bookmarkCount = 0;
+      this.isBookmarked = false;
+      this.videos = [];
+      this.credits = null;
+      this.directors = [];
+      this.actors = [];
+      this.crew = [];
+      this.similarTvSeries = [];
+      if (dramaId) {
+        await this.fetchMediaDetailsAndRelated(mediaType, dramaId);
+      }
+    },
+
+    async fetchMediaDetailsAndRelated(mediaType, mediaId) {
+      try {
+        console.log(`[fetchMediaDetailsAndRelated] 미디어 상세 정보 요청 시작: ${mediaType}, ID: ${mediaId}`);
+        const responseData = await fetchMediaDetails(mediaType, mediaId);
+        console.log('[fetchMediaDetailsAndRelated] API 응답 데이터:', responseData);
+
+        this.drama = responseData.mediaInfo || null;
+        this.videos = responseData.videos || [];
+        this.credits = responseData.credits || null;
+        this.similarTvSeries = responseData.similar || [];
+
+        console.log('[fetchMediaDetailsAndRelated] 추출된 mediaInfo:', this.drama);
+        console.log('[fetchMediaDetailsAndRelated] 추출된 videos:', this.videos);
+        console.log('[fetchMediaDetailsAndRelated] 추출된 credits:', this.credits);
+        console.log('[fetchMediaDetailsAndRelated] 추출된 similar:', this.similarTvSeries);
+
+        if (this.credits) {
+          this.actors = this.credits.cast || [];
+          console.log('[fetchMediaDetailsAndRelated] 처리된 actors:', this.actors);
+
+          this.crew = this.credits.crew || [];
+          console.log('[fetchMediaDetailsAndRelated] 처리된 crew:', this.crew);
+
+          this.directors = this.crew.filter(member => member.job === "Director") || [];
+          console.log('[fetchMediaDetailsAndRelated] 찾은 directors:', this.directors);
+        } else {
+          this.actors = [];
+          this.crew = [];
+          this.directors = [];
+          console.log('[fetchMediaDetailsAndRelated] credits 데이터 없음.');
+        }
+
+        this.bookmarkCount = await fetchBookmarkCount(mediaId);
+        console.log('[fetchMediaDetailsAndRelated] 설정된 bookmarkCount:', this.bookmarkCount);
+
+      } catch (error) {
+        console.error(`[fetchMediaDetailsAndRelated] ID ${mediaId} (${mediaType}) 정보를 불러오는 중 오류 발생:`, error);
+        alert("미디어 정보를 불러오는 중 오류가 발생했습니다. 서버 API 응답 구조를 확인해보세요!");
+        this.drama = null;
+        this.videos = [];
+        this.credits = null;
+        this.directors = [];
+        this.actors = [];
+        this.crew = [];
+        this.similarTvSeries = [];
+        this.bookmarkCount = 0;
+        this.isBookmarked = false;
+      }
+    },
+
     async toggleBookmark(dramaId) {
+      const idToUse = dramaId || this.$route.params.id;
       const token = localStorage.getItem("token");
 
       if (!token) {
@@ -131,54 +206,38 @@ export default {
       }
 
       try {
-        const result = await toggleBookmark(dramaId, token);
+        const result = await toggleBookmark(idToUse, token);
         console.log(result);
 
         this.isBookmarked = !this.isBookmarked;
-
         const message = this.isBookmarked ? '즐겨찾기에 추가하였습니다.' : '즐겨찾기를 취소하였습니다';
         alert(message);
 
-        this.bookmarkCount = await this.fetchBookmarkCount(dramaId);
+        this.bookmarkCount = await this.fetchBookmarkCount(idToUse);
       } catch (error) {
         console.error("즐겨찾기 토글 오류:", error);
+        alert("즐겨찾기 처리에 실패했습니다.");
       }
     },
+
     async fetchBookmarkCount(dramaId) {
+      const idToUse = dramaId || this.$route.params.id;
       try {
-        const count = await fetchBookmarkCount(dramaId);
-        return count;
+        const count = await fetchBookmarkCount(idToUse);
+        console.log(`ID ${idToUse} 북마크 개수:`, count);
+        if (typeof count === 'number') {
+          return count;
+        } else {
+          console.warn('fetchBookmarkCount API 응답이 숫자가 아님:', count);
+          return 0;
+        }
       } catch (error) {
         console.error('즐겨찾기 개수 가져오는 중 오류 발생:', error);
+        alert("북마크 개수를 가져오는 중 오류가 발생했습니다.");
         return 0;
       }
     },
-    async fetchDramaDetails() {
-      const dramaId = this.$route.params.id;
-      console.log('Drama ID:', dramaId);
-      try {
 
-        const dramaData = await fetchDramaDetails(dramaId);
-        console.log('드라마 상세 정보:', dramaData);
-
-        this.drama = dramaData;
-        this.bookmarkCount = await this.fetchBookmarkCount(dramaId);
-        this.credits = await fetchDramaCredits(dramaId);
-        console.log('출연/제작진:', this.credits);
-
-        this.actors = this.credits.cast || [];
-        this.crew = this.credits.crew || [];
-
-        this.videos = await fetchDramaVideos(dramaId);
-        console.log('비디오 정보:', this.videos);
-
-        this.similarTvSeries = await fetchSimilarTvSeries(dramaId);
-        console.log('유사 TV 시리즈:', this.similarTvSeries);
-
-      } catch (error) {
-        console.error('드라마 상세 정보를 가져오는 중 오류가 발생했습니다:', error);
-      }
-    },
     goBack() {
       this.$router.go(-1);
     },
@@ -189,16 +248,27 @@ export default {
       const userConfirmed = confirm("스포일러가 포함될 수 있습니다. 계속 하시겠습니까?");
       if (!userConfirmed) return;
 
-      this.$router.push({
-        name: 'ReviewPage',
-        query: {
-          id: String(this.drama.id),
-          title: this.drama.title || '제목 없음',
-          posterPath: this.drama.posterPath || '',
-          overview: this.drama.overview || '설명 없음'
-        }
-      });
+      if (this.drama) {
+        this.$router.push({
+          name: 'ReviewPage',
+          query: {
+            id: String(this.drama.id),
+            title: this.drama.title || this.drama.name || '제목 없음',
+            posterPath: this.drama.posterPath || '',
+            overview: this.drama.overview || '설명 없음',
+            mediaType: 'tv'
+          },
+        });
+      } else {
+        console.warn('드라마 정보가 없어 감상평 페이지로 이동할 수 없습니다.');
+        alert('드라마 정보를 불러오지 못했습니다.');
+      }
     },
+    goToTvSeriesDetail(tvSeriesId) {
+      if (this.$route.params.id !== String(tvSeriesId)) {
+        this.$router.push({ name: 'DramaDetail', params: { id: tvSeriesId } });
+      }
+    }
   },
 };
 </script>
