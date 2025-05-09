@@ -1,6 +1,5 @@
 <template>
   <div class="drama-detail">
-    <!-- 드라마 배경과 포스터 -->
     <div class="drama-backdrop">
       <div class="drama-poster">
         <img :src="'https://image.tmdb.org/t/p/original' + drama.posterPath" alt="포스터" class="poster-image"/>
@@ -29,12 +28,11 @@
           </div>
         </div>
       </div>
-      <!-- 비디오 (트레일러 등) -->
-      <div class="trailer-section" v-if="drama.videos && drama.videos.length > 0">
+      <div class="trailer-section" v-if="videos && videos.length > 0">
         <iframe
             width="560"
             height="315"
-            :src="'https://www.youtube.com/embed/' + drama.videos[0].videoKey"
+            :src="'https://www.youtube.com/embed/' + videos[0].key"
             frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen
@@ -43,20 +41,17 @@
       </div>
     </div>
 
-    <!-- 즐겨찾기 -->
     <div class="bookmark-container">
       <img src="@/assets/reviewLogo/like.png" height="20" width="20" class="movie-detail-bookmark"
            @click="toggleBookmark(drama.id)"/>
       <span style="position: relative; left:0.3%;">{{ bookmarkCount }}</span>
     </div>
 
-    <!-- 버튼들 -->
     <div class="action-buttons">
       <button class="action-button" @click="goToReviewPage">감상평 보기</button>
       <button class="action-button" @click="goBack">뒤로 가기</button>
     </div>
 
-    <!-- 배우 정보 -->
     <div class="info-item">
       <span class="info-label" style="position: relative; left:-48%; top:20px; font-size: 16.5px; font-weight: bolder">출연진 정보</span>
       <div v-if="actors && actors.length > 0" class="actors-list">
@@ -73,20 +68,19 @@
       <p v-else class="info-text">정보 없음</p>
     </div>
 
-    <!-- 유사 TV 시리즈 -->
-    <div v-if="similarTvSeries && similarTvSeries.results && similarTvSeries.results.length > 0"
+    <div v-if="similarTvSeries && similarTvSeries.length > 0"
          class="similar-tv-series">
       <h3 class="section-title" style="font-size: 17px;">유사 TV 시리즈</h3>
       <div class="similar-tv-series-list">
-        <div v-for="tv in similarTvSeries.results.slice(0, 10)" :key="tv.id" class="similar-tv-item"
-             @click="goToTvDetail(tv.id)">
+        <div v-for="tv in similarTvSeries.slice(0, 10)" :key="tv.id" class="similar-tv-item"
+             @click="goToTvSeriesDetail(tv.id)">
           <img
               v-if="tv.posterPath"
               :src="'https://image.tmdb.org/t/p/w200' + tv.posterPath"
               alt="유사 TV 시리즈 포스터"
               class="tv-poster"
           />
-          <p class="similar-tv-title">{{ tv.name }}</p>
+          <p class="similar-tv-title">{{ tv.name || tv.title || '제목 없음' }}</p>
         </div>
       </div>
     </div>
@@ -264,11 +258,6 @@ export default {
         alert('드라마 정보를 불러오지 못했습니다.');
       }
     },
-    goToTvSeriesDetail(tvSeriesId) {
-      if (this.$route.params.id !== String(tvSeriesId)) {
-        this.$router.push({ name: 'DramaDetail', params: { id: tvSeriesId } });
-      }
-    }
   },
 };
 </script>
