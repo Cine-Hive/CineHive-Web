@@ -7,7 +7,7 @@
       <div class="animation-content">
         <div class="info-item">
           <span class="info-label">제목</span>
-          <p v-if="animation.name" class="info-text">{{ animation.name }}</p>
+          <p v-if="animation.title" class="info-text">{{ animation.title }}</p>
         </div>
         <div class="animation-info">
           <div class="info-item">
@@ -17,8 +17,8 @@
           <div class="info-item">
             <span class="info-label">감독</span>
             <p class="info-text">
-              <span v-if="animation.directors && animation.directors.length > 0">
-                {{ animation.directors.map(d => d.name).join(', ') }}
+              <span v-if="directors && directors.length > 0">
+                {{ directors.map(d => d.name).join(', ') }}
               </span>
               <span v-else>정보 없음</span>
             </p>
@@ -29,11 +29,11 @@
           </div>
         </div>
       </div>
-      <div class="trailer-section" v-if="animation.videos && animation.videos.length > 0">
+      <div class="trailer-section" v-if="videos && videos.length > 0">
         <iframe
             width="560"
             height="315"
-            :src="'https://www.youtube.com/embed/' + animation.videos[0].videoKey"
+            :src="'https://www.youtube.com/embed/' + videos[0].key"
             frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen
@@ -67,7 +67,7 @@
       <div class="similar-animations-list">
         <div v-for="similar in similarAnimations" :key="similar.id" class="similar-animation-item" @click="goToAnimationDetail(similar.id)">
           <img v-if="similar.posterPath" :src="'https://image.tmdb.org/t/p/w200' + similar.posterPath" alt="추천 애니메이션 포스터" />
-          <p class="similar-animation-title">{{ similar.name }}</p>
+          <p class="similar-animation-title">{{ similar.title || '제목 없음' }}</p>
         </div>
       </div>
     </div>
@@ -80,8 +80,7 @@
 
 <script>
 import {
-  fetchAnimationDetails,
-  fetchSimilarAnimations,
+  fetchMediaDetails,
   fetchBookmarkCount,
   toggleBookmark,
 } from '@/api/animation/animationDetail';
@@ -93,27 +92,91 @@ export default {
       similarAnimations: [],
       bookmarkCount: 0,
       isBookmarked: false,
+      videos: [],
+      directors: [],
+      actors: [],
+      crew: [],
     };
   },
   async created() {
-    await this.loadAnimationData();
+    const animationId = this.$route.params.id;
+    const mediaType = 'animation';
+    if (animationId) {
+      await this.fetchMediaDetailsAndRelated(mediaType, animationId);
+    }
   },
   watch: {
-    '$route.params.id': async function () {
-      await this.loadAnimationData();
+    '$route.params.id': {
+      handler: 'handleRouteChange',
     },
   },
   methods: {
-    async loadAnimationData() {
+    async handleRouteChange() {
       const animationId = this.$route.params.id;
-      try {
-        this.animation = await fetchAnimationDetails(animationId);
-        this.similarAnimations = await fetchSimilarAnimations(animationId);
-        this.bookmarkCount = await fetchBookmarkCount(animationId);
-      } catch (error) {
-        console.error('애니메이션 데이터를 불러오는 중 오류:', error);
+      const mediaType = 'animation';
+      window.scrollTo(0, 0);
+      this.animation = null;
+      this.similarAnimations = [];
+      this.bookmarkCount = 0;
+      this.isBookmarked = false;
+      this.videos = [];
+      this.directors = [];
+      this.actors = [];
+      this.crew = [];
+      if (animationId) {
+        await this.fetchMediaDetailsAndRelated(mediaType, animationId);
       }
     },
+
+    async fetchMediaDetailsAndRelated(mediaType, mediaId) {
+      try {
+        console.log(`[fetchMediaDetailsAndRelated] 미디어 상세 정보 요청 시작: ${mediaType}, ID: ${mediaId}`);
+        const responseData = await fetchMediaDetails(mediaType, mediaId);
+        console.log('[fetchMediaDetailsAndRelated] API 응답 데이터:', responseData);
+
+        this.animation = responseData.mediaInfo || null;
+        this.videos = responseData.videos || [];
+        const credits = responseData.credits;
+        this.similarAnimations = responseData.similar || [];
+
+        console.log('[fetchMediaDetailsAndRelated] 추출된 mediaInfo:', this.animation);
+        console.log('[fetchMediaDetailsAndRelated] 추출된 videos:', this.videos);
+        console.log('[fetchMediaDetailsAndRelated] 추출된 credits:', credits);
+        console.log('[fetchMediaDetailsAndRelated] 추출된 similar:', this.similarAnimations);
+
+        if (credits) {
+          this.actors = credits.cast || [];
+          console.log('[fetchMediaDetailsAndRelated] 처리된 actors:', this.actors);
+
+          this.crew = credits.crew || [];
+          console.log('[fetchMediaDetailsAndRelated] 처리된 crew:', this.crew);
+
+          this.directors = this.crew.filter(member => member.job === "Director") || [];
+          console.log('[fetchMediaDetailsAndRelated] 찾은 directors:', this.directors);
+        } else {
+          this.actors = [];
+          this.crew = [];
+          this.directors = [];
+          console.log('[fetchMediaDetailsAndRelated] credits 데이터 없음.');
+        }
+
+        this.bookmarkCount = await fetchBookmarkCount(mediaId);
+        console.log('[fetchMediaDetailsAndRelated] 설정된 bookmarkCount:', this.bookmarkCount);
+
+      } catch (error) {
+        console.error(`[fetchMediaDetailsAndRelated] ID ${mediaId} (${mediaType}) 정보를 불러오는 중 오류 발생:`, error);
+        alert("미디어 정보를 불러오는 중 오류가 발생했습니다. 서버 API 응답 구조를 확인해보세요!");
+        this.animation = null;
+        this.videos = [];
+        this.directors = [];
+        this.actors = [];
+        this.crew = [];
+        this.similarAnimations = [];
+        this.bookmarkCount = 0;
+        this.isBookmarked = false;
+      }
+    },
+
     async handleToggleBookmark() {
       const animationId = this.$route.params.id;
       const token = localStorage.getItem("token");
@@ -130,21 +193,29 @@ export default {
         this.bookmarkCount = await fetchBookmarkCount(animationId);
       } catch (error) {
         console.error("즐겨찾기 토글 오류:", error);
+        alert("즐겨찾기 처리에 실패했습니다.");
       }
     },
+
     goToReviewPage() {
       const userConfirmed = confirm("스포일러가 포함될 수 있습니다. 계속 하시겠습니까?");
       if (!userConfirmed) return;
 
-      this.$router.push({
-        name: 'ReviewPage',
-        query: {
-          id: String(this.animation.id),
-          title: this.animation.name || '제목 없음', // 애니메이션은 name 사용
-          posterPath: this.animation.posterPath || '',
-          overview: this.animation.overview || '설명 없음',
-        },
-      });
+      if (this.animation) {
+        this.$router.push({
+          name: 'ReviewPage',
+          query: {
+            id: String(this.animation.id),
+            title: this.animation.title || '제목 없음',
+            posterPath: this.animation.posterPath || '',
+            overview: this.animation.overview || '설명 없음',
+            mediaType: 'tv'
+          },
+        });
+      } else {
+        console.warn('애니메이션 정보가 없어 감상평 페이지로 이동할 수 없습니다.');
+        alert('애니메이션 정보를 불러오지 못했습니다.');
+      }
     },
     goToLink(url) {
       window.open(url, '_blank');
@@ -153,12 +224,13 @@ export default {
       this.$router.go(-1);
     },
     goToAnimationDetail(animationId) {
-      this.$router.push({ name: 'AnimationDetail', params: { id: animationId } });
+      if (this.$route.params.id !== String(animationId)) {
+        this.$router.push({ name: 'AnimationDetail', params: { id: animationId } });
+      }
     },
   },
 };
 </script>
-
 
 <style scoped>
 .animation-detail {

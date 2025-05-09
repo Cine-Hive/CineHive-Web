@@ -17,19 +17,46 @@
             <p v-if="movie.voteAverage != null" class="info-text">{{ movie.voteAverage.toFixed(1) }}</p>
             <p v-else class="info-text">평점 정보 없음</p>
           </div>
-          <div class="info-item">
+
+          <div class="info-item" v-if="movie.mediaType === 'movie'">
             <span class="info-label">감독</span>
             <p class="info-text">{{ director ? director.name : '정보 없음' }}</p>
           </div>
+          <div class="info-item" v-else-if="movie.mediaType === 'tv' || movie.mediaType === 'animation'">
+            <span class="info-label">총 에피소드 수</span>
+            <p class="info-text">{{ movie.numberOfEpisodes != null ? movie.numberOfEpisodes : '정보 없음' }}</p>
+          </div>
+
           <div class="info-item">
             <span class="info-label">출시일</span>
-            <p v-if="movie.releaseDate" class="info-text">{{ movie.releaseDate }}</p>
+            <p v-if="movie.mediaType === 'movie' && movie.releaseDate" class="info-text">{{ movie.releaseDate }}</p>
+            <p v-else-if="(movie.mediaType === 'tv' || movie.mediaType === 'animation') && movie.firstAirDate" class="info-text">{{ movie.firstAirDate }} (첫 방영)</p>
             <p v-else class="info-text">출시일 정보 없음</p>
           </div>
+
+          <div class="info-item" v-if="movie.genres && movie.genres.length > 0">
+            <span class="info-label">장르</span>
+            <p class="info-text">{{ movie.genres.map(genre => genre.name).join(', ') }}</p>
+          </div>
+          <div class="info-item" v-else>
+            <span class="info-label">장르</span>
+            <p class="info-text">장르 정보 없음</p>
+          </div>
+
           <div class="info-item">
             <span class="info-label">줄거리</span>
             <p class="info-text">{{ movie.overview || '줄거리 정보 없음' }}</p>
           </div>
+
+          <div class="info-item" v-if="movie.mediaType === 'movie' && movie.runtime">
+            <span class="info-label">상영 시간</span>
+            <p class="info-text">{{ movie.runtime }}분</p>
+          </div>
+          <div class="info-item" v-else-if="(movie.mediaType === 'tv' || movie.mediaType === 'animation') && movie.numberOfSeasons != null">
+            <span class="info-label">총 시즌 수</span>
+            <p class="info-text">{{ movie.numberOfSeasons }}</p>
+          </div>
+
         </div>
       </div>
 
@@ -68,7 +95,6 @@
       <p style="margin-top: 30px;">배우 정보 없음</p>
     </div>
 
-
     <div class="bottom-section">
       <h3 class="section-title">바로가기</h3>
       <div class="streaming-services">
@@ -80,18 +106,18 @@
     </div>
 
     <div class="similar-movies-section" v-if="similarMovies && similarMovies.length > 0">
-      <h3 class="section-title">관련 추천 영화</h3>
+      <h3 class="section-title">관련 추천 {{ movie.mediaType === 'tv' ? 'TV 프로그램' : movie.mediaType === 'animation' ? '애니메이션' : '영화' }}</h3>
       <div class="similar-movies-list">
         <div v-for="similar in similarMovies.slice(0, 10)" :key="similar.id" class="similar-movie-item" @click="goToMovieDetail(similar.id)">
-          <img v-if="similar.posterPath" :src="'https://image.tmdb.org/t/p/w200' + similar.posterPath" alt="추천 영화 포스터" />
+          <img v-if="similar.posterPath" :src="'https://image.tmdb.org/t/p/w200' + similar.posterPath" alt="추천 미디어 포스터" />
           <div v-else class="similar-movie-placeholder">포스터 없음</div>
-          <p class="similar-movie-title">{{ similar.title || '제목 없음' }}</p>
+          <p class="similar-movie-title">{{ similar.title || similar.name || '제목 없음' }}</p>
         </div>
       </div>
     </div>
     <div class="similar-movies-section" v-else>
-      <h3 class="section-title">관련 추천 영화</h3>
-      <p>추천 영화 정보 없음</p>
+      <h3 class="section-title">관련 추천 미디어</h3>
+      <p>추천 미디어 정보 없음</p>
     </div>
 
   </div>
@@ -149,47 +175,73 @@ export default {
       this.director = null;
 
       try {
+        console.log(`[fetchMovieDetailsAndRelated] 미디어 상세 정보 요청 시작: ${mediaType}, ID: ${movieId}`);
         const responseData = await fetchMediaDetails(mediaType, movieId);
+        console.log('[fetchMovieDetailsAndRelated] API 응답 데이터:', responseData);
 
         this.movie = responseData.mediaInfo;
         const credits = responseData.credits;
         const videos = responseData.videos;
         const similar = responseData.similar;
 
+        console.log('[fetchMovieDetailsAndRelated] 추출된 mediaInfo:', this.movie);
+        console.log('[fetchMovieDetailsAndRelated] 추출된 credits:', credits);
+        console.log('[fetchMovieDetailsAndRelated] 추출된 videos:', videos);
+        console.log('[fetchMovieDetailsAndRelated] 추출된 similar:', similar);
+
+
         const uniqueActorsMap = new Map();
         if (credits && credits.cast) {
+          console.log('[fetchMovieDetailsAndRelated] credits.cast 데이터 있음:', credits.cast);
           credits.cast.forEach(actor => {
             if (!uniqueActorsMap.has(actor.id)) {
               uniqueActorsMap.set(actor.id, actor);
             }
           });
+          this.actors = Array.from(uniqueActorsMap.values());
+          console.log('[fetchMovieDetailsAndRelated] 처리된 actors:', this.actors);
+        } else {
+          console.log('[fetchMovieDetailsAndRelated] credits 또는 credits.cast 데이터 없음.');
+          this.actors = [];
         }
-        this.actors = Array.from(uniqueActorsMap.values());
 
         const uniqueCrewMap = new Map();
         if (credits && credits.crew) {
+          console.log('[fetchMovieDetailsAndRelated] credits.crew 데이터 있음:', credits.crew);
           credits.crew.forEach(member => {
             if (!uniqueCrewMap.has(member.id)) {
               uniqueCrewMap.set(member.id, member);
             }
           });
+          this.crew = Array.from(uniqueCrewMap.values());
+          console.log('[fetchMovieDetailsAndRelated] 처리된 crew:', this.crew);
+        } else {
+          console.log('[fetchMovieDetailsAndRelated] credits 또는 credits.crew 데이터 없음.');
+          this.crew = [];
         }
-        this.crew = Array.from(uniqueCrewMap.values());
+
 
         this.director = this.crew.find(member => member.job === "Director") || null;
+        console.log('[fetchMovieDetailsAndRelated] 찾은 director:', this.director);
+
 
         if (videos && videos.length > 0 && videos[0].key) {
+          console.log('[fetchMovieDetailsAndRelated] videos 데이터 있고 key 있음:', videos[0].key);
           this.videoUrl = `https://www.youtube.com/embed/${videos[0].key}`;
+          console.log('[fetchMovieDetailsAndRelated] 설정된 videoUrl:', this.videoUrl);
         } else {
+          console.log('[fetchMovieDetailsAndRelated] videos 데이터 없거나 key 없음.');
           this.videoUrl = null;
         }
 
         this.similarMovies = similar || [];
+        console.log('[fetchMovieDetailsAndRelated] 설정된 similarMovies:', this.similarMovies);
 
         this.bookmarkCount = await fetchBookmarkCount(movieId);
+        console.log('[fetchMovieDetailsAndRelated] 설정된 bookmarkCount:', this.bookmarkCount);
 
       } catch (error) {
-        console.error(`ID ${movieId} (${mediaType}) 정보를 불러오는 중 오류 발생:`, error);
+        console.error(`[fetchMovieDetailsAndRelated] ID ${movieId} (${mediaType}) 정보를 불러오는 중 오류 발생:`, error);
         alert("미디어 정보를 불러오는 중 오류가 발생했습니다.");
         this.movie = null;
       }
@@ -206,14 +258,15 @@ export default {
     goToReviewPage() {
       const userConfirmed = confirm("스포일러가 포함될 수 있습니다. 계속 하시겠습니까?");
       if (!userConfirmed) return;
-      if (this.movie) { // movie 데이터가 있을 때만 이동
+      if (this.movie) {
         this.$router.push({
           name: 'ReviewPage',
           query: {
             id: String(this.movie.id),
             title: this.movie.title || '제목 없음',
             posterPath: this.movie.posterPath || '',
-            overview: this.movie.overview || '설명 없음'
+            overview: this.movie.overview || '설명 없음',
+            mediaType: this.movie.mediaType || 'movie'
           }
         });
       } else {
@@ -229,15 +282,18 @@ export default {
         return;
       }
       try {
+        console.log(`[toggleBookmark] 즐겨찾기 토글 요청 시작: ${movieId}`);
         const result = await toggleBookmark(movieId, token);
-        console.log("북마크 토글 응답:", result);
+        console.log("[toggleBookmark] 북마크 토글 응답:", result);
 
         alert(result === '추가 성공' ? '즐겨찾기에 추가하였습니다.' : '즐겨찾기를 취소하였습니다.');
 
+        console.log(`[toggleBookmark] 북마크 개수 다시 가져오기: ${movieId}`);
         this.bookmarkCount = await fetchBookmarkCount(movieId);
+        console.log('[toggleBookmark] 설정된 bookmarkCount:', this.bookmarkCount);
 
       } catch (error) {
-        console.error('즐겨찾기 토글 오류:', error);
+        console.error('[toggleBookmark] 즐겨찾기 토글 오류:', error);
         alert("즐겨찾기 처리 중 오류가 발생했습니다. 다시 시도해 주세요.");
       }
     },
@@ -248,7 +304,6 @@ export default {
   }
 }
 </script>
-
 
 <style scoped>
 .movie-detail {
@@ -472,13 +527,11 @@ export default {
 
 .bookmark-container {
   display: inline-flex;
-  align-items: center; /* 세로 정렬을 맞추기 위해 추가 */
+  align-items: center;
 }
 
 .movie-detail-bookmark {
   cursor: pointer;
-  margin-right: 5px; /* 이미지와 숫자 간의 간격을 설정 */
+  margin-right: 5px;
 }
-
-
 </style>
