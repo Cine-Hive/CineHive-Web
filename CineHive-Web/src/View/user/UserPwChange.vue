@@ -32,7 +32,9 @@
                 required
             />
           </div>
-
+          <div>
+            <span style="font-size: 14px; color: #cccccc"> 대,소문자 특수 문자를 포함하여 8자 이상으로 입력해 주세요.</span>
+          </div>
           <button type="submit">비밀번호 변경</button>
         </form>
       </div>
@@ -109,7 +111,7 @@ export default {
 }
 
 .content-main-title {
-  font-size: 2rem;
+  font-size: 1.6rem;
   color: white;
   padding-bottom: 10px;
   padding-top: 15px;
@@ -119,6 +121,7 @@ export default {
 .content-description {
   color: #9ca3af;
   margin-bottom: 2rem;
+  font-size: 14px;
 }
 
 .pw-change-form {
@@ -163,4 +166,5 @@ export default {
 .pw-change-form button:hover {
   background-color: #f55050;
 }
+
 </style>

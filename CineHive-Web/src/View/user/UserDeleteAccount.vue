@@ -149,7 +149,7 @@ export default {
 }
 
 .content-main-title {
-  font-size: 2rem;
+  font-size: 1.6rem;
   color: white;
   padding-bottom: 10px;
   padding-top: 15px;
