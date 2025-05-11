@@ -177,8 +177,8 @@ export default {
 
 .menu-list {
   list-style: none;
-  padding-left: 0;
-  margin: 0;
+  position: relative;
+  left:-3px;
   display: flex;
   flex-direction: column;
   gap: 5px;

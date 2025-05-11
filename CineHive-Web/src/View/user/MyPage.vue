@@ -140,21 +140,20 @@ export default {
 }
 
 .info-label {
-  width: 6rem;
   display: inline-block;
   color: #9ca3af;
   font-weight: bold;
-  margin-right: 10px;
+  margin-right: 6px;
 }
 
 .user-genres-section {
-  margin-top: 2rem;
+  margin-top: 7rem;
 }
 
 .genres-title {
   font-weight: bold;
   color: #e5e7eb;
   margin-bottom: 0.5rem;
+  font-size: 20px;
 }
-
 </style>
