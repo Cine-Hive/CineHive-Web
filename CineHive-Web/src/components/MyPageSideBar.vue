@@ -54,7 +54,7 @@ export default {
   },
   methods: {
     goToDeleteAccount() {
-      const targetPath = '/myInfo/delete-account';
+      const targetPath = '/mypage/delete-account';
       if (this.$route.path !== targetPath) {
         this.$router.push(targetPath);
       }
@@ -112,19 +112,19 @@ export default {
       }
 
     },goToPasswordChange() {
-      const targetPath = '/myInfo/password-change';
+      const targetPath = '/mypage/password-change';
       if (this.$route.path !== targetPath) {
         this.$router.push(targetPath).then(() => window.location.reload());
       }
     },
     openChangeName() {
-      const targetPath = '/myInfo/name-change';
+      const targetPath = '/mypage/name-change';
       if (this.$route.path !== targetPath) {
         this.$router.push(targetPath);
       }
     },
     openChangeSex() {
-      const targetPath = '/myInfo/sex-change';
+      const targetPath = '/mypage/sex-change';
       if (this.$route.path !== targetPath) {
         this.$router.push(targetPath);
       }
