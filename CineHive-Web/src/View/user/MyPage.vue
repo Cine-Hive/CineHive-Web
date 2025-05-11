@@ -79,7 +79,6 @@ export default {
   padding: 2rem;
   position: relative;
   top:50px;
-  position: relative;
   left:-220px;
 }
 
