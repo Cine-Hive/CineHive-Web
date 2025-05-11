@@ -7,6 +7,19 @@
 
       <div class="change-info-content">
         <h2 class="content-main-title">회원 탈퇴</h2>
+
+        <!-- 이 div에 클래스 추가 -->
+        <div class="withdrawal-message">
+          <span>그동안 <span class="disposable-css-title">CINIEVE</span>를 이용해 주셔서 감사합니다.</span>
+        </div>
+
+        <!-- 이 div에도 클래스 추가 -->
+        <div class="withdrawal-warning">
+          계정 삭제 시, 모든 데이터는 즉시 삭제되며 복구할 수 없습니다.<br>
+          회원 탈퇴를 진행하시면 고객님의 모든 데이터(작업물, 프로젝트, 설정 포함)는 즉시 영구 삭제되며 복구가 불가능합니다. <br>
+          신중하게 결정해주시고, 필요한 자료는 미리 백업하시길 바랍니다.
+        </div>
+
         <p class="content-description">회원 탈퇴를 위해 비밀번호를 입력해주세요.</p>
 
         <div class="withdrawal-form">
@@ -149,7 +162,7 @@ export default {
 }
 
 .content-main-title {
-  font-size: 1.6rem;
+  font-size: 2rem;
   color: white;
   padding-bottom: 10px;
   padding-top: 15px;
@@ -158,8 +171,22 @@ export default {
 
 .content-description {
   color: #9ca3af;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  font-size: 15px;
 }
+
+/* 새로 추가된 메시지 div 스타일 */
+.withdrawal-message {
+  margin-bottom: 1.5rem; /* 아래쪽 여백 추가 */
+}
+
+/* 새로 추가된 경고 div 스타일 */
+.withdrawal-warning {
+  margin-bottom: 3rem; /* 아래쪽 여백 추가 */
+  color: #dddddd;
+  font-size: 15px;
+}
+
 
 .withdrawal-form {
   display: flex;
@@ -243,5 +270,11 @@ export default {
   display: flex;
   justify-content: center;
   gap: 20px;
+}
+
+/* CINIEVE 제목 스타일 */
+.disposable-css-title {
+  color: red;
+  font-weight: bold;
 }
 </style>
