@@ -2,13 +2,10 @@
   <div class="mypage-wrapper">
     <div class="mypage-container">
       <div class="mypage-sidebar">
-        <h2 class="sidebar-main-title">마이페이지</h2>
-        <div class="title-line"></div>
-        <div class="sidebar-menu-section">
           <MyPageSidebar></MyPageSidebar>
-        </div>
       </div>
 
+      <!-- 오른쪽 섹션: 내 정보 -->
       <div class="mypage-content">
         <h2 class="content-main-title">내 정보</h2>
         <p class="content-description">고객님께서 가입하신 회원 정보입니다.</p>
@@ -73,18 +70,6 @@ export default {
 </script>
 
 <style scoped>
-.section-title {
-  font-size: 20px;
-  font-weight: bolder;
-}
-
-.title-line {
-  border-bottom: 1px solid lightgray;
-  padding: 0;
-  margin-bottom: 20px;
-  margin-top: 10px;
-  width: 100%;
-}
 
 .mypage-wrapper {
   background-color: black;
@@ -92,6 +77,10 @@ export default {
   color: white;
   text-align: left;
   padding: 2rem;
+  position: relative;
+  top:50px;
+  position: relative;
+  left:-220px;
 }
 
 .mypage-container {
@@ -104,7 +93,6 @@ export default {
 .mypage-sidebar {
   width: 300px;
   padding-right: 40px;
-  border-right: 1px solid #4b5563;
   flex-shrink: 0;
 }
 

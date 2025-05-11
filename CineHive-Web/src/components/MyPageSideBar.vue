@@ -1,5 +1,11 @@
 <template>
-  <div>
+  <div class="mypage-sidebar-content">
+    <div class="mypage-sidebar">
+      <h2 class="sidebar-main-title">마이페이지</h2>
+      <div class="title-line"></div>
+      <div class="sidebar-menu-section">
+      </div>
+    </div>
   <div class="menu-group">
     <span class="section-title">영화 정보 조회</span>
     <ul class="menu-list">
@@ -151,6 +157,7 @@ export default {
 </script>
 
 <style scoped>
+
 .section-title {
   font-size: 20px;
   font-weight: bolder;
