@@ -2,10 +2,11 @@
   <div class="mypage-wrapper">
     <div class="max-w-6xl mx-auto flex">
       <div class="w-1/3 pr-8 border-r border-gray-700">
-        <h1 class="text-xl font-bold mb-6">마이페이지</h1>
+        <h2 class="text-xl font-bold mb-6">마이페이지</h2>
+        <div class="title-line"></div>
         <div class="space-y-6 text-sm menu-section">
           <div>
-            <h2 class="font-semibold text-gray-400 mb-1">영화 정보 조회</h2>
+            <span class="section-title">영화 정보 조회</span>
             <ul class="space-y-1">
               <li @click="goToBookmarks">찜한 목록</li>
               <li @click="goToReplies">작성한 감상평</li>
@@ -15,7 +16,8 @@
           </div>
 
           <div>
-            <h2 class="font-semibold text-gray-400 mb-1">게시판 정보 조회</h2>
+            <div class="title-line"></div>
+            <span class="section-title">게시판 정보 조회</span>
             <ul class="space-y-1">
               <li @click="goToBoards">작성한 게시글</li>
               <li @click="goToComments">작성한 댓글</li>
@@ -26,7 +28,8 @@
           </div>
 
           <div>
-            <h2 class="font-semibold text-gray-400 mb-1">회원 정보</h2>
+            <div class="title-line"></div>
+            <span class="section-title">회원 정보</span>
             <ul class="space-y-1">
               <li @click="openChangeName">이름 변경</li>
               <li @click="goToPasswordChange">비밀번호 변경</li>
@@ -37,9 +40,9 @@
         </div>
       </div>
 
-      <!-- 오른쪽 사용자 정보 -->
+      <div class="title-line"></div>
       <div class="w-2/3 pl-8">
-        <h2 class="text-xl font-bold mb-6">내 정보</h2>
+        <h2 class="section-title">내 정보</h2>
         <p class="text-gray-400 mb-6">고객님께서 가입하신 회원 정보입니다.</p>
 
         <div v-if="user" class="space-y-4">
@@ -172,9 +175,18 @@ export default {
 }
 </script>
 
-
-
 <style scoped>
+.section-title{
+  font-size: 20px;
+  font-weight: bolder;
+}
+.title-line{
+  border-bottom: 1px solid lightgray;
+  position: relative;
+  top: -8px;
+  padding: 10px;
+  width: 100%;
+}
 .mypage-wrapper {
   all: unset;
   background-color: black;
@@ -184,7 +196,11 @@ export default {
   padding: 2rem;
   display: block;
 }
-
+ul li{
+  font-size: 16px;
+  position: relative;
+  left:-3px;
+}
 ul {
   list-style: none;
   padding-left: 0;
@@ -203,7 +219,6 @@ h2{
   padding-top: 15px;
 }
 
-/* 왼쪽 메뉴 hover 효과 */
 .menu-section li {
   cursor: pointer;
   padding-left: 0.25rem;
@@ -211,13 +226,12 @@ h2{
   transition: color 0.2s ease-in-out;
 }
 .menu-section li:hover {
-  color: #f87171; /* Tailwind text-red-400 */
+  color: #f87171;
 }
 
-/* 오른쪽 사용자 정보 key label 스타일 */
 .info-label {
   width: 6rem;
   display: inline-block;
-  color: #9ca3af; /* Tailwind text-gray-400 */
+  color: #9ca3af;
 }
 </style>
