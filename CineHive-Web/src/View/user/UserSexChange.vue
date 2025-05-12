@@ -18,6 +18,7 @@
               <option value="female">여성</option>
               <option value="other">기타</option>
             </select>
+            <div style="font-size : 14px; margin-top: 5px; color: #dddddd;">회원 가입 시 기입 하지 않은 경우, 설정해 주셔야 합니다.</div>
           </div>
           <button @click="submitChange" class="submit-button">성별 변경</button>
         </div>
@@ -104,6 +105,7 @@ export default {
 .content-description {
   color: #9ca3af;
   margin-bottom: 2rem;
+  font-size: 14px;
 }
 
 .sex-change-form {

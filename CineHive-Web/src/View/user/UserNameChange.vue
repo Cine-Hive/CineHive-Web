@@ -18,6 +18,7 @@
                 placeholder="새 이름을 입력하세요"
                 class="input-field"
             />
+            <div style="font-size: 14px; margin-top: 5px; color: #dddddd">이름 변경 시, 중복되지 않게 설정해 주세요.</div>
           </div>
           <button @click="submitChange" class="submit-button">이름 변경</button>
         </div>
@@ -107,6 +108,7 @@ export default {
 .content-description {
   color: #9ca3af;
   margin-bottom: 2rem;
+  font-size: 15px;
 }
 
 .name-change-form {
