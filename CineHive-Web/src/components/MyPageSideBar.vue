@@ -34,6 +34,7 @@
     <span class="section-title">회원 정보</span>
     <ul class="menu-list">
       <li @click="openChangeName" class="menu-item">이름 변경</li>
+      <li @click="openChangeNickName" class="menu-item">닉네임 변경</li>
       <li @click="goToPasswordChange" class="menu-item">비밀번호 변경</li>
       <li @click="openChangeSex" class="menu-item">성별 변경</li>
       <li @click="goToDeleteAccount" class="menu-item">회원 탈퇴</li>
@@ -91,6 +92,12 @@ export default {
     },
     goToDislikedBoards() {
       const targetPath = '/mypage/disliked-boards';
+      if (this.$route.path !== targetPath) {
+        this.$router.push(targetPath).then(() => window.location.reload());
+      }
+    },
+    openChangeNickName(){
+      const targetPath = '/mypage/nickname-change';
       if (this.$route.path !== targetPath) {
         this.$router.push(targetPath).then(() => window.location.reload());
       }

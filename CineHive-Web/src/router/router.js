@@ -23,6 +23,7 @@ import UserBoards from '@/View/user/UserBoards.vue'
 import UserComments from '@/View/user/UserComments.vue';
 import UserNameChange from "@/View/user/UserNameChange.vue";
 import UserSexChange from "@/View/user/UserSexChange.vue";
+import UserNicknameChange from "@/View/user/UserNicknameChange.vue";
 
 
 Vue.use(Router);
@@ -192,8 +193,12 @@ const routes = [
         name: 'UserDeleteAccount',
         component: () => import('@/View/user/UserDeleteAccount.vue')
     },
-
-
+    {
+        path: '/mypage/nickname-change',
+        name: 'UserNicknameChange',
+        component: UserNicknameChange,
+        meta: { requiresAuth: true }
+    },
 ];
 
 const router = new Router({
