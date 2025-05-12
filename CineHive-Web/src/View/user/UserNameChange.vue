@@ -44,7 +44,6 @@ export default {
         alert('이름을 입력해주세요.');
         return;
       }
-
       const token = localStorage.getItem('token');
       try {
         await axios.put('http://localhost:8081/myInfo/change-memname',
@@ -55,7 +54,12 @@ export default {
         this.$router.push('/mypage');
       } catch (error) {
         console.error('이름 변경 실패:', error);
-        alert('이름 변경 실패');
+
+        if (error.response && error.response.data) {
+          alert(`이름 변경 실패: ${error.response.data}`);
+        } else {
+          alert('이름 변경 중 알 수 없는 오류가 발생했습니다.');
+        }
       }
     }
   }
