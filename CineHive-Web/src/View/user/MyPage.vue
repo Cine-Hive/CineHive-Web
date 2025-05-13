@@ -126,6 +126,7 @@ export default {
 .content-description {
   color: #9ca3af;
   margin-bottom: 2rem;
+  font-size: 15px;
 }
 
 .user-info-section {
@@ -154,5 +155,11 @@ export default {
   color: #e5e7eb;
   margin-bottom: 0.5rem;
   font-size: 20px;
+}
+
+.genres-list{
+  color: #9ca3af;
+  margin-bottom: 2rem;
+  font-size: 15px;
 }
 </style>
