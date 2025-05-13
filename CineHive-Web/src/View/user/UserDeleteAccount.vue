@@ -8,12 +8,10 @@
       <div class="change-info-content">
         <h2 class="content-main-title">회원 탈퇴</h2>
 
-        <!-- 이 div에 클래스 추가 -->
         <div class="withdrawal-message">
           <span>그동안 <span class="disposable-css-title">CINIEVE</span>를 이용해 주셔서 감사합니다.</span>
         </div>
 
-        <!-- 이 div에도 클래스 추가 -->
         <div class="withdrawal-warning">
           계정 삭제 시, 모든 데이터는 즉시 삭제되며 복구할 수 없습니다.<br>
           회원 탈퇴를 진행하시면 고객님의 모든 데이터(작업물, 프로젝트, 설정 포함)는 즉시 영구 삭제되며 복구가 불가능합니다. <br>
@@ -32,8 +30,15 @@
                 placeholder="비밀번호를 입력하세요"
                 class="input-field"
             />
+            <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
           </div>
-          <button @click="checkPassword" class="submit-button">확인</button>
+          <button
+              @click="checkPassword"
+              class="submit-button"
+              :disabled="isProcessing"
+          >
+            {{ isProcessing ? '확인 중...' : '확인' }}
+          </button>
         </div>
 
         <div v-if="showConfirmPopup" class="popup-overlay">
@@ -45,6 +50,7 @@
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -56,24 +62,35 @@ import MyPageSidebar from "@/components/MyPageSideBar.vue";
 
 export default {
   name: 'DeleteAccount',
-  components: {MyPageSidebar},
+  components: { MyPageSidebar },
   data() {
     return {
       password: '',
       showConfirmPopup: false,
-    }
+      errorMessage: '',
+      isProcessing: false,
+    };
   },
   methods: {
     async checkPassword() {
       const token = localStorage.getItem('token');
+      this.errorMessage = '';
+
       if (!token) {
         alert('로그인이 필요합니다.');
         this.$router.push('/auth');
         return;
       }
 
+      if (!this.password.trim()) {
+        this.errorMessage = '비밀번호를 입력해주세요.';
+        return;
+      }
+
+      this.isProcessing = true;
       try {
-        const response = await axios.post('http://localhost:8081/myInfo/check-password',
+        const response = await axios.post(
+            'http://localhost:8081/myInfo/check-password',
             { password: this.password },
             { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -81,13 +98,16 @@ export default {
         if (response.data.success) {
           this.showConfirmPopup = true;
         } else {
-          alert('비밀번호가 일치하지 않습니다.');
+          this.errorMessage = '비밀번호가 일치하지 않습니다.';
         }
       } catch (error) {
         console.error('비밀번호 확인 실패:', error);
-        alert('오류가 발생했습니다.');
+        this.errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+      } finally {
+        this.isProcessing = false;
       }
     },
+
     async confirmWithdrawal() {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -102,9 +122,7 @@ export default {
         });
 
         alert('회원 탈퇴가 완료되었습니다.');
-        localStorage.removeItem('token');
-        localStorage.removeItem('email');
-        localStorage.removeItem('nickname');
+        localStorage.clear();
 
         this.$store.commit('SET_LOGIN', {
           isLoggedIn: false,
@@ -121,9 +139,10 @@ export default {
         this.$router.push('/');
       } catch (error) {
         console.error('회원 탈퇴 실패:', error);
-        alert('오류가 발생했습니다.');
+        alert('회원 탈퇴에 실패했습니다. 다시 시도해주세요.');
       }
     },
+
     cancelWithdrawal() {
       this.showConfirmPopup = false;
     }
@@ -139,8 +158,8 @@ export default {
   text-align: left;
   padding: 2rem;
   position: relative;
-  top:50px;
-  left:-220px;
+  top: 50px;
+  left: -220px;
 }
 
 .change-info-container {
@@ -175,18 +194,15 @@ export default {
   font-size: 15px;
 }
 
-/* 새로 추가된 메시지 div 스타일 */
 .withdrawal-message {
-  margin-bottom: 1.5rem; /* 아래쪽 여백 추가 */
+  margin-bottom: 1.5rem;
 }
 
-/* 새로 추가된 경고 div 스타일 */
 .withdrawal-warning {
-  margin-bottom: 3rem; /* 아래쪽 여백 추가 */
+  margin-bottom: 3rem;
   color: #dddddd;
   font-size: 15px;
 }
-
 
 .withdrawal-form {
   display: flex;
@@ -232,6 +248,11 @@ export default {
   background-color: #f55050;
 }
 
+.submit-button:disabled {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+}
+
 .cancel-button {
   padding: 10px 20px;
   background-color: gray;
@@ -272,9 +293,14 @@ export default {
   gap: 20px;
 }
 
-/* CINIEVE 제목 스타일 */
 .disposable-css-title {
   color: red;
   font-weight: bold;
+}
+
+.error-message {
+  color: #f87171;
+  font-size: 14px;
+  margin-top: 5px;
 }
 </style>
