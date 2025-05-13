@@ -21,7 +21,7 @@
             <div style="font-size: 14px; margin-top: 5px; color: #dddddd">
               이름 변경 시, 중복되지 않게 설정해 주세요.
             </div>
-            
+
             <div v-if="errorMessage" style="font-size: 14px; margin-top: 5px; color: #f87171;">
               {{ errorMessage }}
             </div>

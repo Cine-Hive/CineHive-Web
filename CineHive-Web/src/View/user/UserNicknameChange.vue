@@ -18,7 +18,12 @@
                 placeholder="새 닉네임을 입력하세요"
                 class="input-field"
             />
-            <div style="font-size: 14px; margin-top: 7px; color: #dddddd">중복된 닉네임을 사용할 수 없으니, 확인하고 설정해 주세요.</div>
+            <div style="font-size: 14px; margin-top: 7px; color: #dddddd">
+              중복된 닉네임을 사용할 수 없으니, 확인하고 설정해 주세요.
+            </div>
+            <div v-if="errorMessage" style="font-size: 14px; margin-top: 5px; color: #f87171;">
+              {{ errorMessage }}
+            </div>
           </div>
           <button @click="submitChangeNickname" class="submit-button">닉네임 변경</button>
         </div>
@@ -37,44 +42,56 @@ export default {
   data() {
     return {
       newNickname: '',
+      errorMessage: ''
     }
   },
   methods: {
     async submitChangeNickname() {
+      this.errorMessage = ''; // 기존 메시지 초기화
+
       if (this.newNickname.trim().length < 1) {
-        alert('닉네임을 입력해주세요.');
+        const msg = '닉네임을 입력해주세요.';
+        alert(msg);
+        this.errorMessage = msg;
         return;
       }
 
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('로그인이 필요합니다.');
+        const msg = '로그인이 필요합니다.';
+        alert(msg);
+        this.errorMessage = msg;
         this.$router.push('/auth');
         return;
       }
 
       try {
-        await axios.put('http://localhost:8081/myInfo/change-nickname',
+        await axios.put(
+            'http://localhost:8081/myInfo/change-nickname',
             { newNickname: this.newNickname },
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
         alert('닉네임이 성공적으로 변경되었습니다.');
         this.$router.push('/mypage');
-
       } catch (error) {
         console.error('닉네임 변경 실패:', error);
 
         if (error.response) {
+          let msg = '';
           if (error.response.status === 409) {
-            alert('이미 사용 중인 닉네임입니다.');
+            msg = '이미 사용 중인 닉네임입니다.';
           } else if (error.response.data) {
-            alert(`닉네임 변경 실패: ${error.response.data}`);
+            msg = error.response.data;
           } else {
-            alert(`닉네임 변경 중 오류가 발생했습니다. (상태 코드: ${error.response.status})`);
+            msg = `닉네임 변경 중 오류가 발생했습니다. (상태 코드: ${error.response.status})`;
           }
+          alert(`닉네임 변경 실패: ${msg}`);
+          this.errorMessage = msg;
         } else {
-          alert('닉네임 변경 중 네트워크 오류가 발생했습니다.');
+          const msg = '닉네임 변경 중 네트워크 오류가 발생했습니다.';
+          alert(msg);
+          this.errorMessage = msg;
         }
       }
     }
