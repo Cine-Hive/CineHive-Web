@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import App from './App.vue';
 import router from './router/router';
-import store from './store/index.js';
+import store from './store/store';
 import '@fortawesome/fontawesome-free/css/all.css';
 import '@toast-ui/editor/dist/toastui-editor.css';
 import axios from "axios";

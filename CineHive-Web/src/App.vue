@@ -1,7 +1,9 @@
 <template>
   <div id="app">
+    <!-- 현재 경로의 메타 정보에 따라 헤더를 렌더링 -->
     <HeaderComponent v-if="!hideHeader" />
     <router-view/>
+    <!-- 현재 경로의 메타 정보에 따라 푸터를 렌더링 -->
     <FooterComponent v-if="!hideFooter" />
   </div>
 </template>
@@ -9,7 +11,6 @@
 <script>
 import HeaderComponent from './components/Header.vue';
 import FooterComponent from './components/Footer.vue';
-import { mapMutations } from 'vuex';
 
 export default {
   name: 'App',
@@ -25,24 +26,6 @@ export default {
       return this.$route.meta.hideFooter;
     }
   },
-  created() {
-    const token = localStorage.getItem('token');
-    if (token) {
-      this.$store.commit('SET_LOGIN', true);
-    } else {
-      this.handleAutoLogout();
-    }
-  },
-  methods: {
-    ...mapMutations(['SET_LOGOUT']),
-    handleAutoLogout() {
-      this.SET_LOGOUT();
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('user');
-      localStorage.removeItem('loginType');
-      localStorage.removeItem('token');
-    }
-  }
 }
 </script>
 
