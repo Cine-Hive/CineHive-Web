@@ -251,10 +251,9 @@ export default {
       const token = localStorage.getItem('token');
 
       if (!token) {
-        console.error('JWT 토큰이 없습니다. 로그인이 필요합니다.');
+        alert("로그인이 필요합니다.");
         return;
       }
-
       try {
         const disliked = this.isDisliked(boardId);
         if (disliked) {

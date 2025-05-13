@@ -324,10 +324,10 @@ export default {
   position: relative;
   top: 100px;
   left: 46%;
-  width: 90px;
+  width: 88px;
   height: 40px;
   background-color: #4a5855;
-  border-radius: 6px;
+  border-radius: 8px;
   color: white;
   font-size: 12px;
 }
