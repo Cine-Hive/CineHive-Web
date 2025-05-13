@@ -12,7 +12,7 @@ axios.interceptors.response.use(
     response => response,
     error => {
         if (error.response && error.response.status === 403) {
-            console.warn("⛔ 토큰 만료 감지, 자동 로그아웃 처리");
+            console.log("만료되었니다. 다시 로그인 해 주세요.")
 
             store.commit('SET_LOGOUT');
             localStorage.removeItem('isLoggedIn');
