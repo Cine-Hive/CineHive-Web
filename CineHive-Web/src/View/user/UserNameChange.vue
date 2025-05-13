@@ -18,7 +18,13 @@
                 placeholder="새 이름을 입력하세요"
                 class="input-field"
             />
-            <div style="font-size: 14px; margin-top: 5px; color: #dddddd">이름 변경 시, 중복되지 않게 설정해 주세요.</div>
+            <div style="font-size: 14px; margin-top: 5px; color: #dddddd">
+              이름 변경 시, 중복되지 않게 설정해 주세요.
+            </div>
+            
+            <div v-if="errorMessage" style="font-size: 14px; margin-top: 5px; color: #f87171;">
+              {{ errorMessage }}
+            </div>
           </div>
           <button @click="submitChange" class="submit-button">이름 변경</button>
         </div>
@@ -37,29 +43,49 @@ export default {
   data() {
     return {
       newName: '',
+      errorMessage: '',
     }
   },
   methods: {
     async submitChange() {
+      this.errorMessage = '';
+
       if (this.newName.trim().length < 1) {
-        alert('이름을 입력해주세요.');
+        const msg = '이름을 입력해주세요.';
+        alert(msg);
+        this.errorMessage = msg;
         return;
       }
+
       const token = localStorage.getItem('token');
       try {
-        await axios.put('http://localhost:8081/myInfo/change-memname',
+        await axios.put(
+            'http://localhost:8081/myInfo/change-memname',
             { newMemName: this.newName },
             { headers: { Authorization: `Bearer ${token}` } }
         );
+
         alert('이름이 성공적으로 변경되었습니다.');
         this.$router.push('/mypage');
       } catch (error) {
         console.error('이름 변경 실패:', error);
 
         if (error.response && error.response.data) {
-          alert(`이름 변경 실패: ${error.response.data}`);
+          let msg = '';
+
+          if (error.response.data.includes('중복')) {
+            msg = '중복된 이름입니다. 다시 입력 해 주세요.';
+          } else {
+            msg = error.response.data;
+          }
+
+          alert(`이름 변경 실패: ${msg}`);
+          this.errorMessage = msg;
+
         } else {
-          alert('이름 변경 중 알 수 없는 오류가 발생했습니다.');
+          const msg = '이름 변경 중 알 수 없는 오류가 발생했습니다.';
+          alert(msg);
+          this.errorMessage = msg;
         }
       }
     }
