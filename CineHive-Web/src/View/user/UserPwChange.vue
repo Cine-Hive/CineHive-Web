@@ -21,7 +21,9 @@
                 placeholder="현재 비밀번호를 입력하세요"
                 required
             />
+            <div v-if="errorOldPassword" class="error-message">{{ errorOldPassword }}</div>
           </div>
+
           <div class="form-group">
             <label for="new-password">새 비밀번호</label>
             <input
@@ -31,6 +33,7 @@
                 placeholder="새 비밀번호 (대문자 + 특수문자 포함)"
                 required
             />
+            <div v-if="errorNewPassword" class="error-message">{{ errorNewPassword }}</div>
           </div>
           <div>
             <span style="font-size: 14px; color: #cccccc"> 대,소문자 특수 문자를 포함하여 8자 이상으로 입력해 주세요.</span>
@@ -53,11 +56,29 @@ export default {
     return {
       oldPassword: '',
       newPassword: '',
+      errorOldPassword: '',
+      errorNewPassword: '',
     }
   },
   methods: {
     async handleChangePassword() {
+      this.errorOldPassword = '';
+      this.errorNewPassword = '';
+
       const token = localStorage.getItem('token');
+
+      if (this.oldPassword.length < 1) {
+        this.errorOldPassword = '현재 비밀번호를 입력해주세요.';
+        alert(this.errorOldPassword);
+        return;
+      }
+
+      if (this.newPassword.length < 8 || !/[A-Z]/.test(this.newPassword) || !/[^A-Za-z0-9]/.test(this.newPassword)) {
+        this.errorNewPassword = '대문자, 특수문자를 포함하여 8자 이상 입력해주세요.';
+        alert(this.errorNewPassword);
+        return;
+      }
+
       try {
         await axios.put('http://localhost:8081/myInfo/change-password', {
           oldPassword: this.oldPassword,
@@ -67,13 +88,19 @@ export default {
         });
 
         alert('비밀번호가 성공적으로 변경되었습니다.\n다시 로그인해주세요.');
-
-        // ✅ 성공 시: localStorage 비우고 로그인 페이지로 이동
         localStorage.clear();
         this.$router.push('/auth');
 
       } catch (error) {
-        alert('비밀번호 변경 실패: ' + (error.response?.data || error.message));
+        console.error('비밀번호 변경 실패:', error);
+        const message = error.response?.data || '비밀번호 변경 중 오류가 발생했습니다.';
+        alert(`비밀번호 변경 실패: ${message}`);
+
+        if (message.includes('현재 비밀번호')) {
+          this.errorOldPassword = message;
+        } else {
+          this.errorNewPassword = message;
+        }
       }
     }
   }
@@ -165,6 +192,12 @@ export default {
 
 .pw-change-form button:hover {
   background-color: #f55050;
+}
+
+.error-message {
+  font-size: 14px;
+  margin-top: 5px;
+  color: #f87171;
 }
 
 </style>
