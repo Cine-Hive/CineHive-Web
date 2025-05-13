@@ -1,6 +1,6 @@
 //BoardEditView.vue
 import axios from 'axios';
-import store from '@/store'
+import store from '@/store/store'
 import router from '@/router/router'
 
 const API_BASE_URL = 'http://localhost:8081';

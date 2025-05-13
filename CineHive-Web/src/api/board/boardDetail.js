@@ -1,6 +1,6 @@
 import axios from 'axios';
 import router from "@/router/router";
-import store from "@/store";
+import store from "@/store/store";
 
 const API_BASE_URL = 'http://localhost:8081';
 
