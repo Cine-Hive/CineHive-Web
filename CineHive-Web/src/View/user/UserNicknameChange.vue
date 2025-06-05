@@ -47,7 +47,7 @@ export default {
   },
   methods: {
     async submitChangeNickname() {
-      this.errorMessage = ''; // 기존 메시지 초기화
+      this.errorMessage = '';
 
       if (this.newNickname.trim().length < 1) {
         const msg = '닉네임을 입력해주세요.';
@@ -62,6 +62,12 @@ export default {
         alert(msg);
         this.errorMessage = msg;
         this.$router.push('/auth');
+        return;
+      }
+
+      const isConfirmed = confirm('정말로 닉네임을 변경하시겠습니까?');
+
+      if (!isConfirmed) {
         return;
       }
 
@@ -98,6 +104,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .change-info-wrapper {

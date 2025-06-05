@@ -31,7 +31,6 @@
 import axios from 'axios'
 import MyPageSidebar from "@/components/MyPageSideBar.vue";
 
-
 export default {
   name: 'UserSexChange',
   components: {MyPageSidebar},
@@ -47,17 +46,31 @@ export default {
         return;
       }
 
+      const isConfirmed = confirm('정말로 성별을 변경하시겠습니까?');
+
+      if (!isConfirmed) {
+        return;
+      }
+
       const token = localStorage.getItem('token');
       try {
         await axios.put('http://localhost:8081/myInfo/change-memsex',
             { newMemSex: this.newSex },
             { headers: { Authorization: `Bearer ${token}` } }
         );
+
         alert('성별이 성공적으로 변경되었습니다.');
         this.$router.push('/mypage');
+
       } catch (error) {
         console.error('성별 변경 실패:', error);
-        alert('성별 변경 실패');
+
+        if (error.response && error.response.data) {
+          let errorMessage = error.response.data.message || error.response.data || '알 수 없는 오류 발생';
+          alert(`성별 변경 실패: ${errorMessage}`);
+        } else {
+          alert('성별 변경 중 네트워크 오류가 발생했습니다.');
+        }
       }
     }
   }
