@@ -36,30 +36,34 @@
 
 
 <script>
-import axios from 'axios'
 import MyPageSidebar from "@/components/MyPageSideBar.vue";
+import { fetchUserProfile } from '@/api/user/mypage.js';
+
 export default {
   name: 'MyPage',
   components: {MyPageSidebar},
   data() {
     return {
       user: null,
+      errorMessage: null,
     }
   },
   methods: {
     async fetchUserInfo() {
+      this.errorMessage = null;
+
       const token = localStorage.getItem('token');
       if (!token) {
         console.error('로그인이 필요합니다.');
         return;
       }
+
       try {
-        const { data } = await axios.get('http://localhost:8081/myInfo/info', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        this.user = data;
+        const userData = await fetchUserProfile(token);
+        this.user = userData;
       } catch (error) {
         console.error('사용자 정보 가져오기 실패:', error);
+        this.errorMessage = error;
       }
     }
   },
@@ -68,6 +72,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 

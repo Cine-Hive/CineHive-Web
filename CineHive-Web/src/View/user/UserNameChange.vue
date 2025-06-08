@@ -34,24 +34,24 @@
 </template>
 
 <script>
-import axios from 'axios';
 import MyPageSidebar from "@/components/MyPageSideBar.vue";
+import { changeUserName } from '@/api/user/mypage.js';
 
 export default {
-  name: 'UserNicknameChange',
+  name: 'UserNameChange',
   components: {MyPageSidebar},
   data() {
     return {
-      newNickname: '',
+      newName: '',
       errorMessage: ''
     }
   },
   methods: {
-    async submitChangeNickname() {
+    async submitChange() {
       this.errorMessage = '';
 
-      if (this.newNickname.trim().length < 1) {
-        const msg = '닉네임을 입력해주세요.';
+      if (this.newName.trim().length < 1) {
+        const msg = '이름을 입력해주세요.';
         alert(msg);
         this.errorMessage = msg;
         return;
@@ -66,45 +66,45 @@ export default {
         return;
       }
 
-      const isConfirmed = confirm('정말로 닉네임을 변경하시겠습니까?');
+      const isConfirmed = confirm('정말로 이름을 변경하시겠습니까?');
 
       if (!isConfirmed) {
-        console.log('닉네임 변경이 취소되었습니다.');
+        console.log('이름 변경이 취소되었습니다.');
         return;
       }
 
       try {
-        await axios.put(
-            'http://localhost:8081/myInfo/change-nickname',
-            { newNickname: this.newNickname },
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await changeUserName(token, this.newName);
 
-        alert('닉네임이 성공적으로 변경되었습니다.');
+        alert('이름이 성공적으로 변경되었습니다.');
 
         this.$router.push('/mypage');
 
       } catch (error) {
-        console.error('닉네임 변경 실패:', error);
+        console.error('이름 변경 실패:', error);
+
+        const message = error || '이름 변경 중 오류가 발생했습니다.';
+
+        alert(`이름 변경 실패: ${message}`);
+        this.errorMessage = message;
 
         if (error.response) {
           let msg = '';
-
           if (error.response.status === 409) {
-            msg = '이미 사용 중인 닉네임입니다.';
+            msg = '이미 사용 중인 이름입니다.';
           } else if (error.response.data && typeof error.response.data === 'string') {
             msg = error.response.data;
           } else if (error.response.data && error.response.data.message) {
             msg = error.response.data.message;
           }
           else {
-            msg = `닉네임 변경 중 오류가 발생했습니다. (상태 코드: ${error.response.status})`;
+            msg = `이름 변경 중 오류가 발생했습니다. (상태 코드: ${error.response.status})`;
           }
-          alert(`닉네임 변경 실패: ${msg}`);
+          alert(`이름 변경 실패: ${msg}`);
           this.errorMessage = msg;
 
         } else {
-          const msg = '닉네임 변경 중 네트워크 오류가 발생했습니다.';
+          const msg = '이름 변경 중 네트워크 오류가 발생했습니다.';
           alert(msg);
           this.errorMessage = msg;
         }
@@ -113,6 +113,8 @@ export default {
   }
 }
 </script>
+
+
 <style scoped>
 .change-info-wrapper {
   background-color: black;

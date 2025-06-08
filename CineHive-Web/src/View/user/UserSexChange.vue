@@ -28,8 +28,8 @@
 </template>
 
 <script>
-import axios from 'axios'
 import MyPageSidebar from "@/components/MyPageSideBar.vue";
+import { changeUserSex } from '@/api/user/mypage.js';
 
 export default {
   name: 'UserSexChange',
@@ -49,15 +49,18 @@ export default {
       const isConfirmed = confirm('정말로 성별을 변경하시겠습니까?');
 
       if (!isConfirmed) {
+        console.log('성별 변경이 취소되었습니다.');
         return;
       }
 
       const token = localStorage.getItem('token');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
+
       try {
-        await axios.put('http://localhost:8081/myInfo/change-memsex',
-            { newMemSex: this.newSex },
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await changeUserSex(token, this.newSex);
 
         alert('성별이 성공적으로 변경되었습니다.');
         this.$router.push('/mypage');
@@ -76,6 +79,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .change-info-wrapper {

@@ -33,8 +33,8 @@
 </template>
 
 <script>
-import axios from 'axios';
 import MyPageSidebar from "@/components/MyPageSideBar.vue";
+import { changeUserNickname } from '@/api/user/mypage.js';
 
 export default {
   name: 'UserNicknameChange',
@@ -72,38 +72,23 @@ export default {
       }
 
       try {
-        await axios.put(
-            'http://localhost:8081/myInfo/change-nickname',
-            { newNickname: this.newNickname },
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await changeUserNickname(token, this.newNickname);
 
         alert('닉네임이 성공적으로 변경되었습니다.');
         this.$router.push('/mypage');
       } catch (error) {
         console.error('닉네임 변경 실패:', error);
 
-        if (error.response) {
-          let msg = '';
-          if (error.response.status === 409) {
-            msg = '이미 사용 중인 닉네임입니다.';
-          } else if (error.response.data) {
-            msg = error.response.data;
-          } else {
-            msg = `닉네임 변경 중 오류가 발생했습니다. (상태 코드: ${error.response.status})`;
-          }
-          alert(`닉네임 변경 실패: ${msg}`);
-          this.errorMessage = msg;
-        } else {
-          const msg = '닉네임 변경 중 네트워크 오류가 발생했습니다.';
-          alert(msg);
-          this.errorMessage = msg;
-        }
+        const message = error || '닉네임 변경 중 오류가 발생했습니다.';
+
+        alert(`닉네임 변경 실패: ${message}`);
+        this.errorMessage = message;
       }
     }
   }
 }
 </script>
+
 
 
 <style scoped>

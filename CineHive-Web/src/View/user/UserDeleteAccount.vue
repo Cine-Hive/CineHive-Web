@@ -57,8 +57,8 @@
 </template>
 
 <script>
-import axios from 'axios'
 import MyPageSidebar from "@/components/MyPageSideBar.vue";
+import { checkUserPasswordApi, deleteAccount } from '@/api/user/mypage.js';
 
 export default {
   name: 'DeleteAccount',
@@ -89,20 +89,16 @@ export default {
 
       this.isProcessing = true;
       try {
-        const response = await axios.post(
-            'http://localhost:8081/myInfo/check-password',
-            { password: this.password },
-            { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const responseData = await checkUserPasswordApi(token, this.password);
 
-        if (response.data.success) {
+        if (responseData.success) {
           this.showConfirmPopup = true;
         } else {
-          this.errorMessage = '비밀번호가 일치하지 않습니다.';
+          this.errorMessage = responseData.message || '비밀번호가 일치하지 않습니다.';
         }
       } catch (error) {
         console.error('비밀번호 확인 실패:', error);
-        this.errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+        this.errorMessage = error || '비밀번호 확인 중 오류가 발생했습니다.';
       } finally {
         this.isProcessing = false;
       }
@@ -117,29 +113,29 @@ export default {
       }
 
       try {
-        await axios.delete('http://localhost:8081/myInfo/delete-account', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await deleteAccount(token);
 
         alert('회원 탈퇴가 완료되었습니다.');
         localStorage.clear();
 
-        this.$store.commit('SET_LOGIN', {
-          isLoggedIn: false,
-          user: {
-            name: '',
-            nickname: '',
-            email: '',
-            preferredGenres: [],
-          },
-          token: '',
-          loginType: '',
-        });
+        if (this.$store && this.$store.commit) {
+          this.$store.commit('SET_LOGIN', {
+            isLoggedIn: false,
+            user: {
+              name: '',
+              nickname: '',
+              email: '',
+              preferredGenres: [],
+            },
+            token: '',
+            loginType: '',
+          });
+        }
 
         this.$router.push('/');
       } catch (error) {
         console.error('회원 탈퇴 실패:', error);
-        alert('회원 탈퇴에 실패했습니다. 다시 시도해주세요.');
+        alert(`회원 탈퇴에 실패했습니다: ${error || '알 수 없는 오류가 발생했습니다.'}`);
       }
     },
 
@@ -149,6 +145,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .change-info-wrapper {

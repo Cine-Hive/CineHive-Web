@@ -46,8 +46,8 @@
 </template>
 
 <script>
-import axios from 'axios'
 import MyPageSidebar from "@/components/MyPageSideBar.vue";
+import { changeUserPassword } from '@/api/user/mypage.js';
 
 export default {
   name: 'UserPwChange',
@@ -66,6 +66,10 @@ export default {
       this.errorNewPassword = '';
 
       const token = localStorage.getItem('token');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
 
       if (this.oldPassword.length < 1) {
         this.errorOldPassword = '현재 비밀번호를 입력해주세요.';
@@ -73,30 +77,36 @@ export default {
         return;
       }
 
-      if (this.newPassword.length < 8 || !/[A-Z]/.test(this.newPassword) || !/[^A-Za-z0-9]/.test(this.newPassword)) {
+      const passwordRegex = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
+      if (!passwordRegex.test(this.newPassword)) {
         this.errorNewPassword = '대문자, 특수문자를 포함하여 8자 이상 입력해주세요.';
         alert(this.errorNewPassword);
         return;
       }
 
+      const isConfirmed = confirm('정말로 비밀번호를 변경하시겠습니까? 변경 후 다시 로그인해야 합니다.');
+
+      if (!isConfirmed) {
+        console.log('비밀번호 변경이 취소되었습니다.');
+        return;
+      }
+
       try {
-        await axios.put('http://localhost:8081/myInfo/change-password', {
-          oldPassword: this.oldPassword,
-          newPassword: this.newPassword,
-        }, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await changeUserPassword(token, this.oldPassword, this.newPassword);
 
         alert('비밀번호가 성공적으로 변경되었습니다.\n다시 로그인해주세요.');
+
         localStorage.clear();
         this.$router.push('/auth');
 
       } catch (error) {
         console.error('비밀번호 변경 실패:', error);
-        const message = error.response?.data || '비밀번호 변경 중 오류가 발생했습니다.';
+
+        const message = error || '비밀번호 변경 중 오류가 발생했습니다.';
+
         alert(`비밀번호 변경 실패: ${message}`);
 
-        if (message.includes('현재 비밀번호')) {
+        if (message.includes('현재 비밀번호') || message.includes('일치하지')) {
           this.errorOldPassword = message;
         } else {
           this.errorNewPassword = message;
@@ -106,6 +116,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .pw-change-wrapper {
