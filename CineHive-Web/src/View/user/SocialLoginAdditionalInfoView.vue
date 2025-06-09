@@ -26,7 +26,7 @@
               <option value="female">여성</option>
               <option value="other">기타</option>
             </select>
-            <div class="gender-content">* 성별은 필수 입력이 아니니, 기입하지 않으셔도 됩니다.</div>
+            <div class="gender-content">* 귀하의 성별을 입력해 주세요.<span style="font-size: 12px; color: red; position: relative; left:10px;">(선택사항)</span></div>
           </div>
         </transition>
 
@@ -35,7 +35,7 @@
           <div v-if="step === 2" class="form-group-signup">
             <label class="step-label">이름을 입력하세요</label>
             <input type="text" id="name" class="input-field" placeholder="이름" v-model="memName" />
-            <div class="name-content">* 이름은 필수 입력이 아니니, 기입하지 않으셔도 됩니다.</div>
+            <div class="name-content">* 귀하의 이름을 입력해 주세요. .<span style="font-size: 12px; color: red; position: relative; left:10px;">(선택사항)</span></div>
           </div>
         </transition>
 
