@@ -2,38 +2,70 @@
   <div id="add-info">
     <div id="additional-info-container" class="container">
       <h1 class="signup-title">CINEHIVE</h1>
-      <form @submit.prevent="submitAdditionalInfo" class="form">
-        <div class="form-group-signup">
-          <input type="text" id="name" class="input-field" placeholder="이름" v-model="memName" />
-        </div>
-        <div class="form-group-signup">
-          <select id="gender" class="input-field" v-model="memSex">
-            <option value="" disabled selected>성별</option>
-            <option value="male">남성</option>
-            <option value="female">여성</option>
-            <option value="other">기타</option>
-          </select>
-        </div>
 
-        <label style="position: relative; left:-150px; font-size: 13px; font-weight: bolder">Preferred Genres</label>
-        <div class="genre-images-container">
-          <div class="genre-item" @click="toggleGenre('드라마')">
-            <img :src="require('@/assets/genre/drama.jpg')" alt="드라마" class="genre-image" width="120" height="110">
-            <span class="genre-label">드라마</span>
-            <div v-if="selectedGenres.includes('드라마')" class="checkmark">✔</div>
-          </div>
-          <div class="genre-item" @click="toggleGenre('애니메이션')">
-            <img :src="require('@/assets/genre/Animation.jpg')" alt="애니메이션" class="genre-image" width="140" height="110">
-            <span class="genre-label">애니메이션</span>
-            <div v-if="selectedGenres.includes('애니메이션')" class="checkmark">✔</div>
-          </div>
-          <div class="genre-item" @click="toggleGenre('영화')">
-            <img :src="require('@/assets/genre/movie.png')" alt="영화" class="genre-image" width="110" height="145">
-            <span class="genre-label">영화</span>
-            <div v-if="selectedGenres.includes('영화')" class="checkmark">✔</div>
-          </div>
+      <!-- 진행 상태 -->
+      <div class="step-progress">
+        <div class="progress-text">{{ step }}/3</div>
+        <div class="progress-bar">
+          <div class="progress-fill" :style="{ width: (step * 33.3) + '%' }"></div>
         </div>
-        <button type="submit" :disabled="!userInfo" class="submit-btn">회원가입</button>
+        <div class="step-message">
+          <span v-if="step === 2">거의 다 기입하셨어요!</span>
+          <span v-if="step === 3">마지막 단계입니다!</span>
+        </div>
+      </div>
+
+      <form @submit.prevent="submitAdditionalInfo" class="form">
+
+        <!-- STEP 1 -->
+        <transition name="fade">
+          <div v-if="step === 1" class="form-group-signup">
+            <label class="step-label">성별을 입력하세요</label>
+            <select id="gender" class="input-field" v-model="memSex">
+              <option value="" disabled>성별 선택</option>
+              <option value="male">남성</option>
+              <option value="female">여성</option>
+              <option value="other">기타</option>
+            </select>
+            <div class="gender-content">* 성별은 필수 입력이 아니니, 기입하지 않으셔도 됩니다.</div>
+          </div>
+        </transition>
+
+        <!-- STEP 2 -->
+        <transition name="fade">
+          <div v-if="step === 2" class="form-group-signup">
+            <label class="step-label">이름을 입력하세요</label>
+            <input type="text" id="name" class="input-field" placeholder="이름" v-model="memName" />
+            <div class="name-content">* 이름은 필수 입력이 아니니, 기입하지 않으셔도 됩니다.</div>
+          </div>
+        </transition>
+
+        <!-- STEP 3 -->
+        <transition name="fade">
+          <div v-if="step === 3" class="form-group-signup">
+            <label class="step-label">선호하는 장르를 선택하세요</label>
+            <div class="genre-text-container">
+              <div
+                  v-for="genre in genres"
+                  :key="genre"
+                  class="genre-text-item"
+                  :class="{ selected: selectedGenres.includes(genre) }"
+                  @click="toggleGenre(genre)"
+              >
+                {{ genre }}
+              </div>
+            </div>
+            <div class="name-content">* 선호하는 장르를 선택하시면, 추천받으실 수 있습니다. <span style="color: red; font-size: 12px; position: relative; left:10px;">중복 가능</span></div>
+          </div>
+        </transition>
+
+
+        <!-- 버튼 -->
+        <div class="button-group">
+          <button v-if="step > 1" type="button" class="submit-btn" @click="step--">이전</button>
+          <button v-if="step < 3" type="button" class="submit-btn" @click="goToNextStep">다음</button>
+          <button v-if="step === 3" type="submit" :disabled="!userInfo" class="submit-btn">회원가입</button>
+        </div>
       </form>
     </div>
   </div>
@@ -45,23 +77,23 @@ import { getUserInfo, registerUser } from '@/api/user/userAddInfo';
 export default {
   data() {
     return {
+      step: 1,
       memName: '',
       memSex: '',
       userInfo: null,
       selectedGenres: [],
-      loginType: '' // 초기값 설정
+      loginType: '',
+      genres: ['TV', '애니메이션', '영화']
     };
   },
   created() {
     this.loginType = this.$route.query.loginType;
-    console.log('로그인 타입:', this.loginType);
     this.loadUserInfo();
   },
   methods: {
     async loadUserInfo() {
       try {
         this.userInfo = await getUserInfo(this.loginType);
-
         this.$store.commit('SET_LOGIN', {
           isLoggedIn: true,
           user: this.userInfo
@@ -71,15 +103,11 @@ export default {
       }
     },
 
+    goToNextStep() {
+      this.step++;
+    },
+
     async submitAdditionalInfo() {
-      if (!this.memName) {
-        alert('이름을 입력해 주세요.');
-        return;
-      }
-      if (!this.memSex) {
-        alert('성별을 선택해 주세요.');
-        return;
-      }
       if (!this.selectedGenres.length) {
         alert('최소 하나의 장르를 선택해 주세요.');
         return;
@@ -95,14 +123,11 @@ export default {
           memPassword: '0'
         };
 
-        console.log("회원가입 요청 데이터:", userData);
-
         const response = await registerUser(this.loginType, userData);
         this.$store.commit('SET_USER', response.user);
 
         alert('회원가입에 성공하셨습니다. 다시 로그인해주세요.');
         this.$router.push('/auth');
-
       } catch (error) {
         alert('정보 제출 중 오류가 발생했습니다. 다시 시도해 주세요.');
       }
@@ -115,92 +140,122 @@ export default {
       } else {
         this.selectedGenres.splice(index, 1);
       }
-
-      console.log('Selected genres:', this.selectedGenres);
     }
-  },
+  }
 };
 </script>
 
 <style scoped>
+/* 전체 배경 */
 #add-info {
-  background-color: #393636;
+  background-color: #111;
   display: flex;
   height: 100vh;
   justify-content: center;
   align-items: center;
 }
-.container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 130px;
-  background-color: #393636;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(20, 1, 20, 50);
+
+
+
+.form-group-signup{
+  position: relative;
+  top:-150px;
 }
 
-h1 {
+.step-label{
+  color: #cccccc;
+  font-size: 14px;
+}
+
+/* 제목 */
+.signup-title {
   text-align: center;
+  color: #e50914;
+  font-size: 32px;
+  font-weight: bold;
   margin-bottom: 20px;
-  color: #333;
+  position: relative;
+  top:-200px;
 }
 
+/* 진행 바 */
+.step-progress {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+  top:-200px;
+}
+
+.progress-text {
+  font-size: 18px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  width: 80%;
+  height: 8px;
+  background-color: #555;
+  border-radius: 4px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e50914, #f5c518);
+  width: 0%;
+  transition: width 0.5s ease-in-out;
+}
+
+.step-message {
+  color: #f5c518;
+  font-size: 14px;
+  margin-top: 6px;
+}
+.gender-content{
+  position: relative;
+  top:100px;
+  color: #cccccc;
+  font-size: 14px;
+}
+
+.name-content{
+  position: relative;
+  top:100px;
+  color: #cccccc;
+  font-size: 14px;
+}
+/* 폼 */
 .form {
   display: flex;
   flex-direction: column;
 }
 
-.input-group input,
-.input-group select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ced4da;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-.input-group select {
-  cursor: pointer;
-}
-
-.submit-btn {
-  margin-top: 10px;
-  background-color: #d95a15;
-  width: 140px;
-  height: 50px;
-  font-size: 13px;
-  font-weight: bolder;
-  color: white;
+/* 입력 필드 */
+.input-field {
+  width: 110%;
+  padding: 12px;
   border: none;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-  position: relative;
-  top: 40px;
-  margin: auto;
-}
-.submit-btn:hover {
-  background-color: peru;
-  cursor: pointer;
-}
-
-.signup-title {
-  margin-bottom: 20px;
-  color: #F50000;
-  font-size: 25px;
-  position: relative;
-  top: -60px;
-}
-
-.genre-label {
+  border-radius: 6px;
+  background-color: #333;
+  color: #fff;
   margin-top: 10px;
-  font-size: 16px;
-  color: #555;
+  font-size: 14px;
+  position: relative;
+  left:-3%;
+  top:20px;
 }
 
+.input-field:focus {
+  outline: 2px solid #e50914;
+}
+
+/* 장르 선택 */
 .genre-images-container {
   display: flex;
   justify-content: space-around;
-  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 .genre-item {
@@ -208,47 +263,84 @@ h1 {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  transition: transform 0.3s;
-  margin: 10px;
-}
-
-.genre-item:hover {
-  transform: scale(1.05);
+  position: relative;
 }
 
 .genre-image {
   border-radius: 10px;
+  width: 120px;
+  height: 110px;
+  object-fit: cover;
+  transition: transform 0.3s;
 }
 
-.form-group-signup {
-  margin-bottom: 30px;
-  width: 60%;
-  position: relative;
-  margin: auto;
+.genre-item:hover .genre-image {
+  transform: scale(1.1);
 }
 
-.input-field {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f0f8ff;
-  color: #333;
-  transition: border-color 0.3s;
-  font-size: 13px;
-  margin-bottom: 30px;
-  position: relative;
-  top: -20px;
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* 원하는 간격(px 단위, 필요시 조절) */
+  margin-top: 20px;
 }
 
-.input-field:focus {
-  border-color: #007bff;
-  outline: none;
+/* 버튼 */
+.submit-btn {
+  background: linear-gradient(to right, #e50914, #b81d24);
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 20px;
+  margin: 20px auto 0;
+  width: 140px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.error-message {
-  font-size: 13px;
-  position: relative;
-  top: -40px;
+.submit-btn:hover {
+  background-color: #ff3d00;
+  transform: scale(1.05);
+  cursor: pointer;
 }
+/* 기존 이미지 기반 장르 관련 제거 */
+.genre-images-container {
+  display: none;
+}
+
+/* 텍스트 기반 장르 선택 */
+.genre-text-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.genre-text-item {
+  padding: 12px 20px;
+  background-color: #333;
+  color: #ccc;
+  border-radius: 15px;
+  border: 2px solid transparent;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.genre-text-item:hover {
+  background-color: #444;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.genre-text-item.selected {
+  background: linear-gradient(to right, #e50914, #f5c518);
+  color: #fff;
+  font-weight: bold;
+  border-color: #f5c518;
+}
+
 </style>
