@@ -175,7 +175,7 @@ export default {
   font-weight: bold;
   margin-bottom: 20px;
   position: relative;
-  top:-200px;
+  top:-250px;
 }
 
 /* 진행 바 */
