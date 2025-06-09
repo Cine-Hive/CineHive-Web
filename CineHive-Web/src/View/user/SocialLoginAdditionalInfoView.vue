@@ -3,7 +3,6 @@
     <div id="additional-info-container" class="container">
       <h1 class="signup-title">CINEHIVE</h1>
 
-      <!-- 진행 상태 -->
       <div class="step-progress">
         <div class="progress-text">{{ step }}/3</div>
         <div class="progress-bar">
@@ -155,8 +154,6 @@ export default {
   align-items: center;
 }
 
-
-
 .form-group-signup{
   position: relative;
   top:-150px;
@@ -167,7 +164,6 @@ export default {
   font-size: 14px;
 }
 
-/* 제목 */
 .signup-title {
   text-align: center;
   color: #e50914;
@@ -178,7 +174,6 @@ export default {
   top:-250px;
 }
 
-/* 진행 바 */
 .step-progress {
   text-align: center;
   margin-bottom: 30px;
@@ -226,13 +221,12 @@ export default {
   color: #cccccc;
   font-size: 14px;
 }
-/* 폼 */
+
 .form {
   display: flex;
   flex-direction: column;
 }
 
-/* 입력 필드 */
 .input-field {
   width: 110%;
   padding: 12px;
@@ -251,42 +245,14 @@ export default {
   outline: 2px solid #e50914;
 }
 
-/* 장르 선택 */
-.genre-images-container {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 20px;
-}
-
-.genre-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  position: relative;
-}
-
-.genre-image {
-  border-radius: 10px;
-  width: 120px;
-  height: 110px;
-  object-fit: cover;
-  transition: transform 0.3s;
-}
-
-.genre-item:hover .genre-image {
-  transform: scale(1.1);
-}
-
 
 .button-group {
   display: flex;
   justify-content: center;
-  gap: 20px; /* 원하는 간격(px 단위, 필요시 조절) */
+  gap: 20px;
   margin-top: 20px;
 }
 
-/* 버튼 */
 .submit-btn {
   background: linear-gradient(to right, #e50914, #b81d24);
   color: white;
@@ -305,12 +271,7 @@ export default {
   transform: scale(1.05);
   cursor: pointer;
 }
-/* 기존 이미지 기반 장르 관련 제거 */
-.genre-images-container {
-  display: none;
-}
 
-/* 텍스트 기반 장르 선택 */
 .genre-text-container {
   display: flex;
   justify-content: center;
