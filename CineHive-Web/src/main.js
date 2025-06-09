@@ -11,7 +11,7 @@ Vue.config.productionTip = false;
 axios.interceptors.response.use(
     response => response,
     error => {
-        if (error.response && error.response.status === 403) {
+        if (error.response && error.response.status === 401) {
             console.log("만료되었니다. 다시 로그인 해 주세요.")
 
             store.commit('SET_LOGOUT');
