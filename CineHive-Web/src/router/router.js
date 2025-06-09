@@ -41,7 +41,7 @@ const routes = [
     {
         path: '/additional-info',
         component: SocialLoginAdditionalInfo,
-        meta: {hideHeader: true}
+        meta: {hideHeader: true, hideFooter: true}
     },
     {
         path: '/search',
