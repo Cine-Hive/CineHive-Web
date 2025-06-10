@@ -26,7 +26,7 @@
               <option value="female">여성</option>
               <option value="other">기타</option>
             </select>
-            <div class="gender-content">* 귀하의 성별을 입력해 주세요.<span style="font-size: 12px; color: red; position: relative; left:10px;">(선택사항)</span></div>
+            <div class="gender-content">* 귀하의 성별을 입력해 주세요.<span class="additionalinfo-content">(선택사항)</span></div>
           </div>
         </transition>
 
@@ -35,7 +35,7 @@
           <div v-if="step === 2" class="form-group-signup">
             <label class="step-label">이름을 입력하세요</label>
             <input type="text" id="name" class="input-field" placeholder="이름" v-model="memName" />
-            <div class="name-content">* 귀하의 이름을 입력해 주세요. .<span style="font-size: 12px; color: red; position: relative; left:10px;">(선택사항)</span></div>
+            <div class="name-content">* 귀하의 이름을 입력해 주세요.<span class="additionalinfo-content">(선택사항)</span></div>
           </div>
         </transition>
 
@@ -54,7 +54,7 @@
                 {{ genre }}
               </div>
             </div>
-            <div class="name-content">* 선호하는 장르를 선택하시면, 추천받으실 수 있습니다. <span style="color: red; font-size: 12px; position: relative; left:10px;">중복 가능</span></div>
+            <div class="name-content">* 선호하는 장르를 선택하시면, 추천받으실 수 있습니다. <span class="additionalinfo-content">(필수 사항)</span></div>
           </div>
         </transition>
 
@@ -178,7 +178,7 @@ export default {
   text-align: center;
   margin-bottom: 30px;
   position: relative;
-  top:-200px;
+  top:-230px;
 }
 
 .progress-text {
@@ -208,6 +208,7 @@ export default {
   font-size: 14px;
   margin-top: 6px;
 }
+
 .gender-content{
   position: relative;
   top:100px;
@@ -245,12 +246,18 @@ export default {
   outline: 2px solid #e50914;
 }
 
-
 .button-group {
   display: flex;
   justify-content: center;
   gap: 20px;
   margin-top: 20px;
+}
+
+.additionalinfo-content{
+  font-size: 12px;
+  color: red;
+  position: relative;
+  left:10px;
 }
 
 .submit-btn {
@@ -304,4 +311,50 @@ export default {
   border-color: #f5c518;
 }
 
+#additional-info-container {
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  width: 600px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e50914, #f5c518);
+  animation: progress-animation 2s infinite;
+  box-shadow: 0 0 10px #e50914;
+  transition: width 0.5s ease-in-out;
+}
+
+@keyframes progress-animation {
+  0% { background-position: 0% }
+  100% { background-position: 100% }
+}
+
+.input-field {
+  transition: all 0.3s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.4);
+  background-color: #222;
+}
+
+.submit-btn {
+  box-shadow: 0 4px 20px rgba(229, 9, 20, 0.3);
+}
+
+.submit-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 25px rgba(229, 9, 20, 0.5);
+}
+
+#add-info {
+  background: radial-gradient(circle at top, #111 0%, #000 100%);
+}
 </style>
