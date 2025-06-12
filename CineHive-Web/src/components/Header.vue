@@ -9,7 +9,7 @@
         <ul style="cursor: pointer">
           <li @click="goToAnimationsList" >Animation</li>
           <li @click="goToMoviesList" >Movie</li>
-          <li @click="goToDramasList">Drama</li>
+          <li @click="goToDramasList">TV</li>
           <li @click="goToBoardList" >Community</li>
           <li >My List</li>
         </ul>
